@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <entry key="version"><![CDATA[<html>
+    <h3>Version 1b3:</h3>
+    <ul>
+        <li>ADDED run on startup via registry (windows)</li>
+        <li>ADDED finances as an optional feature</li>
+        <li>ADDED earning report in finances</li>
+    </ul>
+
+    <h3>Version 1b2:</h3>
+    <ul>
+        <li>ADDED report caching</li>
+        <li>ADDED multitag support</li>
+        <li>ADDED view project report by double clicking</li>
+        <li>ADDED custom ui design</li>
+        <li>CHANGED overview report into dashboard</li>
+        <li>CHANGED logging granularity to 15 seconds</li>
+        <li>CHANGED AFK timeout unit to minutes</li>
+        <li>MOVED data actions to control panel</li>
+    </ul>
+    NOTE: Data format has been updated. If you migrated from v1b1, all categories<br>
+    and config data will be reset. If you make a new Project in v1b2+, project data<br>
+    format will be updated and is no longer compatible with v1b1.
+
+    <h3>Version 1b1:</h3>
+    <ul>
+        <li>FIXED reporting bug showing only one day and month</li>
+        <li>ADDED edit and delete project function</li>
+        <li>ADDED loading bar and background task</li>
+        <li>ADDED tabbed interface</li>
+        <li>ADDED privacy control</li>
+    </ul>
+
+    <h3>Version 1b:</h3>
+    initial closed beta release
+ </html>]]></entry>
+</properties>
