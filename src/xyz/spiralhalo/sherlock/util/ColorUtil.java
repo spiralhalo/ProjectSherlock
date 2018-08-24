@@ -3,6 +3,9 @@ package xyz.spiralhalo.sherlock.util;
 import java.awt.*;
 
 public class ColorUtil {
+    public static Color bad = new Color(230,124,115);
+    public static Color neu = new Color(255,214,102);
+    public static Color gut = new Color(87,187,138);
     public static Color light_gray = new Color(225,225,225);
     public static Color gray = new Color(160,160,160);
 

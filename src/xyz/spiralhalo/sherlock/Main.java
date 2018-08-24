@@ -4,16 +4,23 @@ import com.jgoodies.looks.windows.WindowsLookAndFeel;
 import org.jfree.data.category.DefaultCategoryDataset;
 import xyz.spiralhalo.sherlock.persist.cache.CacheId;
 import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
+import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
+import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt;
+import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode;
 import xyz.spiralhalo.sherlock.report.*;
 import xyz.spiralhalo.sherlock.report.persist.AllReportRows;
 import xyz.spiralhalo.sherlock.report.persist.ChartMeta;
 import xyz.spiralhalo.sherlock.report.persist.DateList;
 import xyz.spiralhalo.sherlock.report.persist.ReportRows;
+import xyz.spiralhalo.sherlock.util.ColorUtil;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 
 import javax.swing.*;
 import java.awt.*;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
+
+import static xyz.spiralhalo.sherlock.util.ColorUtil.*;
 
 public class Main implements MainView{
     public static final String APP_NAME = "Project Sherlock 2";
@@ -108,21 +115,29 @@ public class Main implements MainView{
         comboCharts.setSelectedIndex(comboCharts.getModel().getSize()-1);
     }
 
-    public void refreshChart(CacheMgr cache){
-        DateSelectorEntry selected = (DateSelectorEntry)comboCharts.getSelectedItem();
-        if(selected==null)return;
-        final DefaultCategoryDataset dataset = cache.getObj(CacheId.ChartData(selected.date),DefaultCategoryDataset.class);
+    public void refreshChart(CacheMgr cache) {
+        DateSelectorEntry selected = (DateSelectorEntry) comboCharts.getSelectedItem();
+        if (selected == null) return;
+        final DefaultCategoryDataset dataset = cache.getObj(CacheId.ChartData(selected.date), DefaultCategoryDataset.class);
         final ChartMeta meta = cache.getObj(CacheId.ChartMeta(selected.date), ChartMeta.class);
         panelChart.removeAll();
-        if(dataset==null || meta == null)return;
-        panelChart.setPreferredSize(new Dimension(-1,270));
+        if (dataset == null || meta == null) return;
+        panelChart.setPreferredSize(new Dimension(-1, 270));
         panelChart.add(Charts.createDayBarChart(dataset, meta, ZonedDateTime.now()));
         panelChart.updateUI();
-        lblLogged.setText(String.format("Logged: %s",FormatUtil.hms(meta.logDur)));
-        lblWorktime.setText(String.format("Project: %s",FormatUtil.hms(meta.workDur)));
-        lblRatio.setText(String.format("Rating: %d%%",meta.workDur*100/meta.logDur));
-        btnPrevChart.setEnabled(comboCharts.getSelectedIndex()>0);
-        btnNextChart.setEnabled(comboCharts.getSelectedIndex()<comboCharts.getItemCount()-1);
+        int target = UserConfig.getInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND);
+        int ratio = meta.logDur < target ? meta.workDur * 100 / meta.logDur : meta.workDur * 100 / target;
+        lblLogged.setText(String.format("Logged: %s", FormatUtil.hms(meta.logDur)));
+        lblWorktime.setText(String.format("Project: %s", FormatUtil.hms(meta.workDur)));
+        if(UserConfig.isWorkDay(selected.date.get(ChronoField.DAY_OF_WEEK))) {
+            lblRatio.setText(String.format("Rating: %d%%", ratio));
+            lblRatio.setForeground(multiply(gray, interpolateNicely((float) ratio / 100f, bad, neu, gut)));
+        } else {
+            lblRatio.setText(String.format("Rating: %d%% (holiday)", ratio));
+            lblRatio.setForeground(gray);
+        }
+        btnPrevChart.setEnabled(comboCharts.getSelectedIndex() > 0);
+        btnNextChart.setEnabled(comboCharts.getSelectedIndex() < comboCharts.getItemCount() - 1);
     }
 
     public long getSelectedProject(){

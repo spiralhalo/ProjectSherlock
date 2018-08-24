@@ -149,7 +149,7 @@ public class Settings extends JDialog {
         buttonCancel.addActionListener(e -> onCancel());
         btnDefTracking.addActionListener(e -> defaultTracking());
         btnDefApp.addActionListener(e -> defaultApp());
-        resetSlider(sliderTarget, 2, 5*2, 12*2, 15*60);
+        resetSlider(sliderTarget, 4, 5*4, 12*4, 15*60);
         resetSlider(sliderTimeout, 1, 5, 30, 60);
         resetSlider(sliderAutoRefresh, 1, 10, 30, 60);
         bindTimeSlider(sliderTarget, lblTarget);

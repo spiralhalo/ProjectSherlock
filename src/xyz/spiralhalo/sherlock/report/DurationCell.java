@@ -11,9 +11,6 @@ import java.awt.*;
 import static xyz.spiralhalo.sherlock.util.ColorUtil.*;
 
 public class DurationCell extends DefaultTableCellRenderer {
-    private static Color bad = new Color(230,124,115);
-    private static Color neu = new Color(255,214,102);
-    private static Color gut = new Color(87,187,138);
     private static Color foreground = new Color(0,0,0);
     private boolean target;
 
