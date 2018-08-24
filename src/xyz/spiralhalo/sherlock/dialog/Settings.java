@@ -15,9 +15,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Component;
 import java.awt.event.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class Settings extends JDialog {
@@ -57,29 +55,26 @@ public class Settings extends JDialog {
         private final HashMap<JComboBox, Supplier<Integer>> comboBoxes = new HashMap<>();
         private final HashMap<JCheckBox, Supplier<Boolean>> checkBoxes = new HashMap<>();
         private final JButton buttonApply;
-        private final ChangeListener x = this::stateChanged;
-        private final ItemListener y = this::itemStateChanged;
 
         ApplyButtonEnabler(JButton buttonApply) {
             this.buttonApply = buttonApply;
         }
 
-        void itemStateChanged(ItemEvent e) { if(!adjusting){ futureAdjust(); } }
-        void stateChanged(ChangeEvent e) { if(!adjusting){ futureAdjust(); } }
+        void changed(EventObject e) { if(!adjusting){ futureAdjust(); } }
 
         void addSlider(JSlider slider, Supplier<Integer> valueSupplier){
             sliders.put(slider, valueSupplier);
-            slider.addChangeListener(x);
+            slider.addChangeListener(this::changed);
         }
 
         void addCheckBox(JCheckBox checkBox, Supplier<Boolean> valueSupplier){
             checkBoxes.put(checkBox, valueSupplier);
-            checkBox.addItemListener(y);
+            checkBox.addItemListener(this::changed);
         }
 
         void addComboBox(JComboBox checkBox, Supplier<Integer> valueSupplier){
             comboBoxes.put(checkBox, valueSupplier);
-            checkBox.addItemListener(y);
+            checkBox.addItemListener(this::changed);
         }
 
         private void futureAdjust(){
@@ -154,12 +149,12 @@ public class Settings extends JDialog {
         buttonCancel.addActionListener(e -> onCancel());
         btnDefTracking.addActionListener(e -> defaultTracking());
         btnDefApp.addActionListener(e -> defaultApp());
-        resetSlider(sliderTarget, 60, 60*5, 60*12);
-        resetSlider(sliderTimeout, 60, 60*5, 60*30);
-        resetSlider(sliderAutoRefresh, 60, 60*10, 60*30);
-        bindTimeSlider(sliderTarget, lblTarget, 60);
-        bindTimeSlider(sliderTimeout, lblTimeout, 1);
-        bindTimeSlider(sliderAutoRefresh, lblAutoRefresh, 1);
+        resetSlider(sliderTarget, 2, 5*2, 12*2, 15*60);
+        resetSlider(sliderTimeout, 1, 5, 30, 60);
+        resetSlider(sliderAutoRefresh, 1, 10, 30, 60);
+        bindTimeSlider(sliderTarget, lblTarget);
+        bindTimeSlider(sliderTimeout, lblTimeout);
+        bindTimeSlider(sliderAutoRefresh, lblAutoRefresh);
 
         contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
@@ -176,16 +171,37 @@ public class Settings extends JDialog {
         init();
     }
 
-    private void resetSlider(JSlider slider, int min, int value, int max){
-        slider.setMinimum(min);
-        slider.setMaximum(max);
-        slider.setValue(value);
+    private void resetSlider(JSlider slider, int min, int value, int max, int multiplier){
+        slider.setMinimum(min*multiplier);
+        slider.setMaximum(max*multiplier);
+        slider.setValue(value*multiplier);
+        slider.setMinorTickSpacing(multiplier);
+        switch (multiplier){
+            case 1:
+                slider.setMajorTickSpacing(10);
+                break;
+            case 60:
+                slider.setMajorTickSpacing(5*60);
+                break;
+            case 60*15:
+            case 60*30:
+                slider.setMajorTickSpacing(60*60);
+                break;
+            case 60*60:
+                slider.setMajorTickSpacing(2*60*60);
+                break;
+            default:
+                slider.setMajorTickSpacing(multiplier*2);
+                break;
+        }
+        slider.setSnapToTicks(true);
+        slider.setPaintTicks(true);
     }
 
-    private void bindTimeSlider(JSlider slider, JLabel label, int multiplier){
+    private void bindTimeSlider(JSlider slider, JLabel label){
         slider.addChangeListener(e->label.setText(String.format("%s",
-                FormatUtil.hmsLong(slider.getValue()*multiplier))));
-        label.setText(String.format("%s", FormatUtil.hmsLong(slider.getValue()*multiplier)));
+                FormatUtil.hmsLong(slider.getMinorTickSpacing()*(slider.getValue()/slider.getMinorTickSpacing())))));
+        label.setText(String.format("%s", FormatUtil.hmsLong(slider.getMinorTickSpacing()*(slider.getValue()/slider.getMinorTickSpacing()))));
     }
 
     public boolean getResult(){
@@ -200,7 +216,7 @@ public class Settings extends JDialog {
         bind(comboHMSMode, ()->AppConfig.getHMSMode()==HMSMode.COLON?0:1);
         bind(sliderAutoRefresh, ()->AppConfig.getInt(AppInt.REFRESH_TIMEOUT));
         bind(sliderTimeout, ()->UserConfig.getInt(UserNode.TRACKING, UserInt.AFK_TIMEOUT_SECOND));
-        bind(sliderTarget, ()->UserConfig.getInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND)/60);
+        bind(sliderTarget, ()->UserConfig.getInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND));
         for (int i = 0; i < days.length; i++) {
             final int z = i;
             bind(days[z], ()->UserConfig.isWorkDay(z));
@@ -233,7 +249,7 @@ public class Settings extends JDialog {
 
     private void defaultTracking() {
         sliderTimeout.setValue(UserConfig.defaultInt(UserNode.TRACKING, UserInt.AFK_TIMEOUT_SECOND));
-        sliderTarget.setValue(UserConfig.defaultInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND)/60);
+        sliderTarget.setValue(UserConfig.defaultInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND));
         for (int i = 0; i < days.length; i++) { days[i].setSelected(UserConfig.defaultWorkDay(i)); }
     }
 
@@ -246,8 +262,9 @@ public class Settings extends JDialog {
         AppConfig.setHMSMode(comboHMSMode.getSelectedIndex()==0?HMSMode.COLON:HMSMode.STRICT);
         AppConfig.setInt(AppInt.REFRESH_TIMEOUT, sliderAutoRefresh.getValue());
         UserConfig.setInt(UserNode.TRACKING, UserInt.AFK_TIMEOUT_SECOND, sliderTimeout.getValue());
-        UserConfig.setInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND, sliderTarget.getValue()*60);
+        UserConfig.setInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND, sliderTarget.getValue());
         for (int i = 0; i < days.length; i++) { UserConfig.setWorkDay(i, days[i].isSelected()); }
+        buttonApply.setEnabled(false);
         SysIntegration.createOrDeleteStartupRegistry();
     }
 
