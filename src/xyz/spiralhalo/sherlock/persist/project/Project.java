@@ -42,7 +42,7 @@ public class Project implements Serializable {
         Random rnd1 = new Random(MurmurHash.hash64(name));
         float r1 = rnd1.nextFloat();
         float r2 = new Random(MurmurHash.hash64(category)).nextFloat();
-        return Color.HSBtoRGB((r2-0.05f+r1*0.1f)%1f,0.3f+r1*0.2f,1f);
+        return Color.HSBtoRGB((r2-0.05f+r1*0.2f)%1f,0.3f+r1*0.3f,1f);
     }
 
     void setStartDate(ZonedDateTime startDate) {

@@ -7,15 +7,14 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.data.category.DefaultCategoryDataset;
-import xyz.spiralhalo.sherlock.util.FormatUtil;
+import xyz.spiralhalo.sherlock.report.persist.ChartMeta;
 
-import java.awt.*;
 import java.time.ZonedDateTime;
 
 public class Charts {
-    public static ChartPanel createDayBarChart(DefaultCategoryDataset dataset, DatasetColors colors, ZonedDateTime chartDate){
+    public static ChartPanel createDayBarChart(DefaultCategoryDataset dataset, ChartMeta colors, ZonedDateTime chartDate){
         JFreeChart chart = ChartFactory.createStackedBarChart(
-                FormatUtil.DTF_LONG_DATE.format(chartDate),  // chart title
+                "",//FormatUtil.DTF_LONG_DATE.format(chartDate),  // chart title
                 "Hour of day",
                 "Time spent (minute)",
                 dataset,                     // data

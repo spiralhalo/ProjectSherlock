@@ -6,14 +6,16 @@ import xyz.spiralhalo.sherlock.persist.cache.CacheId;
 import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
 import xyz.spiralhalo.sherlock.report.*;
 import xyz.spiralhalo.sherlock.report.persist.AllReportRows;
+import xyz.spiralhalo.sherlock.report.persist.ChartMeta;
+import xyz.spiralhalo.sherlock.report.persist.DateList;
 import xyz.spiralhalo.sherlock.report.persist.ReportRows;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 
 import javax.swing.*;
-import java.time.LocalDate;
+import java.awt.*;
 import java.time.ZonedDateTime;
 
-public class Main {
+public class Main implements MainView{
     public static final String APP_NAME = "Project Sherlock 2";
     public static final String APP_NAME_NOSPACE = "Project Sherlock 2".replace(" ", "");
     public static final String ARG_MINIMIZED = "-minimized";
@@ -35,34 +37,47 @@ public class Main {
     private JButton btnFinish;
     private JButton btnEdit;
     private JButton btnDelete;
-    private JButton btnRight;
-    private JButton btnLeft;
+    private JButton btnNextMonth;
+    private JButton btnPrevMonth;
     private JPanel panelChart;
     private JButton btnResume;
     private JButton btnSettings;
+    private JComboBox comboCharts;
+    private JButton btnPrevChart;
+    private JButton btnNextChart;
+    private JTabbedPane tabr;
+    private JLabel lblLogged;
+    private JLabel lblWorktime;
+    private JLabel lblRatio;
+    private JButton btnPrevYear;
+    private JButton btnNextYear;
 
     private final JFrame frame = new JFrame(APP_NAME);
-    private final MainControl control = new MainControl(this);
 
     private Main(){
+        MainControl control = new MainControl(this);
         frame.setContentPane(rootPane);
         frame.setMinimumSize(rootPane.getMinimumSize());
         frame.pack();
         frame.setLocationByPlatform(true);
-        control.setToolbar(btnNew,btnView,btnFinish,btnResume,btnEdit,btnDelete,btnSettings,tabs);
+        control.setToolbar(btnNew,btnView,btnFinish,btnResume,btnEdit,btnDelete,btnSettings,tabs, tabr);
         control.setRefresh(btnRefresh, pnlRefreshing, lblRefresh);
         control.setTables(tblActive, tblFinished);
+        control.setChart(comboCharts, btnPrevChart, btnNextChart);
+        tblActive.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tblFinished.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tblActive.setDefaultRenderer(String.class, new ProjectCell());
         tblFinished.setDefaultRenderer(String.class, new ProjectCell());
         tblDaily.setDefaultRenderer(Integer.class, new DurationCell(true));
         tblMonthly.setDefaultRenderer(Integer.class, new DurationCell());
+        ((JLabel)comboCharts.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
     }
 
-    JFrame getFrame() {
+    public JFrame getFrame() {
         return frame;
     }
 
-    void refreshStatus(CacheMgr cache) {
+    public void refreshStatus(CacheMgr cache) {
         if (cache.getCreated(CacheId.ActiveRows).equals(CacheMgr.NEVER)) {
             lblRefresh.setText("Last refresh: never");
             lblTracking.setText("Refresh required.");
@@ -78,25 +93,39 @@ public class Main {
         }
     }
 
-    void refreshOverview(CacheMgr cache) {
+    public void refreshOverview(CacheMgr cache) {
         refreshStatus(cache);
         if(cache.getCreated(CacheId.ActiveRows).equals(CacheMgr.NEVER)) return;
         final AllModel activeModel = new AllModel(cache.getObj(CacheId.ActiveRows, AllReportRows.class));
         final AllModel finishedModel = new AllModel(cache.getObj(CacheId.FinishedRows, AllReportRows.class));
         final DayModel dayModel = new DayModel(cache.getObj(CacheId.DayRows, ReportRows.class));
         final MonthModel monthModel = new MonthModel(cache.getObj(CacheId.MonthRows, ReportRows.class));
-        final DefaultCategoryDataset dataset = cache.getObj(CacheId.ChartData(LocalDate.now()),DefaultCategoryDataset.class);
-        final DatasetColors colors = cache.getObj(CacheId.ChartColor(LocalDate.now()),DatasetColors.class);
         tblActive.setModel(activeModel);
         tblFinished.setModel(finishedModel);
         tblDaily.setModel(dayModel);
         tblMonthly.setModel(monthModel);
-        panelChart.removeAll();
-        panelChart.add(Charts.createDayBarChart(dataset, colors, ZonedDateTime.now()));
-        panelChart.updateUI();
+        comboCharts.setModel(new DateSelectorModel(cache.getObj(CacheId.ChartList, DateList.class)));
+        comboCharts.setSelectedIndex(comboCharts.getModel().getSize()-1);
     }
 
-    long getSelectedProject(){
+    public void refreshChart(CacheMgr cache){
+        DateSelectorEntry selected = (DateSelectorEntry)comboCharts.getSelectedItem();
+        if(selected==null)return;
+        final DefaultCategoryDataset dataset = cache.getObj(CacheId.ChartData(selected.date),DefaultCategoryDataset.class);
+        final ChartMeta meta = cache.getObj(CacheId.ChartMeta(selected.date), ChartMeta.class);
+        panelChart.removeAll();
+        if(dataset==null || meta == null)return;
+        panelChart.setPreferredSize(new Dimension(-1,270));
+        panelChart.add(Charts.createDayBarChart(dataset, meta, ZonedDateTime.now()));
+        panelChart.updateUI();
+        lblLogged.setText(String.format("Logged: %s",FormatUtil.hms(meta.logDur)));
+        lblWorktime.setText(String.format("Project: %s",FormatUtil.hms(meta.workDur)));
+        lblRatio.setText(String.format("Rating: %d%%",meta.workDur*100/meta.logDur));
+        btnPrevChart.setEnabled(comboCharts.getSelectedIndex()>0);
+        btnNextChart.setEnabled(comboCharts.getSelectedIndex()<comboCharts.getItemCount()-1);
+    }
+
+    public long getSelectedProject(){
         if(tabs.getSelectedIndex()==0 && tblActive.getSelectedRow() != -1) {
             return ((AllModel) tblActive.getModel())
                     .getProjectHash(tblActive.getRowSorter().convertRowIndexToModel(tblActive.getSelectedRow()));

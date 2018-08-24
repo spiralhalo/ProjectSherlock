@@ -1,6 +1,7 @@
 package xyz.spiralhalo.sherlock;
 
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
+import xyz.spiralhalo.sherlock.util.FormatUtil;
 import xyz.spiralhalo.sherlock.util.PathUtil;
 
 import javax.swing.*;
@@ -17,7 +18,7 @@ import java.util.TimerTask;
 public class Tracker implements ActionListener {
     public static final String LOG_FILENAME = "record2.txt";
     public static final String SPLIT_DIVIDER = "::";
-    public static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").withZone(ZoneId.systemDefault());
+    public static final DateTimeFormatter DTF = FormatUtil.DTF_FULL;
 
     public static final int ONE_SECOND = 1000;
     public static final int TIMER_DELAY_SECONDS = 5;

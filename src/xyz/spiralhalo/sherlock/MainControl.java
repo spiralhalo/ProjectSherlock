@@ -1,6 +1,5 @@
 package xyz.spiralhalo.sherlock;
 
-import org.jfree.data.category.DefaultCategoryDataset;
 import xyz.spiralhalo.sherlock.async.Loader;
 import xyz.spiralhalo.sherlock.async.LoaderDialog;
 import xyz.spiralhalo.sherlock.dialog.EditProject;
@@ -47,7 +46,7 @@ public class MainControl implements ActionListener {
         A_SETTINGS,
         A_REFRESH
     }
-    private final Main view;
+    private final MainView view;
     private final ProjectList projectList;
     private final Tracker tracker;
     private final CacheMgr cache;
@@ -56,12 +55,14 @@ public class MainControl implements ActionListener {
     private JComponent toHideOnRefresh;
     private JComponent toShowOnRefresh;
     private JComponent[] enableOnSelect;
-    private JTabbedPane tabbedPane;
+    private JTabbedPane tabProjects;
+    private JTabbedPane tabReports;
     private JButton buttonFinish;
     private JButton buttonResume;
+    private JComboBox chartSelector;
     private PopupMenu tablePopUpMenu;
 
-    public MainControl(Main view) {
+    public MainControl(MainView view) {
         this.view = view;
         view.getFrame().addWindowListener(windowAdapter);
         view.getFrame().addWindowStateListener(windowAdapter);
@@ -130,7 +131,7 @@ public class MainControl implements ActionListener {
     }
 
     public void setToolbar(JButton btnNew, JButton btnView, JButton btnFinish, JButton btnResume,
-                           JButton btnEdit, JButton btnDelete, JButton btnSettings, JTabbedPane tabs){
+                           JButton btnEdit, JButton btnDelete, JButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
         btnNew.setActionCommand(String.valueOf(Action.A_NEW));
         btnNew.addActionListener(this);
         btnView.setActionCommand(String.valueOf(Action.A_VIEW));
@@ -147,8 +148,10 @@ public class MainControl implements ActionListener {
         btnDelete.addActionListener(this);
         btnSettings.setActionCommand(String.valueOf(Action.A_SETTINGS));
         btnSettings.addActionListener(this);
-        tabs.addChangeListener(tabChangeListener);
-        tabbedPane = tabs;
+        tabProjects = tabs;
+        tabReports = tabr;
+        tabProjects.addChangeListener(tabChangeListener);
+        tabReports.addChangeListener(tabChangeListener);
         enableOnSelect = new JComponent[]{btnView, btnFinish, btnResume, btnEdit, btnDelete};
         for (JComponent x:enableOnSelect) {
             x.setEnabled(false);
@@ -175,11 +178,19 @@ public class MainControl implements ActionListener {
         tablePopUpMenu.add(edit);
         tablePopUpMenu.addSeparator();
         tablePopUpMenu.add(delete);
-        tabbedPane.add(tablePopUpMenu);
+        tabProjects.add(tablePopUpMenu);
         tableActive.addMouseListener(tableAdapter);
         tableFinished.addMouseListener(tableAdapter);
         tableActive.getSelectionModel().addListSelectionListener(tableSelectionListener);
         tableFinished.getSelectionModel().addListSelectionListener(tableSelectionListener);
+    }
+
+    public void setChart(JComboBox comboCharts, JButton prev, JButton next){
+        chartSelector = comboCharts;
+        comboCharts.addItemListener(e->view.refreshChart(cache));
+        prev.addActionListener(e->prevChart());
+        next.addActionListener(e->nextChart());
+        view.refreshChart(cache);
     }
 
     @Override
@@ -257,22 +268,34 @@ public class MainControl implements ActionListener {
             for (JComponent x:enableOnSelect) {
                 x.setEnabled(temp);
             }
-            buttonFinish.setVisible(tabbedPane.getSelectedIndex()!=1 || !temp);
-            buttonResume.setVisible(tabbedPane.getSelectedIndex()==1 && temp);
+            buttonFinish.setVisible(tabProjects.getSelectedIndex()!=1 || !temp);
+            buttonResume.setVisible(tabProjects.getSelectedIndex()==1 && temp);
         }
     };
 
     private final ChangeListener tabChangeListener = new ChangeListener() {
         @Override
         public void stateChanged(ChangeEvent e) {
-            boolean temp = view.getSelectedProject()!=-1;
+            boolean temp = view.getSelectedProject()!=-1 && tabReports.getSelectedIndex()==0;
             for (JComponent x:enableOnSelect) {
                 x.setEnabled(temp);
             }
-            buttonFinish.setVisible(tabbedPane.getSelectedIndex()!=1 || !temp);
-            buttonResume.setVisible(tabbedPane.getSelectedIndex()==1 && temp);
+            buttonFinish.setVisible(tabProjects.getSelectedIndex()!=1 || !temp);
+            buttonResume.setVisible(tabProjects.getSelectedIndex()==1 && temp);
         }
     };
+
+    private void prevChart(){
+        if(chartSelector.getSelectedIndex()>0){
+            chartSelector.setSelectedIndex(chartSelector.getSelectedIndex()-1);
+        }
+    }
+
+    private void nextChart(){
+        if(chartSelector.getSelectedIndex()< chartSelector.getItemCount()-1){
+            chartSelector.setSelectedIndex(chartSelector.getSelectedIndex()+1);
+        }
+    }
 
     private MainControl getThis(){return this;}
 
@@ -316,7 +339,7 @@ public class MainControl implements ActionListener {
     }
 
     private void decideRefresh(){
-        if(cache.getElapsed(CacheId.ActiveRows.v) > AppConfig.getInt(AppInt.REFRESH_TIMEOUT)){
+        if(cache.getElapsed(CacheId.ActiveRows) > AppConfig.getInt(AppInt.REFRESH_TIMEOUT)){
             refresh();
         } else view.refreshStatus(cache);
     }
@@ -361,12 +384,12 @@ public class MainControl implements ActionListener {
             cache.put(CacheId.DayRows, (ReportRows)result[2]);
             cache.put(CacheId.MonthRows, (ReportRows)result[3]);
             DatasetArray x = (DatasetArray)result[4];
-            for (int i = 0; i < x.datasetList.size(); i++) {
-                LocalDate date = x.datasetList.get(i);
+            for (int i = 0; i < x.dateList.size(); i++) {
+                LocalDate date = x.dateList.get(i);
                 cache.put(CacheId.ChartData(date), x.datasets.get(i));
-                cache.put(CacheId.ChartColor(date), x.datasetColors.get(i));
+                cache.put(CacheId.ChartMeta(date), x.datasetColors.get(i));
             }
-            cache.put(CacheId.ChartList, x.datasetList);
+            cache.put(CacheId.ChartList, x.dateList);
             view.refreshOverview(cache);
         }
     }

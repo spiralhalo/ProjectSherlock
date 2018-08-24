@@ -147,11 +147,16 @@ public class Settings extends JDialog {
         setLocationRelativeTo(owner);
         buttonApply.setEnabled(false);
 
+        comboHMSMode.setModel(new DefaultComboBoxModel(new String[]{"12:45:30", "12h 45m 30s"}));
+
         buttonOK.addActionListener(e -> onOK());
         buttonApply.addActionListener(e -> onApply());
         buttonCancel.addActionListener(e -> onCancel());
         btnDefTracking.addActionListener(e -> defaultTracking());
         btnDefApp.addActionListener(e -> defaultApp());
+        resetSlider(sliderTarget, 60, 60*5, 60*12);
+        resetSlider(sliderTimeout, 60, 60*5, 60*30);
+        resetSlider(sliderAutoRefresh, 60, 60*10, 60*30);
         bindTimeSlider(sliderTarget, lblTarget, 60);
         bindTimeSlider(sliderTimeout, lblTimeout, 1);
         bindTimeSlider(sliderAutoRefresh, lblAutoRefresh, 1);
@@ -171,9 +176,16 @@ public class Settings extends JDialog {
         init();
     }
 
+    private void resetSlider(JSlider slider, int min, int value, int max){
+        slider.setMinimum(min);
+        slider.setMaximum(max);
+        slider.setValue(value);
+    }
+
     private void bindTimeSlider(JSlider slider, JLabel label, int multiplier){
         slider.addChangeListener(e->label.setText(String.format("%s",
                 FormatUtil.hmsLong(slider.getValue()*multiplier))));
+        label.setText(String.format("%s", FormatUtil.hmsLong(slider.getValue()*multiplier)));
     }
 
     public boolean getResult(){
@@ -215,7 +227,7 @@ public class Settings extends JDialog {
         checkAMinimize.setSelected(AppConfig.defaultBoolean(AppBool.MINIMIZE_TO_TRAY));
         checkAStartup.setSelected(AppConfig.defaultBoolean(AppBool.RUN_ON_STARTUP));
         checkARunMinimized.setSelected(AppConfig.defaultBoolean(AppBool.RUN_MINIMIZED));
-        sliderTarget.setValue(AppConfig.defaultInt(AppInt.REFRESH_TIMEOUT));
+        sliderAutoRefresh.setValue(AppConfig.defaultInt(AppInt.REFRESH_TIMEOUT));
         comboHMSMode.setSelectedIndex(AppConfig.defaultHMSMode()==HMSMode.COLON?0:1);
     }
 

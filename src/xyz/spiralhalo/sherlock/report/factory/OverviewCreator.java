@@ -4,7 +4,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import xyz.spiralhalo.sherlock.Tracker;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
-import xyz.spiralhalo.sherlock.report.DatasetColors;
+import xyz.spiralhalo.sherlock.report.persist.ChartMeta;
 import xyz.spiralhalo.sherlock.report.persist.AllReportRow;
 import xyz.spiralhalo.sherlock.report.persist.AllReportRows;
 import xyz.spiralhalo.sherlock.report.persist.ReportRow;
@@ -54,15 +54,12 @@ public class OverviewCreator implements Supplier<Object[]> {
             createEntry();
         }
 
-        void process(LocalDate currentDate, ZonedDateTime timestamp, long pHash, Project p, int dur){
+        void process(LocalDate currentDate, ZonedDateTime timestamp, long pHash, int dur){
             if(lastDate == null) {
                 lastDate = currentDate;
             } else if(lastDate.isBefore(currentDate)){
                 createEntry();
                 lastDate = currentDate;
-            }
-            if(p==null && pHash != -1){
-                pHash = 0;
             }
             int hour = timestamp.getHour();
             int secondRemain = 3600-timestamp.getMinute()*60-timestamp.getSecond();
@@ -85,9 +82,9 @@ public class OverviewCreator implements Supplier<Object[]> {
 
         private void createEntry() {
             final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-            final DatasetColors colors = new DatasetColors();
-            colors.put(OTHER, ColorUtil.gray);
-            colors.put(DELETED, Color.PINK);
+            final ChartMeta meta = new ChartMeta();
+            meta.put(OTHER, ColorUtil.gray);
+            meta.put(DELETED, Color.PINK);
             for (int i = 0; i < 24; i++) {
                 if(hours[i]==null) {
                     dataset.addValue((Number)0,"Other",i);
@@ -95,11 +92,13 @@ public class OverviewCreator implements Supplier<Object[]> {
                 }
                 for (Long l:hours[i].keySet()) {
                     Project p = projectList.findByHash(l);
-                    if(p!=null&&colors.get(p.getName())==null)colors.put(p.getName(),new Color(p.getColor()));
+                    if(p!=null&&meta.get(p.getName())==null)meta.put(p.getName(),new Color(p.getColor()));
                     dataset.addValue((Number)(hours[i].get(l)/60f),l==-1?OTHER:(p==null?DELETED:p.getName()),i);
+                    meta.logDur += hours[i].get(l);
+                    meta.workDur += p==null?0:hours[i].get(l);
                 }
             }
-            datasetArray.add(lastDate, dataset, colors);
+            datasetArray.add(lastDate, dataset, meta);
             initialize();
         }
     }
@@ -196,7 +195,7 @@ public class OverviewCreator implements Supplier<Object[]> {
                     ZonedDateTime timestamp = getTimestamp(recordEntry);
                     int dur = Integer.parseInt(recordEntry[1]);
                     LocalDate date = timestamp.toLocalDate();
-                    dc.process(date, timestamp, pHash, p, dur);
+                    dc.process(date, timestamp, pHash, dur);
                     if(p==null) continue;
                     rc.process(date, pHash, dur);
                 } catch (NumberFormatException e) {
