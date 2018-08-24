@@ -18,7 +18,8 @@ public class Loader<T> implements BiConsumer<T,Throwable> {
     public static <T> void execute(String id, Supplier<T> supplier, BiConsumer<T, ? super Throwable> callback,
                                    JComponent toShow, JComponent toHide){
         if(runningIds.contains(id)){
-            callback.accept(null, new Exception("Another process is currently running."));
+            // silently rejects
+            // callback.accept(null, new Exception("Another process is currently running."));
             return;
         }
         runningIds.add(id);
