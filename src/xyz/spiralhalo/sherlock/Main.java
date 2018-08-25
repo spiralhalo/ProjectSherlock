@@ -1,7 +1,6 @@
 package xyz.spiralhalo.sherlock;
 
 //import com.jgoodies.looks.windows.WindowsLookAndFeel;
-import com.sun.imageio.plugins.common.ImageUtil;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.pushingpixels.substance.api.skin.*;
 import xyz.spiralhalo.sherlock.persist.cache.CacheId;
@@ -12,6 +11,7 @@ import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode;
 import xyz.spiralhalo.sherlock.report.*;
+import xyz.spiralhalo.sherlock.report.Charts;
 import xyz.spiralhalo.sherlock.report.persist.AllReportRows;
 import xyz.spiralhalo.sherlock.report.persist.ChartMeta;
 import xyz.spiralhalo.sherlock.report.persist.DateList;
@@ -87,18 +87,18 @@ public class Main implements MainView{
         tblMonthly.setDefaultRenderer(String.class, new DefaultTableCellRenderer());
         tblDaily.setDefaultRenderer(Integer.class, new DurationCell(true));
         tblMonthly.setDefaultRenderer(Integer.class, new DurationCell());
-        if(AppConfig.getTheme().buttonColor!=0){
+        if(AppConfig.getTheme().foreground !=0){
             Theme x = AppConfig.getTheme();
-            btnNew.setIcon(ImgUtil.createTintedIcon("new.png", x.buttonColor));
-            btnView.setIcon(ImgUtil.createTintedIcon("view.png", x.buttonColor));
-            btnFinish.setIcon(ImgUtil.createTintedIcon("finish.png", x.buttonColor));
-            btnResume.setIcon(ImgUtil.createTintedIcon("resume.png", x.buttonColor));
-            btnEdit.setIcon(ImgUtil.createTintedIcon("edit.png", x.buttonColor));
-            btnDelete.setIcon(ImgUtil.createTintedIcon("delete.png", x.buttonColor));
-            btnSettings.setIcon(ImgUtil.createTintedIcon("settings.png", x.buttonColor));
-            btnRefresh.setIcon(ImgUtil.createTintedIcon("refresh.png", x.buttonColor));
-            btnPrevChart.setIcon(ImgUtil.createTintedIcon("left.png", x.buttonColor));
-            btnNextChart.setIcon(ImgUtil.createTintedIcon("right.png", x.buttonColor));
+            btnNew.setIcon(ImgUtil.createTintedIcon("new.png", x.foreground));
+            btnView.setIcon(ImgUtil.createTintedIcon("view.png", x.foreground));
+            btnFinish.setIcon(ImgUtil.createTintedIcon("finish.png", x.foreground));
+            btnResume.setIcon(ImgUtil.createTintedIcon("resume.png", x.foreground));
+            btnEdit.setIcon(ImgUtil.createTintedIcon("edit.png", x.foreground));
+            btnDelete.setIcon(ImgUtil.createTintedIcon("delete.png", x.foreground));
+            btnSettings.setIcon(ImgUtil.createTintedIcon("settings.png", x.foreground));
+            btnRefresh.setIcon(ImgUtil.createTintedIcon("refresh.png", x.foreground));
+            btnPrevChart.setIcon(ImgUtil.createTintedIcon("left.png", x.foreground));
+            btnNextChart.setIcon(ImgUtil.createTintedIcon("right.png", x.foreground));
         }
         ((JLabel)comboCharts.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
     }

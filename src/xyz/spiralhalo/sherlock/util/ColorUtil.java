@@ -29,6 +29,7 @@ public class ColorUtil {
                 b = Color.RGBtoHSB(color2.getRed(), color2.getGreen(), color2.getBlue(), null);
         float h=0;
         float d = b[0] - a[0];
+        float tx = t;
         if (a[0] > b[0])
         {
             // Swap (a[0], b[0])
@@ -37,17 +38,17 @@ public class ColorUtil {
             a[0] = h3;
 
             d = -d;
-            t = 1 - t;
+            tx = 1 - tx;
         }
 
         if (d > 0.5) // 180deg
         {
             a[0] = a[0] + 1; // 360deg
-            h = ( a[0] + t * (b[0] - a[0]) ) % 1; // 360deg
+            h = ( a[0] + tx * (b[0] - a[0]) ) % 1; // 360deg
         }
         if (d <= 0.5) // 180deg
         {
-            h = a[0] + t * d;
+            h = a[0] + tx * d;
         }
         return Color.getHSBColor(h, // H
                 a[1] + t * (b[1]-a[1]), // S
