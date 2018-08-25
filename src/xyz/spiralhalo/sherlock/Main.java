@@ -31,6 +31,7 @@ public class Main implements MainView{
     public static final String APP_NAME = "Project Sherlock 2";
     public static final String APP_NAME_NOSPACE = "Project Sherlock 2".replace(" ", "");
     public static final String ARG_MINIMIZED = "-minimized";
+    public static final String ARG_DELAYED = "-delayed";
 
     private JPanel rootPane;
     private JButton btnNew;
@@ -200,6 +201,15 @@ public class Main implements MainView{
     }
 
     public static void main(String[] args) {
+        for (String arg:args) {
+            if(arg.toLowerCase().equals(Main.ARG_DELAYED)){
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    Debug.log(e);
+                }
+            }
+        }
         Runnable r = () -> {
             try {
                 switch (AppConfig.getTheme()){

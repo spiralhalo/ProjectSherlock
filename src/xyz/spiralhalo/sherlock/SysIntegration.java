@@ -9,6 +9,7 @@ import xyz.spiralhalo.sherlock.util.WinRegistry;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 public class SysIntegration {
@@ -64,6 +65,16 @@ public class SysIntegration {
             }
         } catch (IllegalAccessException | InvocationTargetException e) {
             Debug.log(SysIntegration.class, e);
+        }
+    }
+
+    public static void restartApp(){
+        String command = String.format("%s -jar \"%s\" %s",PathUtil.getJavawPath(), PathUtil.getJarPath(), Main.ARG_DELAYED);
+        try {
+            Runtime.getRuntime().exec(command);
+            System.exit(0);
+        } catch (IOException e) {
+            Debug.log(e);
         }
     }
 }

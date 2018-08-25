@@ -193,7 +193,7 @@ public class OverviewCreator implements Supplier<Object[]> {
                     long pHash = getHash(recordEntry);
                     Project p = projectList.findByHash(pHash);
                     ZonedDateTime timestamp = getTimestamp(recordEntry);
-                    int dur = Integer.parseInt(recordEntry[1]);
+                    int dur = getElapsed(recordEntry);
                     LocalDate date = timestamp.toLocalDate();
                     dc.process(date, timestamp, pHash, dur);
                     if(p==null) continue;
