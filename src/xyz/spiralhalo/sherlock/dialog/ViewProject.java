@@ -5,6 +5,7 @@ import xyz.spiralhalo.sherlock.report.DurationCell;
 import xyz.spiralhalo.sherlock.report.MonthModel;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 
 public class ViewProject extends JDialog {
     private JPanel contentPane;
@@ -25,6 +26,8 @@ public class ViewProject extends JDialog {
         setModal(true);
         fieldName.setText(project);
         fieldTag.setText(projectTags);
+        tableDaily.setDefaultRenderer(String.class, new DefaultTableCellRenderer());
+        tableMonthly.setDefaultRenderer(String.class, new DefaultTableCellRenderer());
         tableDaily.setDefaultRenderer(Integer.class, new DurationCell());
         tableMonthly.setDefaultRenderer(Integer.class, new DurationCell());
         tableDaily.setModel(dayModel);

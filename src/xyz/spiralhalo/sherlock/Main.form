@@ -84,8 +84,8 @@
             <constraints/>
             <properties>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/add.png"/>
-              <text value="New"/>
+              <icon value="xyz/spiralhalo/sherlock/res/new.png"/>
+              <text value=""/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
@@ -94,7 +94,7 @@
             <properties>
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/view.png"/>
-              <text value="View"/>
+              <text value=""/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
@@ -103,7 +103,7 @@
             <properties>
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/finish.png"/>
-              <text value="Finish"/>
+              <text value=""/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
@@ -112,7 +112,7 @@
             <properties>
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/resume.png"/>
-              <text value="Resume"/>
+              <text value=""/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
@@ -125,7 +125,7 @@
             <properties>
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/edit.png"/>
-              <text value="Edit"/>
+              <text value=""/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
@@ -134,7 +134,7 @@
             <properties>
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/delete.png"/>
-              <text value="Delete"/>
+              <text value=""/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
@@ -147,7 +147,7 @@
             <properties>
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/settings.png"/>
-              <text value="Settings"/>
+              <text value=""/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
@@ -159,7 +159,7 @@
             <properties>
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/refresh.png"/>
-              <text value="Refresh"/>
+              <text value=""/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
@@ -179,9 +179,7 @@
             <constraints>
               <tabbedpane title="Overview"/>
             </constraints>
-            <properties>
-              <background color="-1"/>
-            </properties>
+            <properties/>
             <border type="none"/>
             <children>
               <toolbar id="19e0e">

@@ -3,14 +3,15 @@
     <output-path>$PROJECT_DIR$/out/artifacts/ProjectSherlock2_jar</output-path>
     <root id="archive" name="ProjectSherlock2.jar">
       <element id="module-output" name="ProjectSherlock2" />
-      <element id="extracted-dir" path="D:/_saved/api lib/java/_laf/jgoodies-common-1.6.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="D:/_saved/api lib/java/_laf/jgoodies-looks-2.5.3.jar" path-in-jar="/" />
       <element id="extracted-dir" path="D:/_saved/api lib/java/jna-4.5.2/dist/jna.jar" path-in-jar="/" />
       <element id="extracted-dir" path="D:/_saved/api lib/java/jna-4.5.2/dist/jna-platform.jar" path-in-jar="/" />
       <element id="extracted-dir" path="D:/_saved/api lib/java/jfreechart-1.0.19.jar" path-in-jar="/" />
       <element id="extracted-dir" path="D:/_saved/api lib/java/jcommon-1.0.23.jar" path-in-jar="/" />
       <element id="extracted-dir" path="D:/_saved/api lib/java/system-hook-3.2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/ini4j/ini4j/0.5.4/ini4j-0.5.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/pushing-pixels/radiance-substance/0.9-SNAPSHOT/radiance-substance-0.9-SNAPSHOT.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/pushing-pixels/radiance-trident/0.9-SNAPSHOT/radiance-trident-0.9-SNAPSHOT.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/pushing-pixels/radiance-neon/0.9-SNAPSHOT/radiance-neon-0.9-SNAPSHOT.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

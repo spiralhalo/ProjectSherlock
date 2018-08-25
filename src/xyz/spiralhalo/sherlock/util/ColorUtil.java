@@ -1,8 +1,10 @@
 package xyz.spiralhalo.sherlock.util;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class ColorUtil {
+    public static Color foreground = new Color(0,0,0);
     public static Color bad = new Color(230,124,115);
     public static Color neu = new Color(255,214,102);
     public static Color gut = new Color(87,187,138);

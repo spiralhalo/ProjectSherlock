@@ -27,7 +27,7 @@ public final class MurmurHash {
      *
      * @param data byte array to hash
      * @param length length of the array to hash
-     * @param seed initial seed v
+     * @param seed initial seed label
      * @return 32 bit hash of the given array
      */
     public static int hash32(final byte[] data, int length, int seed) {
@@ -36,7 +36,7 @@ public final class MurmurHash {
         final int m = 0x5bd1e995;
         final int r = 24;
 
-        // Initialize the hash to a random v
+        // Initialize the hash to a random label
         int h = seed^length;
         int length4 = length/4;
 
@@ -67,7 +67,7 @@ public final class MurmurHash {
     }
 
     /**
-     * Generates 32 bit hash from byte array with default seed v.
+     * Generates 32 bit hash from byte array with default seed label.
      *
      * @param data byte array to hash
      * @param length length of the array to hash
@@ -105,7 +105,7 @@ public final class MurmurHash {
      *
      * @param data byte array to hash
      * @param length length of the array to hash
-     * @param seed initial seed v
+     * @param seed initial seed label
      * @return 64 bit hash of the given array
      */
     public static long hash64(final byte[] data, int length, int seed) {
@@ -150,7 +150,7 @@ public final class MurmurHash {
     }
 
     /**
-     * Generates 64 bit hash from byte array with default seed v.
+     * Generates 64 bit hash from byte array with default seed label.
      *
      * @param data byte array to hash
      * @param length length of the array to hash

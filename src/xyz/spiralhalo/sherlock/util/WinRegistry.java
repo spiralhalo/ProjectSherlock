@@ -77,11 +77,11 @@ public class WinRegistry {
     private WinRegistry() {  }
 
     /**
-     * Read a v from key and v name
+     * Read a label from key and label name
      * @param hkey   HKEY_CURRENT_USER/HKEY_LOCAL_MACHINE
      * @param key
      * @param valueName
-     * @return the v
+     * @return the label
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      * @throws InvocationTargetException
@@ -102,10 +102,10 @@ public class WinRegistry {
     }
 
     /**
-     * Read v(s) and v name(s) form given key
+     * Read label(s) and label name(s) form given key
      * @param hkey  HKEY_CURRENT_USER/HKEY_LOCAL_MACHINE
      * @param key
-     * @return the v name(s) plus the v(s)
+     * @return the label name(s) plus the label(s)
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      * @throws InvocationTargetException
@@ -126,10 +126,10 @@ public class WinRegistry {
     }
 
     /**
-     * Read the v name(s) from a given key
+     * Read the label name(s) from a given key
      * @param hkey  HKEY_CURRENT_USER/HKEY_LOCAL_MACHINE
      * @param key
-     * @return the v name(s)
+     * @return the label name(s)
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      * @throws InvocationTargetException
@@ -179,7 +179,7 @@ public class WinRegistry {
     }
 
     /**
-     * Write a v in a given key/v name
+     * Write a label in a given key/label name
      * @param hkey
      * @param key
      * @param valueName
@@ -229,7 +229,7 @@ public class WinRegistry {
     }
 
     /**
-     * delete a v from a given key/v name
+     * delete a label from a given key/label name
      * @param hkey
      * @param key
      * @param value
@@ -249,7 +249,7 @@ public class WinRegistry {
             rc = deleteValue(userRoot, hkey, key, value);
         }
         if (rc != REG_SUCCESS) {
-            throw new IllegalArgumentException("rc=" + rc + "  key=" + key + "  v=" + value);
+            throw new IllegalArgumentException("rc=" + rc + "  key=" + key + "  label=" + value);
         }
     }
 
@@ -312,7 +312,7 @@ public class WinRegistry {
                 new Object[] { new Integer(handles[0]) });
 
         int count = info[0]; // count
-        int maxlen = info[3]; // v length max
+        int maxlen = info[3]; // label length max
         for(int index=0; index<count; index++)  {
             byte[] name = (byte[]) regEnumValue.invoke(root, new Object[] {
                     new Integer
@@ -340,7 +340,7 @@ public class WinRegistry {
                 new Object[] { new Integer(handles[0]) });
 
         int count  = info[0]; // Fix: info[2] was being used here with wrong results. Suggested by davenpcj, confirmed by Petrucio
-        int maxlen = info[3]; // v length max
+        int maxlen = info[3]; // label length max
         for(int index=0; index<count; index++)  {
             byte[] name = (byte[]) regEnumKeyEx.invoke(root, new Object[] {
                     new Integer

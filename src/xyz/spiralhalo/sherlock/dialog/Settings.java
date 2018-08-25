@@ -5,14 +5,13 @@ import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppBool;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.HMSMode;
+import xyz.spiralhalo.sherlock.persist.settings.AppConfig.Theme;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.Component;
 import java.awt.event.*;
 import java.util.*;
@@ -44,6 +43,7 @@ public class Settings extends JDialog {
     private JCheckBox checkARunMinimized;
     private JLabel lblAutoRefresh;
     private JSlider sliderAutoRefresh;
+    private JComboBox comboTheme;
     private boolean result = false;
 
     private final JCheckBox[] days = new JCheckBox[]{day0,day1,day2,day3,day4,day5,day6};
@@ -143,6 +143,11 @@ public class Settings extends JDialog {
         buttonApply.setEnabled(false);
 
         comboHMSMode.setModel(new DefaultComboBoxModel(new String[]{"12:45:30", "12h 45m 30s"}));
+        String[] themes = new String[Theme.values().length];
+        for (Theme x:Theme.values()) {
+            themes[x.x] = String.format("%s%s",x.label, (x.dark?" (dark)":""));
+        }
+        comboTheme.setModel(new DefaultComboBoxModel(themes));
 
         buttonOK.addActionListener(e -> onOK());
         buttonApply.addActionListener(e -> onApply());
@@ -169,6 +174,69 @@ public class Settings extends JDialog {
         });
 
         init();
+    }
+
+    private void init() {
+        bind(checkAAskBeforeQuit, ()->AppConfig.getBool(AppBool.ASK_BEFORE_QUIT));
+        bind(checkAMinimize, ()->AppConfig.getBool(AppBool.MINIMIZE_TO_TRAY));
+        bind(checkAStartup, ()->AppConfig.getBool(AppBool.RUN_ON_STARTUP));
+        bind(checkARunMinimized, ()->AppConfig.getBool(AppBool.RUN_MINIMIZED));
+        bind(comboHMSMode, ()->AppConfig.getHMSMode()==HMSMode.COLON?0:1);
+        bind(comboTheme, ()->AppConfig.getTheme().x);
+        bind(sliderAutoRefresh, ()->AppConfig.getInt(AppInt.REFRESH_TIMEOUT));
+        bind(sliderTimeout, ()->UserConfig.getInt(UserNode.TRACKING, UserInt.AFK_TIMEOUT_SECOND));
+        bind(sliderTarget, ()->UserConfig.getInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND));
+        for (int i = 0; i < days.length; i++) {
+            final int z = i;
+            bind(days[z], ()->UserConfig.isWorkDay(z));
+        }
+    }
+
+    private void defaultApp() {
+        checkAAskBeforeQuit.setSelected(AppConfig.defaultBoolean(AppBool.ASK_BEFORE_QUIT));
+        checkAMinimize.setSelected(AppConfig.defaultBoolean(AppBool.MINIMIZE_TO_TRAY));
+        checkAStartup.setSelected(AppConfig.defaultBoolean(AppBool.RUN_ON_STARTUP));
+        checkARunMinimized.setSelected(AppConfig.defaultBoolean(AppBool.RUN_MINIMIZED));
+        sliderAutoRefresh.setValue(AppConfig.defaultInt(AppInt.REFRESH_TIMEOUT));
+        comboHMSMode.setSelectedIndex(AppConfig.defaultHMSMode()==HMSMode.COLON?0:1);
+        comboTheme.setSelectedIndex(AppConfig.getTheme().x);
+    }
+
+    private void defaultTracking() {
+        sliderTimeout.setValue(UserConfig.defaultInt(UserNode.TRACKING, UserInt.AFK_TIMEOUT_SECOND));
+        sliderTarget.setValue(UserConfig.defaultInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND));
+        for (int i = 0; i < days.length; i++) { days[i].setSelected(UserConfig.defaultWorkDay(i)); }
+    }
+
+    private void onApply() {
+        result = true;
+        AppConfig.setBoolean(AppBool.ASK_BEFORE_QUIT, checkAAskBeforeQuit.isSelected());
+        AppConfig.setBoolean(AppBool.MINIMIZE_TO_TRAY, checkAMinimize.isSelected());
+        AppConfig.setBoolean(AppBool.RUN_ON_STARTUP, checkAStartup.isSelected());
+        AppConfig.setBoolean(AppBool.RUN_MINIMIZED, checkARunMinimized.isSelected());
+        AppConfig.setHMSMode(comboHMSMode.getSelectedIndex()==0?HMSMode.COLON:HMSMode.STRICT);
+        AppConfig.setTheme(comboTheme.getSelectedIndex());
+        AppConfig.setInt(AppInt.REFRESH_TIMEOUT, sliderAutoRefresh.getValue());
+        UserConfig.setInt(UserNode.TRACKING, UserInt.AFK_TIMEOUT_SECOND, sliderTimeout.getValue());
+        UserConfig.setInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND, sliderTarget.getValue());
+        for (int i = 0; i < days.length; i++) { UserConfig.setWorkDay(i, days[i].isSelected()); }
+        buttonApply.setEnabled(false);
+        SysIntegration.createOrDeleteStartupRegistry();
+    }
+
+    private void bind(JComboBox x, Supplier<Integer> y){
+        enabler.addComboBox(x, y);
+        x.setSelectedIndex(y.get());
+    }
+
+    private void bind(JCheckBox x, Supplier<Boolean> y){
+        enabler.addCheckBox(x, y);
+        x.setSelected(y.get());
+    }
+
+    private void bind(JSlider x, Supplier<Integer> y){
+        enabler.addSlider(x, y);
+        x.setValue(y.get());
     }
 
     private void resetSlider(JSlider slider, int min, int value, int max, int multiplier){
@@ -206,66 +274,6 @@ public class Settings extends JDialog {
 
     public boolean getResult(){
         return result;
-    }
-
-    private void init() {
-        bind(checkAAskBeforeQuit, ()->AppConfig.getBool(AppBool.ASK_BEFORE_QUIT));
-        bind(checkAMinimize, ()->AppConfig.getBool(AppBool.MINIMIZE_TO_TRAY));
-        bind(checkAStartup, ()->AppConfig.getBool(AppBool.RUN_ON_STARTUP));
-        bind(checkARunMinimized, ()->AppConfig.getBool(AppBool.RUN_MINIMIZED));
-        bind(comboHMSMode, ()->AppConfig.getHMSMode()==HMSMode.COLON?0:1);
-        bind(sliderAutoRefresh, ()->AppConfig.getInt(AppInt.REFRESH_TIMEOUT));
-        bind(sliderTimeout, ()->UserConfig.getInt(UserNode.TRACKING, UserInt.AFK_TIMEOUT_SECOND));
-        bind(sliderTarget, ()->UserConfig.getInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND));
-        for (int i = 0; i < days.length; i++) {
-            final int z = i;
-            bind(days[z], ()->UserConfig.isWorkDay(z));
-        }
-    }
-
-    private void bind(JComboBox x, Supplier<Integer> y){
-        enabler.addComboBox(x, y);
-        x.setSelectedIndex(y.get());
-    }
-
-    private void bind(JCheckBox x, Supplier<Boolean> y){
-        enabler.addCheckBox(x, y);
-        x.setSelected(y.get());
-    }
-
-    private void bind(JSlider x, Supplier<Integer> y){
-        enabler.addSlider(x, y);
-        x.setValue(y.get());
-    }
-
-    private void defaultApp() {
-        checkAAskBeforeQuit.setSelected(AppConfig.defaultBoolean(AppBool.ASK_BEFORE_QUIT));
-        checkAMinimize.setSelected(AppConfig.defaultBoolean(AppBool.MINIMIZE_TO_TRAY));
-        checkAStartup.setSelected(AppConfig.defaultBoolean(AppBool.RUN_ON_STARTUP));
-        checkARunMinimized.setSelected(AppConfig.defaultBoolean(AppBool.RUN_MINIMIZED));
-        sliderAutoRefresh.setValue(AppConfig.defaultInt(AppInt.REFRESH_TIMEOUT));
-        comboHMSMode.setSelectedIndex(AppConfig.defaultHMSMode()==HMSMode.COLON?0:1);
-    }
-
-    private void defaultTracking() {
-        sliderTimeout.setValue(UserConfig.defaultInt(UserNode.TRACKING, UserInt.AFK_TIMEOUT_SECOND));
-        sliderTarget.setValue(UserConfig.defaultInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND));
-        for (int i = 0; i < days.length; i++) { days[i].setSelected(UserConfig.defaultWorkDay(i)); }
-    }
-
-    private void onApply() {
-        result = true;
-        AppConfig.setBoolean(AppBool.ASK_BEFORE_QUIT, checkAAskBeforeQuit.isSelected());
-        AppConfig.setBoolean(AppBool.MINIMIZE_TO_TRAY, checkAMinimize.isSelected());
-        AppConfig.setBoolean(AppBool.RUN_ON_STARTUP, checkAStartup.isSelected());
-        AppConfig.setBoolean(AppBool.RUN_MINIMIZED, checkARunMinimized.isSelected());
-        AppConfig.setHMSMode(comboHMSMode.getSelectedIndex()==0?HMSMode.COLON:HMSMode.STRICT);
-        AppConfig.setInt(AppInt.REFRESH_TIMEOUT, sliderAutoRefresh.getValue());
-        UserConfig.setInt(UserNode.TRACKING, UserInt.AFK_TIMEOUT_SECOND, sliderTimeout.getValue());
-        UserConfig.setInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND, sliderTarget.getValue());
-        for (int i = 0; i < days.length; i++) { UserConfig.setWorkDay(i, days[i].isSelected()); }
-        buttonApply.setEnabled(false);
-        SysIntegration.createOrDeleteStartupRegistry();
     }
 
     private void onOK() {

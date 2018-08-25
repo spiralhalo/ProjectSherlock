@@ -354,8 +354,8 @@ public class MainControl implements ActionListener {
     }
 
     private void showProject(Project p, ReportRows dayRows, ReportRows monthRows){
-        new ViewProject(view.getFrame(), p.toString(), String.join(", ",p.getTags())
-                , new DayModel(dayRows), new MonthModel(monthRows)).setVisible(true);
+        SwingUtilities.invokeLater(() -> new ViewProject(view.getFrame(), p.toString(), String.join(", ",p.getTags())
+                , new DayModel(dayRows), new MonthModel(monthRows)).setVisible(true));
     }
 
     private void projectCB(Object[] result, Throwable t){

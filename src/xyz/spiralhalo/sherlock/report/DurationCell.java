@@ -11,7 +11,6 @@ import java.awt.*;
 import static xyz.spiralhalo.sherlock.util.ColorUtil.*;
 
 public class DurationCell extends DefaultTableCellRenderer {
-    private static Color foreground = new Color(0,0,0);
     private boolean target;
 
     public DurationCell(boolean target) {
@@ -35,8 +34,8 @@ public class DurationCell extends DefaultTableCellRenderer {
                         UserConfig.getInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND), bad, neu, gut);
             }
             if(isSelected) {
-                super.setBackground(multiply(gray,baseColor));
-                super.setForeground(baseColor);
+                super.setBackground(multiply(super.getBackground(),baseColor));
+//                super.setForeground(baseColor);
             } else {
                 super.setForeground(foreground);
                 super.setBackground(baseColor);
