@@ -1,5 +1,6 @@
 package xyz.spiralhalo.sherlock.dialog;
 
+import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.SysIntegration;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppBool;
@@ -45,8 +46,6 @@ public class Settings extends JDialog {
     private JSlider sliderAutoRefresh;
     private JComboBox comboTheme;
     private boolean result = false;
-
-    private Theme originalTheme;
 
     private final JCheckBox[] days = new JCheckBox[]{day0,day1,day2,day3,day4,day5,day6};
     private final ApplyButtonEnabler enabler = new ApplyButtonEnabler(buttonApply);
@@ -136,7 +135,6 @@ public class Settings extends JDialog {
 
     public Settings(JFrame owner) {
         super(owner, "Settings");
-        originalTheme = AppConfig.getTheme();
         setContentPane(contentPane);
         setMinimumSize(contentPane.getMinimumSize());
         setModal(true);
@@ -225,7 +223,7 @@ public class Settings extends JDialog {
         for (int i = 0; i < days.length; i++) { UserConfig.setWorkDay(i, days[i].isSelected()); }
         buttonApply.setEnabled(false);
         SysIntegration.createOrDeleteStartupRegistry();
-        if(originalTheme != AppConfig.getTheme()){
+        if(Main.currentTheme != AppConfig.getTheme()){
             if(JOptionPane.showConfirmDialog(this, "Theme has been changed. Restart the app?",
             "Confirm restart", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
                 SysIntegration.restartApp();
@@ -286,7 +284,9 @@ public class Settings extends JDialog {
     }
 
     private void onOK() {
-        onApply();
+        if(buttonApply.isEnabled()) {
+            onApply();
+        }
         dispose();
     }
 

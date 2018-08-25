@@ -7,6 +7,7 @@ import org.pushingpixels.substance.api.skin.*;
 import xyz.spiralhalo.sherlock.persist.cache.CacheId;
 import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
+import xyz.spiralhalo.sherlock.persist.settings.AppConfig.Theme;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode;
@@ -28,10 +29,11 @@ import java.time.temporal.ChronoField;
 import static xyz.spiralhalo.sherlock.util.ColorUtil.*;
 
 public class Main implements MainView{
-    public static final String APP_NAME = "Project Sherlock 2";
     public static final String APP_NAME_NOSPACE = "Project Sherlock 2".replace(" ", "");
     public static final String ARG_MINIMIZED = "-minimized";
     public static final String ARG_DELAYED = "-delayed";
+    public static final String APP_NAME = "Project Sherlock 2";
+    public static Theme currentTheme;
 
     private JPanel rootPane;
     private JButton btnNew;
@@ -86,7 +88,7 @@ public class Main implements MainView{
         tblDaily.setDefaultRenderer(Integer.class, new DurationCell(true));
         tblMonthly.setDefaultRenderer(Integer.class, new DurationCell());
         if(AppConfig.getTheme().buttonColor!=0){
-            AppConfig.Theme x = AppConfig.getTheme();
+            Theme x = AppConfig.getTheme();
             btnNew.setIcon(ImgUtil.createTintedIcon("new.png", x.buttonColor));
             btnView.setIcon(ImgUtil.createTintedIcon("view.png", x.buttonColor));
             btnFinish.setIcon(ImgUtil.createTintedIcon("finish.png", x.buttonColor));
@@ -231,10 +233,14 @@ public class Main implements MainView{
                     case RAVEN:
                         UIManager.setLookAndFeel(new SubstanceRavenLookAndFeel());
                         break;
+                    case TWILIGHT:
+                        UIManager.setLookAndFeel(new SubstanceTwilightLookAndFeel());
+                        break;
                     case SYSTEM:
                         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                         break;
                 }
+                currentTheme = AppConfig.getTheme();
 //            UIManager.setLookAndFeel(new WindowsLookAndFeel());
             } catch (Exception e) {
                 Debug.log(e);

@@ -18,7 +18,8 @@ public class AppConfig {
         MIST_SILVER(3, 0, false, "Substance Mist Silver"),
         GRAPHITE(4, 0xffffff, true, "Substance Graphite"),
         RAVEN(5, 0xffffff, true, "Substance Raven"),
-        SYSTEM(6, 0, false, "System Default Theme"),
+        TWILIGHT(6, 0xcccc99, true, "Substance Twilight"),
+        SYSTEM(7, 0, false, "System Default Theme"),
         ;
         public int x;
         public int buttonColor;
