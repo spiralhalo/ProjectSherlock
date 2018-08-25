@@ -115,8 +115,8 @@ public class ProjectList implements Serializable {
             activeProjects.add(p);
             finishedProjects.remove(p);
             p.setFinished(false);
-            save();
         }
+        save();
     }
 
     public ArrayList<Project> getActiveProjects() {

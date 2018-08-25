@@ -94,6 +94,8 @@ public class Main implements MainView{
             btnDelete.setIcon(ImgUtil.createTintedIcon("delete.png", x.buttonColor));
             btnSettings.setIcon(ImgUtil.createTintedIcon("settings.png", x.buttonColor));
             btnRefresh.setIcon(ImgUtil.createTintedIcon("refresh.png", x.buttonColor));
+            btnPrevChart.setIcon(ImgUtil.createTintedIcon("left.png", x.buttonColor));
+            btnNextChart.setIcon(ImgUtil.createTintedIcon("right.png", x.buttonColor));
         }
         ((JLabel)comboCharts.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
     }

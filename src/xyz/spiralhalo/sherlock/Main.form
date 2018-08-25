@@ -85,7 +85,8 @@
             <properties>
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/new.png"/>
-              <text value=""/>
+              <text value="New"/>
+              <toolTipText value="New project"/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
@@ -94,7 +95,8 @@
             <properties>
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/view.png"/>
-              <text value=""/>
+              <text value="View"/>
+              <toolTipText value="View project"/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
@@ -103,7 +105,8 @@
             <properties>
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/finish.png"/>
-              <text value=""/>
+              <text value="Finish"/>
+              <toolTipText value="Mark as finished"/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
@@ -112,7 +115,8 @@
             <properties>
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/resume.png"/>
-              <text value=""/>
+              <text value="Resume"/>
+              <toolTipText value="Mark as not finished"/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
@@ -125,7 +129,8 @@
             <properties>
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/edit.png"/>
-              <text value=""/>
+              <text value="Edit"/>
+              <toolTipText value="Edit project"/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
@@ -134,7 +139,8 @@
             <properties>
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/delete.png"/>
-              <text value=""/>
+              <text value="Delete"/>
+              <toolTipText value="Delete project"/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
@@ -147,7 +153,8 @@
             <properties>
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/settings.png"/>
-              <text value=""/>
+              <text value="Settings"/>
+              <toolTipText value="Settings"/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
@@ -159,7 +166,8 @@
             <properties>
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/refresh.png"/>
-              <text value=""/>
+              <text value="Refresh"/>
+              <toolTipText value="Refresh"/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
