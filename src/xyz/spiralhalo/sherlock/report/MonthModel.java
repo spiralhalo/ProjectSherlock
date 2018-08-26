@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class MonthModel extends AbstractTableModel {
-    private static final String[] columnName = new String[]{"Month", "Time spent on projects"};
+    private static final String[] columnName = new String[]{"Month", "Time spent"};
     private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyy-MM MMM").withZone(ZoneId.systemDefault());
 
     private final ArrayList<ReportRow> data;

@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 
 public class DayModel extends AbstractTableModel {
-    private static final String[] columnName = new String[]{"Date","Time spent on projects"};
+    private static final String[] columnName = new String[]{"Date","Time spent"};
     private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyy-MM-dd EEE").withZone(ZoneId.systemDefault());
 
     private final ReportRows data;
