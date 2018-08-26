@@ -141,7 +141,6 @@
                 </constraints>
                 <properties>
                   <icon value="xyz/spiralhalo/sherlock/res/help_small.png"/>
-                  <text value="help"/>
                   <visible value="false"/>
                 </properties>
               </component>
