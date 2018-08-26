@@ -8,6 +8,7 @@ import java.time.LocalDate;
 public enum CacheId{
     ActiveRows("active_table"),
     FinishedRows("finished_table"),
+    UtilityRows("utility_table"),
     DayRows("day_table"),
     MonthRows("month_table"),
     ChartList("chart_dates")

@@ -73,7 +73,7 @@ public class OverviewCreator implements Supplier<Object[]> {
             }
             rc.finalizeProcess();
             dc.finalizeProcess();
-            return new Object[]{rc.activeRows,rc.finishedRows,rc.dayRows,rc.monthRows,dc.datasetArray};
+            return new Object[]{rc.activeRows,rc.finishedRows, rc.utilityRows, rc.dayRows,rc.monthRows,dc.datasetArray};
         } catch (IOException e1) {
             Debug.log(OverviewCreator.class,e1);
             throw new RuntimeException(e1);

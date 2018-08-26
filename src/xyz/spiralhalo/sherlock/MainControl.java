@@ -39,6 +39,7 @@ public class MainControl implements ActionListener {
 
     public enum Action{
         A_NEW,
+        A_NEW_TAG,
         A_VIEW,
         A_FINISH,
         A_RESUME,
@@ -131,10 +132,12 @@ public class MainControl implements ActionListener {
         view.getFrame().setVisible(false);
     }
 
-    public void setToolbar(JButton btnNew, JButton btnView, JButton btnFinish, JButton btnResume,
+    public void setToolbar(JButton btnNew, JButton btnNewTag, JButton btnView, JButton btnFinish, JButton btnResume,
                            JButton btnEdit, JButton btnDelete, JButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
         btnNew.setActionCommand(String.valueOf(Action.A_NEW));
         btnNew.addActionListener(this);
+        btnNewTag.setActionCommand(String.valueOf(Action.A_NEW_TAG));
+        btnNewTag.addActionListener(this);
         btnView.setActionCommand(String.valueOf(Action.A_VIEW));
         btnView.addActionListener(this);
         btnFinish.setActionCommand(String.valueOf(Action.A_FINISH));
@@ -167,7 +170,7 @@ public class MainControl implements ActionListener {
         toShowOnRefresh = toShow;
     }
 
-    public void setTables(JTable tableActive, JTable tableFinished){
+    public void setTables(JTable tableActive, JTable tableFinished, JTable tableUtilityTags){
         tablePopUpMenu = new PopupMenu();
         MenuItem view = new MenuItem("View");
         MenuItem edit = new MenuItem("Edit");
@@ -182,8 +185,10 @@ public class MainControl implements ActionListener {
         tabProjects.add(tablePopUpMenu);
         tableActive.addMouseListener(tableAdapter);
         tableFinished.addMouseListener(tableAdapter);
+        tableUtilityTags.addMouseListener(tableAdapter);
         tableActive.getSelectionModel().addListSelectionListener(tableSelectionListener);
         tableFinished.getSelectionModel().addListSelectionListener(tableSelectionListener);
+        tableUtilityTags.getSelectionModel().addListSelectionListener(tableSelectionListener);
     }
 
     public void setChart(JComboBox comboCharts, JButton prev, JButton next){
@@ -196,9 +201,11 @@ public class MainControl implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        switch (Action.valueOf(e.getActionCommand())){
+        Action action = Action.valueOf(e.getActionCommand());
+        switch (action){
             case A_NEW:
-                EditProject x = new EditProject(view.getFrame(), projectList);
+            case A_NEW_TAG:
+                EditProject x = new EditProject(view.getFrame(), projectList, action == Action.A_NEW_TAG);
                 x.setVisible(true);
                 if(x.getResult()){
                     refresh();
@@ -270,6 +277,7 @@ public class MainControl implements ActionListener {
                 x.setEnabled(temp);
             }
             buttonFinish.setVisible(tabProjects.getSelectedIndex()!=1 || !temp);
+            buttonFinish.setEnabled(tabProjects.getSelectedIndex()==0 && temp);
             buttonResume.setVisible(tabProjects.getSelectedIndex()==1 && temp);
         }
     };
@@ -282,6 +290,7 @@ public class MainControl implements ActionListener {
                 x.setEnabled(temp);
             }
             buttonFinish.setVisible(tabProjects.getSelectedIndex()!=1 || !temp);
+            buttonFinish.setEnabled(tabProjects.getSelectedIndex()==0 && temp);
             buttonResume.setVisible(tabProjects.getSelectedIndex()==1 && temp);
         }
     };
@@ -319,7 +328,7 @@ public class MainControl implements ActionListener {
     private void editProject() {
         Project p = projectList.findByHash(view.getSelectedProject());
         if(p==null) return;
-        EditProject y = new EditProject(view.getFrame(), p, projectList);
+        EditProject y = new EditProject(view.getFrame(), p, projectList, p.isUtilityTag());
         y.setVisible(true);
         if(y.getResult()){
             refresh();
@@ -328,12 +337,12 @@ public class MainControl implements ActionListener {
 
     private void deleteProject() {
         Project px = projectList.findByHash(view.getSelectedProject());
-        if(px==null) return;
+        if (px == null) return;
         int jopResult = JOptionPane.showConfirmDialog(view.getFrame(),
-                String.format("Do you want to permanently delete project `%s?`", px.toString()),
-                "Confirm deletion",JOptionPane.YES_NO_OPTION);
-        if(jopResult == JOptionPane.YES_OPTION){
-            if(projectList.deleteProject(px)){
+                String.format("Do you want to permanently delete %s `%s?`", px.isUtilityTag() ? "tag" : "project",
+                        px.toString()), "Confirm deletion", JOptionPane.YES_NO_OPTION);
+        if (jopResult == JOptionPane.YES_OPTION) {
+            if (projectList.deleteProject(px)) {
                 refresh();
             }
         }
@@ -379,12 +388,13 @@ public class MainControl implements ActionListener {
             JOptionPane.showMessageDialog(view.getFrame(),
                     String.format("Failed to refresh due to an error.\nerror code:\n\t%s", t.toString()),
                     "Refresh failed", JOptionPane.ERROR_MESSAGE);
-        } else if(result!=null&&result.length==5){
+        } else if(result!=null&&result.length==6){
             cache.put(CacheId.ActiveRows, (AllReportRows) result[0]);
             cache.put(CacheId.FinishedRows, (AllReportRows) result[1]);
-            cache.put(CacheId.DayRows, (ReportRows)result[2]);
-            cache.put(CacheId.MonthRows, (ReportRows)result[3]);
-            DatasetArray x = (DatasetArray)result[4];
+            cache.put(CacheId.UtilityRows, (AllReportRows) result[2]);
+            cache.put(CacheId.DayRows, (ReportRows)result[3]);
+            cache.put(CacheId.MonthRows, (ReportRows)result[4]);
+            DatasetArray x = (DatasetArray)result[5];
             for (int i = 0; i < x.dateList.size(); i++) {
                 LocalDate date = x.dateList.get(i);
                 cache.put(CacheId.ChartData(date), x.datasets.get(i));

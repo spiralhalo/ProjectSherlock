@@ -1,7 +1,7 @@
 package xyz.spiralhalo.sherlock.util;
 
 import sun.awt.image.ToolkitImage;
-import xyz.spiralhalo.sherlock.res.Images;
+import xyz.spiralhalo.sherlock.res.Res;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -12,7 +12,7 @@ import java.net.URL;
 
 public class ImgUtil {
     public static Image createImage(String path, String description) {
-        URL imageURL = Images.class.getResource(path);
+        URL imageURL = Res.class.getResource(path);
 
         if (imageURL == null) {
             System.err.println("Resource not found: " + path);
@@ -23,7 +23,7 @@ public class ImgUtil {
     }
 
     public static ImageIcon createIcon(String path, String description) {
-        URL imageURL = Images.class.getResource(path);
+        URL imageURL = Res.class.getResource(path);
 
         if (imageURL == null) {
             System.err.println("Resource not found: " + path);
@@ -63,7 +63,7 @@ public class ImgUtil {
     }
 
     public static BufferedImage loadImage(String path) throws IOException {
-        URL imageURL = Images.class.getResource(path);
+        URL imageURL = Res.class.getResource(path);
         BufferedImage img = ImageIO.read(imageURL);
         return img;
     }

@@ -1,7 +1,11 @@
 package xyz.spiralhalo.sherlock.dialog;
 
+import com.sun.imageio.plugins.common.ImageUtil;
+import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
+import xyz.spiralhalo.sherlock.persist.project.UtilityTag;
+import xyz.spiralhalo.sherlock.util.ImgUtil;
 
 import javax.swing.*;
 import javax.swing.event.CaretListener;
@@ -20,26 +24,55 @@ public class EditProject extends JDialog {
     private JTextArea fieldTag;
     private JComboBox comboCat;
     private JLabel labelWarning;
+    private JLabel labelCatLabel;
+    private JLabel labelNameLabel;
+    private JLabel labelTagsLabel;
+    private JLabel helpIcon;
     private Mode mode;
     private Project p;
     private ProjectList projectList;
     private boolean result;
+    private final boolean utilityTag;
 
-    public EditProject(JFrame owner, ProjectList projectList){
-        this(owner, Mode.NEW, null, projectList);
+    public EditProject(JFrame owner, ProjectList projectList, boolean utilityTag){
+        this(owner, Mode.NEW, null, projectList, utilityTag);
     }
 
-    public EditProject(JFrame owner, Project project, ProjectList projectList){
-        this(owner, Mode.EDIT, project, projectList);
+    public EditProject(JFrame owner, Project project, ProjectList projectList, boolean utilityTag){
+        this(owner, Mode.EDIT, project, projectList, utilityTag);
     }
 
-    public EditProject(JFrame owner, Mode mode, Project project, ProjectList projectList) {
-        super(owner, mode==Mode.NEW?"New project":"Edit project");
+    private EditProject getThis(){return this;}
+
+    public EditProject(JFrame owner, Mode mode, Project project, ProjectList projectList, boolean utilityTag) {
+        super(owner, (mode==Mode.NEW?"New ":"Edit ")+(utilityTag?"tag":"project"));
+        this.utilityTag = utilityTag;
+        if(project != null && utilityTag != project.isUtilityTag()){
+            throw new IllegalArgumentException("No editing projects in utility tag mode or vice versa.");
+        }
         this.mode = mode;
         this.p=project;
         this.projectList = projectList;
 
-        comboCat.setModel(new DefaultComboBoxModel<>(projectList.getCategories().toArray(new String[0])));
+        if(utilityTag){
+            helpIcon.setVisible(true);
+            if(Main.currentTheme.foreground != 0){
+                helpIcon.setIcon(ImgUtil.createTintedIcon(((ImageIcon)helpIcon.getIcon()).getImage(), Main.currentTheme.foreground));
+            }
+            helpIcon.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    new Help(getThis(), "tag types", "help_tag_type.html").setVisible(true);
+                }
+            });
+            labelNameLabel.setText("Tag name");
+            labelCatLabel.setText("Tag type");
+            labelTagsLabel.setText("Tag keywords (comma-separated)");
+            comboCat.setModel(new DefaultComboBoxModel(new String[]{UtilityTag.PRODUCTIVE_LABEL, UtilityTag.NON_PRODUCTIVE_LABEL}));
+            comboCat.setEditable(false);
+        } else {
+            comboCat.setModel(new DefaultComboBoxModel<>(projectList.getCategories().toArray(new String[0])));
+        }
 
         if(mode == Mode.EDIT){
             fieldName.setText(p.getName());
@@ -106,11 +139,19 @@ public class EditProject extends JDialog {
     private void onOK() {
         switch (mode) {
             case NEW:
-                projectList.addProject(new Project(fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), fieldTag.getText()));
+                if(utilityTag) {
+                    projectList.addProject(new UtilityTag(fieldName.getText(), fieldTag.getText(), comboCat.getSelectedIndex()==0));
+                } else {
+                    projectList.addProject(new Project(fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), fieldTag.getText()));
+                }
                 break;
             case EDIT:
-                String category = p.getCategory();
-                projectList.editProject(p, fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), category, fieldTag.getText());
+                if(utilityTag){
+                    projectList.editUtilityTag((UtilityTag)p, fieldName.getText(), fieldTag.getText(), comboCat.getSelectedIndex()==0);
+                } else {
+                    String category = p.getCategory();
+                    projectList.editProject(p, fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), category, fieldTag.getText());
+                }
                 break;
         }
         result = true;

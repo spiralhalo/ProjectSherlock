@@ -23,6 +23,8 @@ import xyz.spiralhalo.sherlock.util.ImgUtil;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 
@@ -66,6 +68,8 @@ public class Main implements MainView{
     private JLabel lblRatio;
     private JButton btnPrevYear;
     private JButton btnNextYear;
+    private JButton btnNewTag;
+    private JTable tblUtilityTags;
 
     private final JFrame frame = new JFrame(APP_NAME);
 
@@ -75,30 +79,34 @@ public class Main implements MainView{
         frame.setMinimumSize(rootPane.getMinimumSize());
         frame.pack();
         frame.setLocationByPlatform(true);
-        control.setToolbar(btnNew,btnView,btnFinish,btnResume,btnEdit,btnDelete,btnSettings,tabs, tabr);
+
+        control.setToolbar(btnNew,btnNewTag,btnView,btnFinish,btnResume,btnEdit,btnDelete,btnSettings,tabs, tabr);
         control.setRefresh(btnRefresh, pnlRefreshing, lblRefresh);
-        control.setTables(tblActive, tblFinished);
+        control.setTables(tblActive, tblFinished, tblUtilityTags);
         control.setChart(comboCharts, btnPrevChart, btnNextChart);
+
         tblActive.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tblFinished.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tblActive.setDefaultRenderer(String.class, new ProjectCell());
+        tblFinished.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tblFinished.setDefaultRenderer(String.class, new ProjectCell());
+        tblUtilityTags.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tblUtilityTags.setDefaultRenderer(String.class, new ProjectCell());
         tblDaily.setDefaultRenderer(String.class, new DefaultTableCellRenderer());
         tblMonthly.setDefaultRenderer(String.class, new DefaultTableCellRenderer());
         tblDaily.setDefaultRenderer(Integer.class, new DurationCell(true));
         tblMonthly.setDefaultRenderer(Integer.class, new DurationCell());
-        if(AppConfig.getTheme().foreground !=0){
-            Theme x = AppConfig.getTheme();
-            btnNew.setIcon(ImgUtil.createTintedIcon("new.png", x.foreground));
-            btnView.setIcon(ImgUtil.createTintedIcon("view.png", x.foreground));
-            btnFinish.setIcon(ImgUtil.createTintedIcon("finish.png", x.foreground));
-            btnResume.setIcon(ImgUtil.createTintedIcon("resume.png", x.foreground));
-            btnEdit.setIcon(ImgUtil.createTintedIcon("edit.png", x.foreground));
-            btnDelete.setIcon(ImgUtil.createTintedIcon("delete.png", x.foreground));
-            btnSettings.setIcon(ImgUtil.createTintedIcon("settings.png", x.foreground));
-            btnRefresh.setIcon(ImgUtil.createTintedIcon("refresh.png", x.foreground));
-            btnPrevChart.setIcon(ImgUtil.createTintedIcon("left.png", x.foreground));
-            btnNextChart.setIcon(ImgUtil.createTintedIcon("right.png", x.foreground));
+
+        JButton[] iconButtons = new JButton[]{
+                btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings,
+                btnRefresh, btnPrevChart, btnNextChart
+        };
+        if(currentTheme.foreground !=0) {
+            for (JButton btn : iconButtons) {
+                if(currentTheme.dark) {
+                    btn.setRolloverIcon(btn.getIcon());
+                }
+                btn.setIcon(ImgUtil.createTintedIcon(((ImageIcon)btn.getIcon()).getImage(), currentTheme.foreground));
+            }
         }
         ((JLabel)comboCharts.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
     }
@@ -140,10 +148,12 @@ public class Main implements MainView{
             if(cache.getCreated(CacheId.ActiveRows).equals(CacheMgr.NEVER)) return;
             final AllModel activeModel = new AllModel(cache.getObj(CacheId.ActiveRows, AllReportRows.class));
             final AllModel finishedModel = new AllModel(cache.getObj(CacheId.FinishedRows, AllReportRows.class));
+            final AllModel utilityTagsModel = new AllModel(cache.getObj(CacheId.UtilityRows, AllReportRows.class), true);
             final DayModel dayModel = new DayModel(cache.getObj(CacheId.DayRows, ReportRows.class));
             final MonthModel monthModel = new MonthModel(cache.getObj(CacheId.MonthRows, ReportRows.class));
             tblActive.setModel(activeModel);
             tblFinished.setModel(finishedModel);
+            tblUtilityTags.setModel(utilityTagsModel);
             tblDaily.setModel(dayModel);
             tblMonthly.setModel(monthModel);
             comboCharts.setModel(new DateSelectorModel(cache.getObj(CacheId.ChartList, DateList.class)));
@@ -198,6 +208,9 @@ public class Main implements MainView{
         } else if(tabs.getSelectedIndex()==1 && tblFinished.getSelectedRow() != -1) {
             return ((AllModel) tblFinished.getModel())
                     .getProjectHash(tblFinished.getRowSorter().convertRowIndexToModel(tblFinished.getSelectedRow()));
+        } else if(tabs.getSelectedIndex()==2 && tblUtilityTags.getSelectedRow() != -1) {
+            return ((AllModel) tblUtilityTags.getModel())
+                    .getProjectHash(tblUtilityTags.getRowSorter().convertRowIndexToModel(tblUtilityTags.getSelectedRow()));
         }
         return -1;
     }
@@ -241,7 +254,6 @@ public class Main implements MainView{
                         break;
                 }
                 currentTheme = AppConfig.getTheme();
-//            UIManager.setLookAndFeel(new WindowsLookAndFeel());
             } catch (Exception e) {
                 Debug.log(e);
             }
@@ -257,23 +269,5 @@ public class Main implements MainView{
         };
 
         SwingUtilities.invokeLater(r);
-//        try {
-//            UIDefaults x=UIManager.getLookAndFeelDefaults();
-//            for (Object y:x.keySet()) {
-//                Object z = UIManager.get(y);
-//                if(z instanceof Color){
-//                    Color x1 = ColorUtil.reverseBrightness((Color)z, 0.8f);
-//                    if(z instanceof ColorUIResource){
-//                        UIManager.put(y, new ColorUIResource(x1));
-////                        System.out.println(String.format("UIManager.put(\"%s\", new ColorUIResource(0x%x));", y, x1.getRGB()));
-//                    } else {
-//                        UIManager.put(y, x1);
-////                        System.out.println(String.format("UIManager.put(\"%s\", new Color(0x%x));", y, x1.getRGB()));
-//                    }
-//                }
-//            }
-//        } catch (Exception e) {
-//            Debug.log(e);
-//        }
     }
 }

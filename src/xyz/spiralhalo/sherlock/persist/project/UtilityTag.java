@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 public class UtilityTag extends Project implements Serializable {
     public static final long serialVersionUID = 1L;
-    private static final String PRODUCTIVE_LABEL = "Supporting";
-    private static final String NON_PRODUCTIVE_LABEL = "Utility";
+    public static final String PRODUCTIVE_LABEL = "Supporting";
+    public static final String NON_PRODUCTIVE_LABEL = "General";
 
     private boolean productive;
 
