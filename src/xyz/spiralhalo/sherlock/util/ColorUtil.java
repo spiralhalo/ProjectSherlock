@@ -9,6 +9,7 @@ public class ColorUtil {
     public static Color neu = new Color(255,214,102);
     public static Color gut = new Color(87,187,138);
     public static Color light_gray = new Color(225,225,225);
+    public static Color med_red_gray = new Color(210,190,190);
     public static Color gray = new Color(160,160,160);
 
     public static Color multiply(Color color1, Color color2){

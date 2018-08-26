@@ -1,5 +1,6 @@
 package xyz.spiralhalo.sherlock.util;
 
+import sun.awt.image.ToolkitImage;
 import xyz.spiralhalo.sherlock.res.Images;
 
 import javax.imageio.ImageIO;
@@ -21,22 +22,44 @@ public class ImgUtil {
         }
     }
 
+    public static ImageIcon createIcon(String path, String description) {
+        URL imageURL = Images.class.getResource(path);
+
+        if (imageURL == null) {
+            System.err.println("Resource not found: " + path);
+            return null;
+        } else {
+            return new ImageIcon(imageURL, description);
+        }
+    }
+
     public static ImageIcon createTintedIcon(String path, int rgb){
         try {
-            return new ImageIcon(colorImage(loadImage(path), rgb));
+            return createTintedIcon(loadImage(path), rgb);
         } catch (IOException e) {
             Debug.log(e);
             return null;
         }
     }
 
-    public static BufferedImage colorImage(BufferedImage img, int rgb) {
-        for(int i = 0; i < img.getHeight(); i++) {
-            for(int j = 0; j < img.getWidth(); j++) {
-                img.setRGB(j,i,img.getRGB(j,i)^rgb);
+    public static ImageIcon createTintedIcon(Image image, int rgb){
+        return new ImageIcon(colorImage(image, rgb));
+    }
+
+    public static BufferedImage colorImage(Image src, int rgb) {
+        BufferedImage buff;
+        if(src instanceof BufferedImage){
+            buff = (BufferedImage) src;
+        } else if(src instanceof ToolkitImage){
+            buff = ((ToolkitImage) src).getBufferedImage();
+        } else throw new IllegalArgumentException("Source must be BufferedImage or ToolkitImage");
+        BufferedImage tinted = new BufferedImage(buff.getWidth(), buff.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for(int i = 0; i < tinted.getHeight(); i++) {
+            for (int j = 0; j < tinted.getWidth(); j++) {
+                tinted.setRGB(j, i, buff.getRGB(j, i) ^ rgb);
             }
         }
-        return img;
+        return tinted;
     }
 
     public static BufferedImage loadImage(String path) throws IOException {
