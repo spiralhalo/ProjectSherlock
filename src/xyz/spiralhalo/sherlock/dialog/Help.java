@@ -27,24 +27,24 @@ public class Help extends JDialog {
         initialize(parent, topic, textUrl);
     }
 
-    void initialize(Component parent, String topic, String textUrl) {
+    private void initialize(Component parent, String topic, String textUrl) {
         setTitle("About "+topic);
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
-        setMinimumSize(contentPane.getMinimumSize());
-        pack();
-        setLocationRelativeTo(parent);
+
         try {
             text.setPage(Res.class.getResource(textUrl));
             ((HTMLEditorKit)text.getEditorKit()).getStyleSheet()
-                    .addRule(String.format("body {color:#%s; font-size:%dpt;}",
-                            Integer.toHexString(Main.currentTheme.foreground),
-                            getFont().getSize()));
+                            .addRule(String.format("body {color:#%s; font-size:%dpt;}",
+                                    Integer.toHexString(Main.currentTheme.foreground), getFont().getSize()));
         } catch (IOException e) {
             Debug.log(e);
         }
-        text.setOpaque(false);
+        setMinimumSize(contentPane.getMinimumSize());
+        setPreferredSize(contentPane.getMinimumSize());
+        pack();
+        setLocationRelativeTo(parent);
 
         buttonOK.addActionListener(e -> onOK());
 

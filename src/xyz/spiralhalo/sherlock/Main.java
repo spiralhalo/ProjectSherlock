@@ -72,6 +72,8 @@ public class Main implements MainView{
     private JTable tblUtilityTags;
 
     private final JFrame frame = new JFrame(APP_NAME);
+    private boolean setVisibleDelayed;
+    private boolean chartLoaded;
 
     private Main(){
         MainControl control = new MainControl(this);
@@ -142,6 +144,12 @@ public class Main implements MainView{
         btnNextChart.setEnabled(comboCharts.getSelectedIndex() < comboCharts.getItemCount() - 1);
     }
 
+    private void setVisibleDelayed() {
+        if(chartLoaded) {
+            frame.setVisible(true);
+        } else setVisibleDelayed = true;
+    }
+
     private final UIUpdater tableRefresher = new UIUpdater() {
         @Override
         protected void doRun() {
@@ -183,6 +191,11 @@ public class Main implements MainView{
             } else {
                 lblRatio.setText(String.format("Rating: %d%% (holiday)", ratio));
                 lblRatio.setForeground(AppConfig.getTheme().dark?light_gray:gray);
+            }
+            chartLoaded = true;
+            if(setVisibleDelayed){
+                setVisibleDelayed = false;
+                frame.setVisible(true);
             }
         }
     };
@@ -265,7 +278,7 @@ public class Main implements MainView{
                     return;
                 }
             }
-            m.frame.setVisible(true);
+            m.setVisibleDelayed();
         };
 
         SwingUtilities.invokeLater(r);

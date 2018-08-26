@@ -37,7 +37,7 @@ public class OverviewCreator implements Supplier<Object[]> {
     private long getHash(String[] s){return Long.parseLong(s[2]);}
     private ZonedDateTime getTimestamp(String[] s){return ZonedDateTime.parse(s[0], Tracker.DTF);}
     private boolean isUtilityTag(String[] s){return s.length>3;}
-    private boolean isProductive(String[] s){return !isUtilityTag(s) || Boolean.parseBoolean(s[3]);}
+    private boolean getRawProductivityValue(String[] s){return !isUtilityTag(s) || Boolean.parseBoolean(s[3]);}
 
     @Override
     public Object[] get() {
@@ -51,7 +51,7 @@ public class OverviewCreator implements Supplier<Object[]> {
                     ZonedDateTime timestamp = getTimestamp(recordEntry);
                     int dur = getElapsed(recordEntry);
                     long pHash = getHash(recordEntry);
-                    boolean productive = isProductive(recordEntry);
+                    boolean productive = pHash != -1 && getRawProductivityValue(recordEntry);
 
                     Project p = projectList.findByHash(pHash);
                     LocalDate date = timestamp.toLocalDate();

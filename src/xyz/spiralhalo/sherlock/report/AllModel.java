@@ -8,7 +8,7 @@ import java.awt.*;
 
 public class AllModel extends AbstractTableModel {
     private static final String[] columnName = new String[]{"Project","Period","Days worked","Time spent"};
-    private static final String[] columnNameUtility = new String[]{"Project","Time spent"};
+    private static final String[] columnNameUtility = new String[]{"Tag","Time spent"};
 
     private final AllReportRows data;
     private final boolean utility;

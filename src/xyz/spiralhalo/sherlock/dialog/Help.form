@@ -7,7 +7,7 @@
     </constraints>
     <properties>
       <inheritsPopupMenu value="true"/>
-      <minimumSize width="400" height="400"/>
+      <minimumSize width="380" height="260"/>
     </properties>
     <border type="none"/>
     <children>
@@ -60,6 +60,7 @@
                 <constraints/>
                 <properties>
                   <editable value="false"/>
+                  <opaque value="false"/>
                 </properties>
               </component>
             </children>
