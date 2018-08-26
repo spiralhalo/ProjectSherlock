@@ -4,10 +4,8 @@ import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 
 import javax.swing.*;
-import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import java.awt.event.*;
-import java.beans.PropertyChangeListener;
 
 public class EditProject extends JDialog {
     public enum Mode{
@@ -112,8 +110,7 @@ public class EditProject extends JDialog {
                 break;
             case EDIT:
                 String category = p.getCategory();
-                p.edit(fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), fieldTag.getText());
-                projectList.editProject(p, category);
+                projectList.editProject(p, fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), category, fieldTag.getText());
                 break;
         }
         result = true;

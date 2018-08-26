@@ -60,8 +60,8 @@ public class Charts {
 
         Color fg = new Color(Main.currentTheme.foreground);
         Color bg = new Color(Main.currentTheme.background);
-        Color leanToBg = null;
-        Color leanToFg = null;
+        Color leanToBg;
+        Color leanToFg;
         if(Main.currentTheme.dark) {
             //interpolate less harshly on (darker) background
             leanToBg = interpolateNicely(0.8f, fg, bg);

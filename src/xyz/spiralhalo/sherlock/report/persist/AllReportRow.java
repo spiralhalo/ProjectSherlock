@@ -12,6 +12,7 @@ public class AllReportRow implements Serializable {
     private LocalDate finishDate;
     private int days;
     private int seconds;
+    private boolean productive;
 
     public AllReportRow(long projectHash, int projectColor, String projectName, LocalDateTime startDate, LocalDateTime finishDate, int days, int seconds) {
         this.projectHash = projectHash;
@@ -19,6 +20,15 @@ public class AllReportRow implements Serializable {
         this.projectName = projectName;
         this.startDate = LocalDate.from(startDate);
         this.finishDate = finishDate==null?null:LocalDate.from(finishDate);
+        this.days = days;
+        this.seconds = seconds;
+    }
+
+    public AllReportRow(long projectHash, int projectColor, String projectName, boolean isProductive, int days, int seconds) {
+        this.projectHash = projectHash;
+        this.projectColor = projectColor;
+        this.projectName = projectName;
+        this.productive = isProductive;
         this.days = days;
         this.seconds = seconds;
     }
@@ -47,5 +57,9 @@ public class AllReportRow implements Serializable {
 
     public LocalDate getFinishDate() {
         return finishDate;
+    }
+
+    public boolean isProductive() {
+        return productive;
     }
 }

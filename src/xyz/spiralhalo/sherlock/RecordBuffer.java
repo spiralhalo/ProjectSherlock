@@ -1,5 +1,7 @@
 package xyz.spiralhalo.sherlock;
 
+import xyz.spiralhalo.sherlock.persist.project.Project;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,10 +11,27 @@ import java.time.ZoneId;
 
 public class RecordBuffer {
 
+    private static class Last{
+        private long hash;
+        private boolean productive;
+        private boolean utilityTag;
+        public void set(Project p){
+            if(p==null){
+                hash = -1;
+                productive = false;
+                utilityTag = false;
+            } else {
+                hash = p.getHash();
+                productive = p.isProductive();
+                utilityTag = p.isUtilityTag();
+            }
+        }
+    }
+
     private FileWriter fw;
     private BufferedWriter bw;
     private PrintWriter out;
-    private long lastHash;
+    private final Last last = new Last();
     private long accuS;
     private long elapsed;
 
@@ -26,11 +45,12 @@ public class RecordBuffer {
         }
     }
 
-    public void log(long hash, long delay){
-        if(hash!= lastHash && lastHash !=0){
+    public void log(Project p, long delay){
+        long hash = p==null?-1:p.getHash();
+        if(hash!= last.hash && last.hash !=0){
             flush();
         }
-        lastHash = hash;
+        last.set(p);
         accuS +=(delay/1000);
         elapsed += delay;
     }
@@ -38,7 +58,10 @@ public class RecordBuffer {
     public void flush(){
         StringBuilder buffer = new StringBuilder();
         buffer.append(Tracker.DTF.format(Instant.ofEpochSecond(System.currentTimeMillis()/1000-accuS).atZone(ZoneId.systemDefault())))
-            .append(Tracker.SPLIT_DIVIDER).append(accuS).append(Tracker.SPLIT_DIVIDER).append(lastHash);
+            .append(Tracker.SPLIT_DIVIDER).append(accuS).append(Tracker.SPLIT_DIVIDER).append(last.hash);
+        if(last.utilityTag) {
+            buffer.append(Tracker.SPLIT_DIVIDER).append(last.productive);
+        }
         out.println(buffer.toString());
         accuS = 0;
         if(elapsed>Tracker.FLUSH_DELAY_MILLIS){

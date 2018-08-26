@@ -4,6 +4,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import xyz.spiralhalo.sherlock.Tracker;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
+import xyz.spiralhalo.sherlock.persist.project.UtilityTag;
 import xyz.spiralhalo.sherlock.report.persist.ChartMeta;
 import xyz.spiralhalo.sherlock.report.persist.AllReportRow;
 import xyz.spiralhalo.sherlock.report.persist.AllReportRows;
@@ -26,6 +27,7 @@ import static xyz.spiralhalo.sherlock.report.factory.Const.MINIMUM_SECOND;
 
 public class OverviewCreator implements Supplier<Object[]> {
     private final ProjectList projectList;
+    private final HashMap<Long,Boolean> productiveMap = new HashMap<>();
 
     public OverviewCreator(ProjectList projectList) {
         this.projectList = projectList;
@@ -34,19 +36,64 @@ public class OverviewCreator implements Supplier<Object[]> {
     private int getElapsed(String[] s){return Integer.parseInt(s[1]);}
     private long getHash(String[] s){return Long.parseLong(s[2]);}
     private ZonedDateTime getTimestamp(String[] s){return ZonedDateTime.parse(s[0], Tracker.DTF);}
+    private boolean isUtilityTag(String[] s){return s.length>3;}
+    private boolean isProductive(String[] s){return !isUtilityTag(s) || Boolean.parseBoolean(s[3]);}
+
+    @Override
+    public Object[] get() {
+        final DatasetCreator dc = new DatasetCreator(projectList, productiveMap);
+        final ReportCreator rc = new ReportCreator(projectList, productiveMap);
+        try(FileInputStream fis = new FileInputStream(Tracker.getRecordFile());
+            Scanner sc = new Scanner(fis)){
+            while(sc.hasNext()){
+                String[] recordEntry=sc.nextLine().split(Tracker.SPLIT_DIVIDER);
+                try {
+                    ZonedDateTime timestamp = getTimestamp(recordEntry);
+                    int dur = getElapsed(recordEntry);
+                    long pHash = getHash(recordEntry);
+                    boolean productive = isProductive(recordEntry);
+
+                    Project p = projectList.findByHash(pHash);
+                    LocalDate date = timestamp.toLocalDate();
+
+                    if(productiveMap.get(pHash) == null) {
+                        if(p == null) {
+                            productiveMap.put(pHash, productive);
+                        } else {
+                            productiveMap.put(pHash, p.isProductive());
+                        }
+                    }
+
+                    dc.process(date, timestamp, pHash, dur);
+                    if(p==null) continue;
+                    rc.process(date, pHash, dur);
+                } catch (NumberFormatException e) {
+                    Debug.log(OverviewCreator.class, e);
+                }
+            }
+            rc.finalizeProcess();
+            dc.finalizeProcess();
+            return new Object[]{rc.activeRows,rc.finishedRows,rc.dayRows,rc.monthRows,dc.datasetArray};
+        } catch (IOException e1) {
+            Debug.log(OverviewCreator.class,e1);
+            throw new RuntimeException(e1);
+        }
+    }
 
     private static class DatasetCreator{
         private static final String OTHER = "Other";
-        private static final String DELETED = "Deleted tag";
+        private static final String DELETED = "(Deleted)";
 
         final DatasetArray datasetArray;
+        private final HashMap<Long, Boolean> productiveMap;
         private LocalDate lastDate;
         private final ProjectList projectList;
         private HashMap<Long,Integer>[] hours;
 
-        DatasetCreator(ProjectList projectList){
+        DatasetCreator(ProjectList projectList, HashMap<Long,Boolean> productiveMap){
             this.projectList = projectList;
             this.datasetArray = new DatasetArray();
+            this.productiveMap = productiveMap;
             initialize();
         }
 
@@ -92,10 +139,20 @@ public class OverviewCreator implements Supplier<Object[]> {
                 }
                 for (Long l:hours[i].keySet()) {
                     Project p = projectList.findByHash(l);
-                    if(p!=null&&meta.get(p.getName())==null)meta.put(p.getName(),new Color(p.getColor()));
-                    dataset.addValue((Number)(hours[i].get(l)/60f),l==-1?OTHER:(p==null?DELETED:p.getName()),i);
+
+                    String label;
+                    if(p != null){
+                        meta.putIfAbsent(p.getName(), new Color(p.getColor()));
+                        label = p.getName();
+                    } else if(l == -1 || !productiveMap.getOrDefault(l,false)){
+                        label = OTHER;
+                    } else {
+                        label = DELETED;
+                    }
+                    dataset.addValue((Number) (hours[i].get(l) / 60f), label, i);
+
+                    meta.workDur += productiveMap.getOrDefault(l,false)?hours[i].get(l):0;
                     meta.logDur += hours[i].get(l);
-                    meta.workDur += p==null?0:hours[i].get(l);
                 }
             }
             datasetArray.add(lastDate, dataset, meta);
@@ -108,8 +165,10 @@ public class OverviewCreator implements Supplier<Object[]> {
         final ReportRows monthRows = new ReportRows();
         final AllReportRows activeRows = new AllReportRows();
         final AllReportRows finishedRows = new AllReportRows();
+        final AllReportRows utilityRows = new AllReportRows();
         private final LocalDate today = LocalDate.now();
         private final ProjectList projectList;
+        private final HashMap<Long, Boolean> productiveMap;
 
         private LocalDate lastDate, lastMonth;
         private int accuS = 0, accuSM = 0;
@@ -117,26 +176,33 @@ public class OverviewCreator implements Supplier<Object[]> {
         private HashMap<Long,Integer> projectAccuSD = new HashMap<>();
         private HashMap<Long,Integer> projectAccuD = new HashMap<>();
 
-        ReportCreator(ProjectList projectList) {
+        ReportCreator(ProjectList projectList, HashMap<Long, Boolean> productiveMap) {
             this.projectList = projectList;
+            this.productiveMap = productiveMap;
         }
 
         void finalizeProcess(){
             createDayEntry();
             createMonthEntry();
-            for (Project p1:projectList.getActiveProjects()) {
-                activeRows.add(new AllReportRow(p1.getHash(), p1.getColor(), p1.toString(),
-                        LocalDateTime.from(p1.getStartDate()),
-                        (p1.isFinished()?LocalDateTime.from(p1.getFinishedDate()):null),
-                        projectAccuD.getOrDefault(p1.getHash(),0),
-                        projectAccuS.getOrDefault(p1.getHash(),0)));
+            for (Project p:projectList.getActiveProjects()) {
+                activeRows.add(new AllReportRow(p.getHash(), p.getColor(), p.toString(),
+                        LocalDateTime.from(p.getStartDate()),
+                        (p.isFinished()?LocalDateTime.from(p.getFinishedDate()):null),
+                        projectAccuD.getOrDefault(p.getHash(),0),
+                        projectAccuS.getOrDefault(p.getHash(),0)));
             }
-            for (Project p1:projectList.getFinishedProjects()) {
-                finishedRows.add(new AllReportRow(p1.getHash(), p1.getColor(), p1.toString(),
-                        LocalDateTime.from(p1.getStartDate()),
-                        (p1.isFinished()?LocalDateTime.from(p1.getFinishedDate()):null),
-                        projectAccuD.getOrDefault(p1.getHash(),0),
-                        projectAccuS.getOrDefault(p1.getHash(),0)));
+            for (Project p:projectList.getFinishedProjects()) {
+                finishedRows.add(new AllReportRow(p.getHash(), p.getColor(), p.toString(),
+                        LocalDateTime.from(p.getStartDate()),
+                        (p.isFinished()?LocalDateTime.from(p.getFinishedDate()):null),
+                        projectAccuD.getOrDefault(p.getHash(),0),
+                        projectAccuS.getOrDefault(p.getHash(),0)));
+            }
+            for (UtilityTag p:projectList.getUtilityTags()) {
+                utilityRows.add(new AllReportRow(p.getHash(), p.getColor(), p.toString(),
+                        p.isProductive(),
+                        projectAccuD.getOrDefault(p.getHash(),0),
+                        projectAccuS.getOrDefault(p.getHash(),0)));
             }
         }
 
@@ -157,18 +223,20 @@ public class OverviewCreator implements Supplier<Object[]> {
                 accuSM = 0;
             }
             projectAccuSD.put(pHash,projectAccuSD.getOrDefault(pHash,0) + dur);
-            accuS += dur;
+            if(productiveMap.getOrDefault(pHash, false)) {
+                accuS += dur;
+            }
         }
 
         private void createDayEntry(){
-            if (accuS >= MINIMUM_SECOND || lastDate.equals(today)) {
-                for (long z : projectAccuSD.keySet()) {
-                    if(projectAccuSD.get(z) > MINIMUM_SECOND || lastDate.equals(today)) {
-                        projectAccuD.put(z, projectAccuD.getOrDefault(z, 0) + 1);
-                        projectAccuS.put(z, projectAccuS.getOrDefault(z, 0)
-                                + projectAccuSD.get(z));
-                    }
+            for (long z : projectAccuSD.keySet()) {
+                if(projectAccuSD.get(z) > MINIMUM_SECOND || lastDate.equals(today)) {
+                    projectAccuD.put(z, projectAccuD.getOrDefault(z, 0) + 1);
+                    projectAccuS.put(z, projectAccuS.getOrDefault(z, 0)
+                            + projectAccuSD.get(z));
                 }
+            }
+            if (accuS >= MINIMUM_SECOND || lastDate.equals(today)) {
                 dayRows.add(new ReportRow(lastDate, accuS));
                 accuSM += accuS;
             }
@@ -178,36 +246,6 @@ public class OverviewCreator implements Supplier<Object[]> {
             if(accuSM >= MINIMUM_SECOND) {
                 monthRows.add(new ReportRow(lastMonth, accuSM));
             }
-        }
-    }
-
-    @Override
-    public Object[] get() {
-        final DatasetCreator dc = new DatasetCreator(projectList);
-        final ReportCreator rc = new ReportCreator(projectList);
-        try(FileInputStream fis = new FileInputStream(Tracker.getRecordFile());
-            Scanner sc = new Scanner(fis)){
-            while(sc.hasNext()){
-                String[] recordEntry=sc.nextLine().split(Tracker.SPLIT_DIVIDER);
-                try {
-                    long pHash = getHash(recordEntry);
-                    Project p = projectList.findByHash(pHash);
-                    ZonedDateTime timestamp = getTimestamp(recordEntry);
-                    int dur = getElapsed(recordEntry);
-                    LocalDate date = timestamp.toLocalDate();
-                    dc.process(date, timestamp, pHash, dur);
-                    if(p==null) continue;
-                    rc.process(date, pHash, dur);
-                } catch (NumberFormatException e) {
-                    Debug.log(OverviewCreator.class, e);
-                }
-            }
-            rc.finalizeProcess();
-            dc.finalizeProcess();
-            return new Object[]{rc.activeRows,rc.finishedRows,rc.dayRows,rc.monthRows,dc.datasetArray};
-        } catch (IOException e1) {
-            Debug.log(OverviewCreator.class,e1);
-            throw new RuntimeException(e1);
         }
     }
 }

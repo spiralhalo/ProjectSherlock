@@ -1,7 +1,8 @@
 package xyz.spiralhalo.sherlock.persist.project;
 
-import xyz.spiralhalo.sherlock.util.Debug;
-import xyz.spiralhalo.sherlock.util.PathUtil;
+import xyz.spiralhalo.sherlock.util.ListUtil;
+
+import static xyz.spiralhalo.sherlock.persist.project.ProjectListIO.*;
 
 import java.io.*;
 import java.time.ZonedDateTime;
@@ -11,40 +12,51 @@ import java.util.TreeSet;
 
 public class ProjectList implements Serializable {
     public static final long serialVersionUID = 1L;
-    public static final String PROJECTS_FILE = "projects.dat";
 
-//    private static final HashMap<ProjectList,DefaultComboBoxModel<String>> listModels = new HashMap<>();
-    private static TreeSet<String> categories;
-
-    private ArrayList<Project> activeProjects;
-    private ArrayList<Project> finishedProjects;
+    private final ArrayList<Project> activeProjects;
+    private final ArrayList<Project> finishedProjects;
+    private transient UtilityTagList utilityTags;
     private transient HashMap<Long, Project> projectMap;
+    private transient TreeSet<String> categories;
 
-    public ProjectList(){
+    ProjectList(){
         activeProjects = new ArrayList<>();
         finishedProjects = new ArrayList<>();
     }
 
     public void addProject(Project p) {
-        activeProjects.add(p);
-        getCategories().add(p.getCategory());
-        if(projectMap==null){
-            createProjectMap();
+        if(p.isUtilityTag()){
+            getUtilityTags().add((UtilityTag)p);
+            saveUtilityTags(this);
+        } else {
+            activeProjects.add(p);
+            getCategories().add(p.getCategory());
+            save(this);
         }
-        projectMap.put(p.getHash(),p);
-        save();
+        getProjectMap().put(p.getHash(), p);
     }
 
-    public void editProject(Project p, String oldCategory){
-        save();
-        if(!p.getCategory().equals(oldCategory)){
-            for (Project x:activeProjects) {
-                if(x!=p && x.getCategory().equals(oldCategory)){
-                    return;
-                }
-            }
-            for (Project x:finishedProjects) {
-                if(x!=p && x.getCategory().equals(oldCategory)){
+    public boolean deleteProject(Project p) {
+        if(p.isUtilityTag()){
+            return delete(getUtilityTags(), (UtilityTag)p);
+        }
+        if(activeProjects.contains(p)){
+            return delete(activeProjects, p);
+        }
+        if(finishedProjects.contains(p)){
+            return delete(finishedProjects, p);
+        }
+        return false;
+    }
+
+    @ProjectsOnly
+    public void editProject(Project p, String name, String newCategory, String oldCategory, String tags){
+        assureProject(p, "editProject");
+        p.edit(name, newCategory, tags);
+        save(this);
+        if(!newCategory.equals(oldCategory)){
+            for (Project x: ListUtil.extensiveIterator(activeProjects,finishedProjects)) {
+                if(x.getCategory().equals(oldCategory)){
                     return;
                 }
             }
@@ -52,26 +64,43 @@ public class ProjectList implements Serializable {
         }
     }
 
-    public long getProjectOf(String windowTitle, ZonedDateTime time){
-        for (Project p : activeProjects) {
+    @ProjectsOnly
+    public void setProjectFinished(long hash, boolean finished){
+        Project p = findByHash(hash);
+        assureProject(p, "setProjectFinished");
+        if(finished && !p.isFinished()) {
+            activeProjects.remove(p);
+            finishedProjects.add(p);
+            p.setFinished(true);
+        } else if(!finished && p.isFinished()){
+            activeProjects.add(p);
+            finishedProjects.remove(p);
+            p.setFinished(false);
+        }
+        save(this);
+    }
+
+    public void editUtilityTag(UtilityTag p, String name, String tag, boolean productive){
+        p.edit(name, tag, productive);
+        saveUtilityTags(this);
+    }
+
+    public Project getProjectOf(String windowTitle, ZonedDateTime time){
+        for (Project p : ListUtil.extensiveIterator(activeProjects,finishedProjects,getUtilityTags())) {
             if((!p.isFinished() || !time.isAfter(p.getFinishedDate())) && !time.isBefore(p.getStartDate())) {
                 for (String tag : p.getTags()) {
                     if (windowTitle.toLowerCase().contains(tag.toLowerCase())) {
-                        return p.getHash();
+                        return p;
                     }
                 }
             }
         }
-        for (Project p : finishedProjects) {
-            if((!p.isFinished() || !time.isAfter(p.getFinishedDate())) && !time.isBefore(p.getStartDate())) {
-                for (String tag : p.getTags()) {
-                    if (windowTitle.toLowerCase().contains(tag.toLowerCase())) {
-                        return p.getHash();
-                    }
-                }
-            }
-        }
-        return -1;
+        return null;
+    }
+
+    public Project findByHash(long hash){
+        if(hash==-1) return null;
+        return getProjectMap().getOrDefault(hash, null);
     }
 
     public TreeSet<String> getCategories(){
@@ -83,40 +112,23 @@ public class ProjectList implements Serializable {
 
     private void setCategories(){
         categories = new TreeSet<>();
-        for (Project p:activeProjects) {
-            categories.add(p.getCategory());
-        }
-        for (Project p:finishedProjects) {
+        for (Project p:ListUtil.extensiveIterator(activeProjects,finishedProjects)) {
             categories.add(p.getCategory());
         }
     }
 
-    public boolean deleteProject(Project p) {
-        if(activeProjects.contains(p)){
-            return delete(activeProjects, p);
-        }
-        if(finishedProjects.contains(p)){
-            return delete(finishedProjects, p);
-        }
-        return false;
+    private boolean delete(ArrayList<Project> list, Project p){
+        getProjectMap().remove(p.getHash());
+        list.remove(p);
+        save(this);
+        return true;
     }
 
-    public int size(){
-        return activeProjects.size() + finishedProjects.size();
-    }
-
-    public void setProjectFinished(long hash, boolean finished){
-        Project p = findByHash(hash);
-        if(finished && !p.isFinished()) {
-            activeProjects.remove(p);
-            finishedProjects.add(p);
-            p.setFinished(true);
-        } else if(!finished && p.isFinished()){
-            activeProjects.add(p);
-            finishedProjects.remove(p);
-            p.setFinished(false);
-        }
-        save();
+    private boolean delete(UtilityTagList list, UtilityTag p){
+        getProjectMap().remove(p.getHash());
+        list.remove(p);
+        saveUtilityTags(this);
+        return true;
     }
 
     public ArrayList<Project> getActiveProjects() {
@@ -127,85 +139,28 @@ public class ProjectList implements Serializable {
         return finishedProjects;
     }
 
-    private boolean delete(ArrayList<Project> list, Project p){
-        projectMap.remove(p.getHash());
-        list.remove(p);
-        save();
-        return true;
+    void setUtilityTags(UtilityTagList utilityTags) {
+        this.utilityTags = utilityTags;
     }
 
-    public Project findByHash(long hash){
-        if(hash==-1) return null;
-        if(projectMap==null){
-            createProjectMap();
-        }
-        return projectMap.getOrDefault(hash, null);
+    public UtilityTagList getUtilityTags() {
+        if (utilityTags == null) utilityTags = new UtilityTagList();
+        return utilityTags;
+    }
+
+    private HashMap<Long, Project> getProjectMap() {
+        if(projectMap==null) createProjectMap();
+        return projectMap;
     }
 
     private void createProjectMap() {
         projectMap = new HashMap<>();
-        for (Project project : activeProjects) {
-            projectMap.put(project.getHash(),project);
-        }
-        for (Project project : finishedProjects) {
+        for (Project project : ListUtil.extensiveIterator(activeProjects, finishedProjects, getUtilityTags())) {
             projectMap.put(project.getHash(),project);
         }
     }
 
-    synchronized private void save(){
-        File file = new File(PathUtil.getSaveDir(),PROJECTS_FILE);
-        try(FileOutputStream fis = new FileOutputStream(file);
-            ObjectOutputStream ois = new ObjectOutputStream(fis)){
-            ois.writeObject(this);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    synchronized public static ProjectList load() {
-        Object x = null;
-        File file = new File(PathUtil.getSaveDir(), PROJECTS_FILE);
-        try (FileInputStream fis = new FileInputStream(file);
-            ObjectInputStream ois = new ObjectInputStream(fis)) {
-            x = ois.readObject();
-            return (ProjectList) x;
-        } catch (ClassNotFoundException | IOException e) {
-            Debug.log(ProjectList.class, e);
-            return new ProjectList();
-        } catch (ClassCastException e) {
-            Debug.log(ProjectList.class, e);
-            return legacy(x);
-        }
-    }
-
-    private static ProjectList legacy(Object x){
-        ProjectList n = new ProjectList();
-        if(x instanceof projectlogger.ProjectList){
-            for (projectlogger.Project p:((projectlogger.ProjectList)x).getProjects()) {
-                Project m = new Project(p.getSupertag()+"/"+p.getTag(),p.getCategory(),p.getTag());
-                m.setStartDate(p.getStartDate());
-                if(p.isFinished()){
-                    n.finishedProjects.add(m);
-                    m.setFinished(true);
-                    m.setFinishedDate(p.getFinishedDate());
-                } else {
-                    n.activeProjects.add(m);
-                }
-            }
-        } else if(x instanceof projectlogger.persist.ProjectList){
-            for (projectlogger.persist.Project p:((projectlogger.persist.ProjectList)x).getProjects()) {
-                Project m = new Project(p.getGroup()+"/"+p.getTag(),p.getCategory(),p.getTag());
-                m.setStartDate(p.getStartDate());
-                if(p.isFinished()){
-                    n.finishedProjects.add(m);
-                    m.setFinished(true);
-                    m.setFinishedDate(p.getFinishedDate());
-                } else {
-                    n.activeProjects.add(m);
-                }
-            }
-        }
-        n.save();
-        return n;
+    private static void assureProject(Project p, String methodName){
+        if(p.isUtilityTag()) throw new IllegalArgumentException(methodName+"() don't accept utility tags");
     }
 }

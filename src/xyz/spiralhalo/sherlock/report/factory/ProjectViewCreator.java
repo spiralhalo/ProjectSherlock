@@ -62,7 +62,7 @@ public class ProjectViewCreator implements Supplier<Object[]> {
                     int x = Integer.parseInt(temp[1]);
                     accuS += x;
                 } catch (NumberFormatException e) {
-                    Debug.log(ProjectViewCreator.class, e);
+                    Debug.log(e);
                 }
             }
             if(accuS >= MINIMUM_SECOND) {
@@ -73,7 +73,7 @@ public class ProjectViewCreator implements Supplier<Object[]> {
             }
             return new Object[]{p, dayModel, monthModel};
         } catch (IOException e1) {
-            Debug.log(ProjectViewCreator.class, e1);
+            Debug.log(e1);
             throw new RuntimeException(e1);
         }
     }

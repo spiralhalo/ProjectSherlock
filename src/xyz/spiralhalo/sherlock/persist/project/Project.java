@@ -31,7 +31,15 @@ public class Project implements Serializable {
         resetColor();
     }
 
-    public void edit(String name, String category, String tags){
+    public boolean isUtilityTag(){
+        return this instanceof UtilityTag;
+    }
+
+    public boolean isProductive(){
+        return true;
+    }
+
+    void edit(String name, String category, String tags){
         this.name = name;
         this.category = category;
         setTags(tags);

@@ -25,7 +25,7 @@ public class AutoImporter {
                 while (sc.hasNext()){
                     temp = sc.nextLine().split(Tracker.SPLIT_DIVIDER);
                     d = ZonedDateTime.parse(temp[0], Tracker.DTF);
-                    x = projectList.getProjectOf(temp[2],d);
+                    x = projectList.getProjectOf(temp[2],d).getHash();
                     y.log(d,x, Integer.parseInt(temp[1]));
                 }
                 y.close();
