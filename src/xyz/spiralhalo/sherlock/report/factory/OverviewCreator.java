@@ -37,7 +37,7 @@ public class OverviewCreator implements Supplier<Object[]> {
 
     private static class DatasetCreator{
         private static final String OTHER = "Other";
-        private static final String DELETED = "Deleted project";
+        private static final String DELETED = "Deleted tag";
 
         final DatasetArray datasetArray;
         private LocalDate lastDate;
@@ -84,7 +84,7 @@ public class OverviewCreator implements Supplier<Object[]> {
             final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
             final ChartMeta meta = new ChartMeta();
             meta.put(OTHER, ColorUtil.gray);
-            meta.put(DELETED, Color.PINK);
+            meta.put(DELETED, ColorUtil.med_red_gray);
             for (int i = 0; i < 24; i++) {
                 if(hours[i]==null) {
                     dataset.addValue((Number)0,"Other",i);

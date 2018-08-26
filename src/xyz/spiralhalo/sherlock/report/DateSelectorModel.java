@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class DateSelectorModel implements ComboBoxModel<DateSelectorEntry> {
     private ArrayList<DateSelectorEntry> list;
     private DateSelectorEntry selected;
-    private ListDataListener l;
+    private final ArrayList<ListDataListener> l = new ArrayList<>();
 
     public DateSelectorModel(ArrayList<LocalDate> list) {
         this.list = new ArrayList<>();
@@ -32,8 +32,8 @@ public class DateSelectorModel implements ComboBoxModel<DateSelectorEntry> {
             int x = list.indexOf(obj);
             if (x != -1) {
                 selected = list.get(x);
-                if(l!=null){
-                    l.contentsChanged(new ListDataEvent(this,ListDataEvent.CONTENTS_CHANGED,-1,-1));
+                for (ListDataListener l1:l) {
+                    l1.contentsChanged(new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, -1, -1));
                 }
             }
         }
@@ -57,11 +57,11 @@ public class DateSelectorModel implements ComboBoxModel<DateSelectorEntry> {
 
     @Override
     public void addListDataListener(ListDataListener l) {
-        this.l = l;
+        this.l.add(l);
     }
 
     @Override
     public void removeListDataListener(ListDataListener l) {
-        this.l = null;
+        this.l.remove(l);
     }
 }
