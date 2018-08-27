@@ -1,31 +1,31 @@
 package xyz.spiralhalo.sherlock.report.factory;
 
 import xyz.spiralhalo.sherlock.Tracker;
+import xyz.spiralhalo.sherlock.async.AsyncTask;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.report.persist.ReportRow;
 import xyz.spiralhalo.sherlock.report.persist.ReportRows;
 import xyz.spiralhalo.sherlock.util.Debug;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Scanner;
-import java.util.function.Supplier;
 
 import static xyz.spiralhalo.sherlock.report.factory.Const.MINIMUM_SECOND;
 
-public class ProjectViewCreator implements Supplier<Object[]> {
+public class ProjectViewCreator extends AsyncTask<ProjectViewResult> {
     private final Project p;
+    private ProjectViewResult result;
 
     public ProjectViewCreator(Project p) {
         this.p = p;
     }
 
     @Override
-    public Object[] get() {
+    public void doRun() throws Exception {
         try (FileInputStream fis = new FileInputStream(Tracker.getRecordFile());
              Scanner sc = new Scanner(fis)) {
             String[] temp;
@@ -33,8 +33,8 @@ public class ProjectViewCreator implements Supplier<Object[]> {
             LocalDate cd=null,cm=null;
             int accuS = 0;
             int accuSM = 0;
-            final ReportRows dayModel = new ReportRows();
-            final ReportRows monthModel = new ReportRows();
+            final ReportRows dayRows = new ReportRows();
+            final ReportRows monthRows = new ReportRows();
             final LocalDate today = LocalDate.now();
             while (sc.hasNext()) {
                 try {
@@ -45,7 +45,7 @@ public class ProjectViewCreator implements Supplier<Object[]> {
                     if(cm==null)cm=c2.toLocalDate();
                     if (c2.toLocalDate().isAfter(cd)) {
                         if(accuS >= MINIMUM_SECOND || cd.equals(today)) {
-                            dayModel.add(new ReportRow(cd, accuS));
+                            dayRows.add(new ReportRow(cd, accuS));
                             accuSM += accuS;
                         }
                         cd = c2.toLocalDate();
@@ -54,7 +54,7 @@ public class ProjectViewCreator implements Supplier<Object[]> {
                     if ( cm.get(ChronoField.MONTH_OF_YEAR) != c2.get(ChronoField.MONTH_OF_YEAR)
                             || cm.get(ChronoField.YEAR) != c2.get(ChronoField.YEAR)){
                         if(accuSM >= MINIMUM_SECOND) {
-                            monthModel.add(new ReportRow(cm, accuSM));
+                            monthRows.add(new ReportRow(cm, accuSM));
                         }
                         cm = c2.toLocalDate();
                         accuSM = 0;
@@ -66,15 +66,17 @@ public class ProjectViewCreator implements Supplier<Object[]> {
                 }
             }
             if(accuS >= MINIMUM_SECOND) {
-                dayModel.add(new ReportRow(cd, accuS));
+                dayRows.add(new ReportRow(cd, accuS));
             }
             if(accuSM >= MINIMUM_SECOND) {
-                monthModel.add(new ReportRow(cm, accuSM));
+                monthRows.add(new ReportRow(cm, accuSM));
             }
-            return new Object[]{p, dayModel, monthModel};
-        } catch (IOException e1) {
-            Debug.log(e1);
-            throw new RuntimeException(e1);
+            result = new ProjectViewResult(p, dayRows, monthRows);
         }
+    }
+
+    @Override
+    protected ProjectViewResult getResult() {
+        return result;
     }
 }

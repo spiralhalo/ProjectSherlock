@@ -15,11 +15,11 @@ public class AppConfig {
         BUSINESS(0, 0, 0xe5eaef, false,"Substance Business"),
         BUSINESS_BLUE(1, 0x406079, 0xf1f6fa, false, "Substance Business Blue Steel"),
         BUSINESS_BLACK(2, 0, 0xf1f6fa, false, "Substance Business Black Steel"),
-        MIST_SILVER(3, 0, 0xebf0f4, false, "Substance Mist Silver"),
-        GRAPHITE(4, 0xffffff, 0x4d4d4d, true, "Substance Graphite"),
+        GRAPHITE(3, 0xffffff, 0x4d4d4d, true, "Substance Graphite"),
+        TWILIGHT(4, 0xcccc99, 0x4C4A41, true, "Substance Twilight"),
         RAVEN(5, 0xffffff, 0x3A3A3A, true, "Substance Raven"),
-        TWILIGHT(6, 0xcccc99, 0x4C4A41, true, "Substance Twilight"),
-        SYSTEM(7, 0, 0xF0F0F0, false, "System Default Theme"),
+        SYSTEM(6, 0, 0xF0F0F0, false, "System Default Theme"),
+        //        MIST_SILVER(3, 0, 0xebf0f4, false, "Substance Mist Silver"),
         ;
         public int x;
         public int foreground;
@@ -59,7 +59,11 @@ public class AppConfig {
     public static Theme defaultTheme() {return Theme.BUSINESS;}
 
     public static Theme getTheme() {
-        return Theme.valueOf(IniHandler.getInstance().get(NODE, KEY_THEME, defaultTheme().name()));
+        try {
+            return Theme.valueOf(IniHandler.getInstance().get(NODE, KEY_THEME, defaultTheme().name()));
+        } catch (IllegalArgumentException e) {
+            return defaultTheme();
+        }
     }
 
     public static void setTheme(int theme) {

@@ -11,11 +11,7 @@ import java.util.function.Supplier;
 public class Loader<T> implements BiConsumer<T,Throwable> {
     private static final HashSet<String> runningIds = new HashSet<>();
 
-    public static <T> void execute(String id, Supplier<T> supplier, BiConsumer<T, ? super Throwable> callback){
-        execute(id, supplier, callback, null, null);
-    }
-
-    public static <T> void execute(String id, Supplier<T> supplier, BiConsumer<T, ? super Throwable> callback,
+    public static <T> void execute(String id, AsyncTask<T> asyncTask, BiConsumer<T, ? super Throwable> callback,
                                    JComponent toShow, JComponent toHide){
         if(runningIds.contains(id)){
             // silently rejects
@@ -23,7 +19,7 @@ public class Loader<T> implements BiConsumer<T,Throwable> {
             return;
         }
         runningIds.add(id);
-        CompletableFuture.supplyAsync(supplier).whenComplete(new Loader<>(callback,toShow, toHide, id));
+        asyncTask.start(new Loader<>(callback,toShow, toHide, id));
         if(toShow == null)return;
         toShow.setVisible(true);
         toHide.setVisible(false);

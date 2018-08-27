@@ -13,16 +13,22 @@ public class ProjectListIO {
 
     synchronized public static ProjectList load() {
         File file = new File(PathUtil.getSaveDir(), PROJECTS_FILE);
-        try (FileInputStream fis = new FileInputStream(file);
-             ObjectInputStream ois = new ObjectInputStream(fis)) {
-            Object x = ois.readObject();
-            ProjectList y = (x instanceof ProjectList)?(ProjectList) x:legacy(x);
-            loadUtilityTags(y);
-            return y;
-        } catch (ClassNotFoundException | IOException e) {
-            Debug.log(e);
-            return new ProjectList();
+        if(file.exists()){
+            try (FileInputStream fis = new FileInputStream(file);
+                 ObjectInputStream ois = new ObjectInputStream(fis)) {
+                Object x = ois.readObject();
+                ProjectList y = (x instanceof ProjectList)?(ProjectList) x:legacy(x);
+                loadUtilityTags(y);
+                return y;
+            } catch (ClassNotFoundException | IOException e) {
+                Debug.log(e);
+            }
         }
+        return createNew();
+    }
+
+    private static ProjectList createNew(){
+        return new ProjectList();
     }
 
     private static void loadUtilityTags(ProjectList projectList) {

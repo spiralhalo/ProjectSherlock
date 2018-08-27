@@ -17,8 +17,8 @@ public class LoaderDialog extends JDialog {
         completableFuture.cancel(true);
     }
 
-    public static <T> void execute(JFrame owner, Supplier<T> supplier, BiConsumer<T, ? super Throwable> callback){
-        completableFuture = CompletableFuture.supplyAsync(supplier).whenComplete((e,t) -> {
+    public static <T> void execute(JFrame owner, AsyncTask<T> supplier, BiConsumer<T, ? super Throwable> callback){
+        supplier.start((e,t) -> {
             if(t!=null) Debug.log(LoaderDialog.class,t);
             completableFuture = null;
             loaderDialog.dispose();
@@ -37,11 +37,7 @@ public class LoaderDialog extends JDialog {
         setContentPane(contentPane);
         setModal(true);
 
-        buttonCancel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        });
+        buttonCancel.addActionListener(e -> onCancel());
 
         pack();
     }

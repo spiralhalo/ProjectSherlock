@@ -1,6 +1,6 @@
 package xyz.spiralhalo.sherlock.util;
 
-import xyz.spiralhalo.sherlock.Main;
+import xyz.spiralhalo.sherlock.MainView;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -27,7 +27,7 @@ public class PathUtil {
     public static String getJarPath(){
         if(cachedJarPath == null){
             try {
-                cachedJarPath = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+                cachedJarPath = new File(MainView.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
             } catch (URISyntaxException e) {
                 e.printStackTrace();
                 return null;

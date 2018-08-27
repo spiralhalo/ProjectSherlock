@@ -56,7 +56,7 @@ public class SysIntegration {
         try {
             String key = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
             String valueName = Main.APP_NAME_NOSPACE;
-            String arg = AppConfig.getBool(AppBool.RUN_MINIMIZED)?" "+Main.ARG_MINIMIZED:"";
+            String arg = AppConfig.getBool(AppBool.RUN_MINIMIZED)?" "+ Main.ARG_MINIMIZED:"";
             String value = String.format("%s -jar \"%s\"%s",PathUtil.getJavawPath(), PathUtil.getJarPath(), arg);
             if(AppConfig.getBool(AppBool.RUN_ON_STARTUP)) {
                 WinRegistry.writeStringValue(WinRegistry.HKEY_CURRENT_USER, key, valueName, value);

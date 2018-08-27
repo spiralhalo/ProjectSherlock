@@ -2,6 +2,7 @@ package xyz.spiralhalo.sherlock.report.factory;
 
 import org.jfree.data.category.DefaultCategoryDataset;
 import xyz.spiralhalo.sherlock.Tracker;
+import xyz.spiralhalo.sherlock.async.AsyncTask;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.persist.project.UtilityTag;
@@ -14,18 +15,20 @@ import xyz.spiralhalo.sherlock.util.ColorUtil;
 import xyz.spiralhalo.sherlock.util.Debug;
 
 import java.awt.*;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.function.Supplier;
 
 import static xyz.spiralhalo.sherlock.report.factory.Const.MINIMUM_SECOND;
 
-public class OverviewCreator implements Supplier<Object[]> {
+public class OverviewCreator extends AsyncTask<OverviewResult> {
     private final ProjectList projectList;
     private final HashMap<Long,Boolean> productiveMap = new HashMap<>();
 
@@ -34,19 +37,27 @@ public class OverviewCreator implements Supplier<Object[]> {
     }
 
     private int getElapsed(String[] s){return Integer.parseInt(s[1]);}
-    private long getHash(String[] s){return Long.parseLong(s[2]);}
-    private ZonedDateTime getTimestamp(String[] s){return ZonedDateTime.parse(s[0], Tracker.DTF);}
+    private long getHash(String[] s) throws NumberFormatException{return Long.parseLong(s[2]);}
+    private ZonedDateTime getTimestamp(String[] s)throws DateTimeParseException {return ZonedDateTime.parse(s[0], Tracker.DTF);}
     private boolean isUtilityTag(String[] s){return s.length>3;}
     private boolean getRawProductivityValue(String[] s){return !isUtilityTag(s) || Boolean.parseBoolean(s[3]);}
 
+    private OverviewResult result;
+
     @Override
-    public Object[] get() {
+    public OverviewResult getResult() {
+        return result;
+    }
+
+    @Override
+    protected void doRun() throws Exception{
         final DatasetCreator dc = new DatasetCreator(projectList, productiveMap);
         final ReportCreator rc = new ReportCreator(projectList, productiveMap);
-        try(FileInputStream fis = new FileInputStream(Tracker.getRecordFile());
+        final File recordFile = new File(Tracker.getRecordFile());
+        try(FileInputStream fis = new FileInputStream(recordFile);
             Scanner sc = new Scanner(fis)){
-            while(sc.hasNext()){
-                String[] recordEntry=sc.nextLine().split(Tracker.SPLIT_DIVIDER);
+            while (sc.hasNextLine()) {
+                String[] recordEntry = sc.nextLine().split(Tracker.SPLIT_DIVIDER);
                 try {
                     ZonedDateTime timestamp = getTimestamp(recordEntry);
                     int dur = getElapsed(recordEntry);
@@ -56,8 +67,8 @@ public class OverviewCreator implements Supplier<Object[]> {
                     Project p = projectList.findByHash(pHash);
                     LocalDate date = timestamp.toLocalDate();
 
-                    if(productiveMap.get(pHash) == null) {
-                        if(p == null) {
+                    if (productiveMap.get(pHash) == null) {
+                        if (p == null) {
                             productiveMap.put(pHash, productive);
                         } else {
                             productiveMap.put(pHash, p.isProductive());
@@ -65,18 +76,15 @@ public class OverviewCreator implements Supplier<Object[]> {
                     }
 
                     dc.process(date, timestamp, pHash, dur);
-                    if(p==null) continue;
+                    if (p == null) continue;
                     rc.process(date, pHash, dur);
-                } catch (NumberFormatException e) {
-                    Debug.log(OverviewCreator.class, e);
+                } catch (NumberFormatException | DateTimeParseException e) {
+                    Debug.log(e);
                 }
             }
             rc.finalizeProcess();
             dc.finalizeProcess();
-            return new Object[]{rc.activeRows,rc.finishedRows, rc.utilityRows, rc.dayRows,rc.monthRows,dc.datasetArray};
-        } catch (IOException e1) {
-            Debug.log(OverviewCreator.class,e1);
-            throw new RuntimeException(e1);
+            result = new OverviewResult(rc.activeRows,rc.finishedRows, rc.utilityRows, rc.dayRows,rc.monthRows,dc.datasetArray);
         }
     }
 
@@ -128,6 +136,9 @@ public class OverviewCreator implements Supplier<Object[]> {
         }
 
         private void createEntry() {
+            if(lastDate==null){
+                lastDate=LocalDate.now();
+            }
             final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
             final ChartMeta meta = new ChartMeta();
             meta.put(OTHER, ColorUtil.gray);
@@ -172,9 +183,9 @@ public class OverviewCreator implements Supplier<Object[]> {
 
         private LocalDate lastDate, lastMonth;
         private int accuS = 0, accuSM = 0;
-        private HashMap<Long,Integer> projectAccuS = new HashMap<>();
-        private HashMap<Long,Integer> projectAccuSD = new HashMap<>();
-        private HashMap<Long,Integer> projectAccuD = new HashMap<>();
+        private final HashMap<Long,Integer> projectAccuS = new HashMap<>();
+        private final HashMap<Long,Integer> projectAccuSD = new HashMap<>();
+        private final HashMap<Long,Integer> projectAccuD = new HashMap<>();
 
         ReportCreator(ProjectList projectList, HashMap<Long, Boolean> productiveMap) {
             this.projectList = projectList;
@@ -230,13 +241,13 @@ public class OverviewCreator implements Supplier<Object[]> {
 
         private void createDayEntry(){
             for (long z : projectAccuSD.keySet()) {
-                if(projectAccuSD.get(z) > MINIMUM_SECOND || lastDate.equals(today)) {
+                if (projectAccuSD.get(z) > MINIMUM_SECOND || lastDate.equals(today)) {
                     projectAccuD.put(z, projectAccuD.getOrDefault(z, 0) + 1);
                     projectAccuS.put(z, projectAccuS.getOrDefault(z, 0)
                             + projectAccuSD.get(z));
                 }
             }
-            if (accuS >= MINIMUM_SECOND || lastDate.equals(today)) {
+            if (accuS >= MINIMUM_SECOND || (lastDate != null && lastDate.equals(today))) {
                 dayRows.add(new ReportRow(lastDate, accuS));
                 accuSM += accuS;
             }

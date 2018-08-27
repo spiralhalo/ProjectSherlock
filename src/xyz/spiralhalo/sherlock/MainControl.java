@@ -15,10 +15,7 @@ import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppBool;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt;
 import xyz.spiralhalo.sherlock.report.*;
-import xyz.spiralhalo.sherlock.report.factory.DatasetArray;
-import xyz.spiralhalo.sherlock.report.factory.OverviewCreator;
-import xyz.spiralhalo.sherlock.report.factory.ProjectViewCreator;
-import xyz.spiralhalo.sherlock.report.persist.AllReportRows;
+import xyz.spiralhalo.sherlock.report.factory.*;
 import xyz.spiralhalo.sherlock.report.persist.ReportRows;
 import xyz.spiralhalo.sherlock.util.ImgUtil;
 
@@ -193,7 +190,10 @@ public class MainControl implements ActionListener {
 
     public void setChart(JComboBox comboCharts, JButton prev, JButton next){
         chartSelector = comboCharts;
-        comboCharts.addItemListener(e->view.refreshChart(cache));
+        comboCharts.addItemListener(e->{
+            if(comboCharts.getItemCount()==0)return;
+            view.refreshChart(cache);
+        });
         prev.addActionListener(e->prevChart());
         next.addActionListener(e->nextChart());
         view.refreshChart(cache);
@@ -368,33 +368,30 @@ public class MainControl implements ActionListener {
                 , new DayModel(dayRows), new MonthModel(monthRows)).setVisible(true));
     }
 
-    private void projectCB(Object[] result, Throwable t){
+    private void projectCB(ProjectViewResult result, Throwable t){
         if(t != null){
             JOptionPane.showMessageDialog(view.getFrame(),
                     String.format("Failed to refresh the project due to an error.\nerror code:\n\t%s", t.toString()),
                     "Refresh failed", JOptionPane.ERROR_MESSAGE);
-        } else if(result!=null&&result.length==3){
-            Project p = (Project)result[0];
-            ReportRows dayRows = (ReportRows)result[1];
-            ReportRows monthRows = (ReportRows)result[2];
-            cache.put(CacheId.ProjectDayRows(p), dayRows);
-            cache.put(CacheId.ProjectMonthRows(p), monthRows);
-            showProject(p,dayRows,monthRows);
+        } else if(result!=null) {
+            cache.put(CacheId.ProjectDayRows(result.p), result.dayRows);
+            cache.put(CacheId.ProjectMonthRows(result.p), result.monthRows);
+            showProject(result.p, result.dayRows, result.monthRows);
         }
     }
 
-    private void refreshCB(Object[] result, Throwable t){
+    private void refreshCB(OverviewResult result, Throwable t){
         if(t != null){
             JOptionPane.showMessageDialog(view.getFrame(),
                     String.format("Failed to refresh due to an error.\nerror code:\n\t%s", t.toString()),
                     "Refresh failed", JOptionPane.ERROR_MESSAGE);
-        } else if(result!=null&&result.length==6){
-            cache.put(CacheId.ActiveRows, (AllReportRows) result[0]);
-            cache.put(CacheId.FinishedRows, (AllReportRows) result[1]);
-            cache.put(CacheId.UtilityRows, (AllReportRows) result[2]);
-            cache.put(CacheId.DayRows, (ReportRows)result[3]);
-            cache.put(CacheId.MonthRows, (ReportRows)result[4]);
-            DatasetArray x = (DatasetArray)result[5];
+        } else if(result!=null){
+            cache.put(CacheId.ActiveRows, result.activeRows);
+            cache.put(CacheId.FinishedRows, result.finishedRows);
+            cache.put(CacheId.UtilityRows, result.utilityRows);
+            cache.put(CacheId.DayRows, result.dayRows);
+            cache.put(CacheId.MonthRows, result.monthRows);
+            DatasetArray x = result.datasetArray;
             for (int i = 0; i < x.dateList.size(); i++) {
                 LocalDate date = x.dateList.get(i);
                 cache.put(CacheId.ChartData(date), x.datasets.get(i));

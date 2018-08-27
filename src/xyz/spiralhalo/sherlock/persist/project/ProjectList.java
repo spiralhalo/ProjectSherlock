@@ -110,6 +110,10 @@ public class ProjectList implements Serializable {
         return categories;
     }
 
+    public int getTotalSize() {
+        return getProjectMap().size();
+    }
+
     private void setCategories(){
         categories = new TreeSet<>();
         for (Project p:ListUtil.extensiveIterator(activeProjects,finishedProjects)) {

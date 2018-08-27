@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: xyz.spiralhalo.sherlock.Main
+Main-Class: xyz.spiralhalo.sherlock.MainView
 

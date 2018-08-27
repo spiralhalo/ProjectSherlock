@@ -25,9 +25,12 @@ public class IniHandler extends IniPreferences{
 
     private IniHandler(Ini ini){
         super(ini);
-        ini.setFile(new File(PathUtil.getSaveDir(), SETTINGS_FILENAME));
+        File iniFile = new File(PathUtil.getSaveDir(), SETTINGS_FILENAME);
+        ini.setFile(iniFile);
         try {
-            ini.load();
+            if(iniFile.exists()) {
+                ini.load();
+            }
         } catch (IOException e) {
             Debug.log(IniHandler.class, e);
         }

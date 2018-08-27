@@ -1,6 +1,5 @@
 package xyz.spiralhalo.sherlock.dialog;
 
-import com.sun.imageio.plugins.common.ImageUtil;
 import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
