@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public class Debug {
     
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     public static void log(Class caller, Throwable e){
         if(DEBUG){
             e.printStackTrace();
