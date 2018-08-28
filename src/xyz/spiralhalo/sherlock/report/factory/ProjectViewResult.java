@@ -4,9 +4,9 @@ import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.report.persist.ReportRows;
 
 public class ProjectViewResult {
-    public Project p;
-    public ReportRows dayRows;
-    public ReportRows monthRows;
+    public final Project p;
+    public final ReportRows dayRows;
+    public final ReportRows monthRows;
 
     public ProjectViewResult(Project p, ReportRows dayRows, ReportRows monthRows) {
         this.p = p;

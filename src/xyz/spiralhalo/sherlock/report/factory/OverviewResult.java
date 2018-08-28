@@ -4,12 +4,12 @@ import xyz.spiralhalo.sherlock.report.persist.AllReportRows;
 import xyz.spiralhalo.sherlock.report.persist.ReportRows;
 
 public class OverviewResult {
-    public AllReportRows activeRows;
-    public AllReportRows finishedRows;
-    public AllReportRows utilityRows;
-    public ReportRows dayRows;
-    public ReportRows monthRows;
-    public DatasetArray datasetArray;
+    public final AllReportRows activeRows;
+    public final AllReportRows finishedRows;
+    public final AllReportRows utilityRows;
+    public final ReportRows dayRows;
+    public final ReportRows monthRows;
+    public final DatasetArray datasetArray;
 
     public OverviewResult(AllReportRows activeRows, AllReportRows finishedRows, AllReportRows utilityRows, ReportRows dayRows, ReportRows monthRows, DatasetArray datasetArray) {
         this.activeRows = activeRows;

@@ -1,6 +1,7 @@
 package xyz.spiralhalo.sherlock;
 
 import xyz.spiralhalo.sherlock.persist.project.Project;
+import xyz.spiralhalo.sherlock.util.Debug;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -12,7 +13,7 @@ import java.time.ZoneId;
 public class RecordBuffer {
 
     private static class Last{
-        private long hash;
+        private long hash = -1;
         private boolean productive;
         private boolean utilityTag;
         public void set(Project p){
@@ -56,6 +57,7 @@ public class RecordBuffer {
     }
 
     public void flush(){
+        Debug.log("Writing record entry");
         StringBuilder buffer = new StringBuilder();
         buffer.append(Tracker.DTF.format(Instant.ofEpochSecond(System.currentTimeMillis()/1000-accuS).atZone(ZoneId.systemDefault())))
             .append(Tracker.SPLIT_DIVIDER).append(accuS).append(Tracker.SPLIT_DIVIDER).append(last.hash);
@@ -65,6 +67,7 @@ public class RecordBuffer {
         out.println(buffer.toString());
         accuS = 0;
         if(elapsed>Tracker.FLUSH_DELAY_MILLIS){
+            Debug.log("Flushing record");
             elapsed = 0;
             out.flush();
         }
@@ -75,7 +78,6 @@ public class RecordBuffer {
             elapsed = Tracker.FLUSH_DELAY_MILLIS + 1;
             flush();
         }
-        out.flush();
         out.close();
         bw.close();
         fw.close();

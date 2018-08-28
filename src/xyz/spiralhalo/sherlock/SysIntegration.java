@@ -1,5 +1,6 @@
 package xyz.spiralhalo.sherlock;
 
+import xyz.spiralhalo.sherlock.Main.Arg;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppBool;
 import xyz.spiralhalo.sherlock.util.Debug;
@@ -56,8 +57,10 @@ public class SysIntegration {
         try {
             String key = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
             String valueName = Main.APP_NAME_NOSPACE;
-            String arg = AppConfig.getBool(AppBool.RUN_MINIMIZED)?" "+ Main.ARG_MINIMIZED:"";
-            String value = String.format("%s -jar \"%s\"%s",PathUtil.getJavawPath(), PathUtil.getJarPath(), arg);
+            String value = String.format("%s -jar \"%s\"%s",
+                    PathUtil.getJavawPath(),
+                    PathUtil.getJarPath(),
+                    AppConfig.getBool(AppBool.RUN_MINIMIZED)?" "+ Arg.Minimized :"");
             if(AppConfig.getBool(AppBool.RUN_ON_STARTUP)) {
                 WinRegistry.writeStringValue(WinRegistry.HKEY_CURRENT_USER, key, valueName, value);
             } else {
@@ -69,7 +72,10 @@ public class SysIntegration {
     }
 
     public static void restartApp(){
-        String command = String.format("%s -jar \"%s\" %s",PathUtil.getJavawPath(), PathUtil.getJarPath(), Main.ARG_DELAYED);
+        String command = String.format("%s -jar \"%s\" %s",
+                PathUtil.getJavawPath(),
+                PathUtil.getJarPath(),
+                Arg.Delayed);
         try {
             Runtime.getRuntime().exec(command);
             System.exit(0);

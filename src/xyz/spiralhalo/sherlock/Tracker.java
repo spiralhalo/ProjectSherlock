@@ -1,12 +1,12 @@
 package xyz.spiralhalo.sherlock;
 
+import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
+import xyz.spiralhalo.sherlock.util.Debug;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 import xyz.spiralhalo.sherlock.util.PathUtil;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.util.TimerTask;
 
-public class Tracker implements ActionListener {
+public class Tracker {
     public static final String LOG_FILENAME = "record2.txt";
     public static final String SPLIT_DIVIDER = "::";
     public static final DateTimeFormatter DTF = FormatUtil.DTF_FULL;
@@ -44,7 +44,7 @@ public class Tracker implements ActionListener {
     public void start(){
         buffer = new RecordBuffer();
         int seconds = LocalDateTime.now().get(ChronoField.SECOND_OF_MINUTE);
-        timer = new Timer(TIMER_DELAY_MILLIS, this);
+        timer = new Timer(TIMER_DELAY_MILLIS, e->log(e.getWhen()));
         new java.util.Timer().schedule(new TimerTask() {
             @Override
             public void run() {
@@ -55,22 +55,29 @@ public class Tracker implements ActionListener {
     }
 
     private void exit() {
-        System.out.println("Exiting tracker");
+        Debug.log("Terminating tracker");
+        Debug.log("Logging final entry");
+        log(System.currentTimeMillis(), true);
         try {
             buffer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+    private void log(long time){
+        log(time, false);
+    }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
+    private void log(long time, boolean exiting){
         if(afkMonitor.isNotAFK() && projectList.getActiveProjects().size()>0) {
             temps = EnumerateWindows.getActiveWindowTitle();
             if(temps.length()!=0) {
-                buffer.log(projectList.getProjectOf(temps, ZonedDateTime.now()), e.getWhen() - last);
+                Project p = projectList.getProjectOf(temps, ZonedDateTime.now());
+                if(p != null || !exiting) {
+                    buffer.log(p, time - last);
+                }
             }
         }
-        last = e.getWhen();
+        last = time;
     }
 }
