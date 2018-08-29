@@ -69,7 +69,7 @@ public class Tracker {
     }
 
     private void log(long time, boolean exiting){
-        if(afkMonitor.isNotAFK() && projectList.getActiveProjects().size()>0) {
+        if(afkMonitor.isNotAFK() && projectList.getActiveSize()>0) {
             temps = EnumerateWindows.getActiveWindowTitle();
             if(temps.length()!=0) {
                 Project p = projectList.getProjectOf(temps, ZonedDateTime.now());

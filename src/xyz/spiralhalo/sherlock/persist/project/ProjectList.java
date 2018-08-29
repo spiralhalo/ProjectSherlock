@@ -143,6 +143,10 @@ public class ProjectList implements Serializable {
         return finishedProjects;
     }
 
+    public int getActiveSize() {
+        return activeProjects.size()+getUtilityTags().size();
+    }
+
     void setUtilityTags(UtilityTagList utilityTags) {
         this.utilityTags = utilityTags;
     }
