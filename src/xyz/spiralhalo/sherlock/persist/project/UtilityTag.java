@@ -4,13 +4,13 @@ import java.io.Serializable;
 
 public class UtilityTag extends Project implements Serializable {
     public static final long serialVersionUID = 1L;
-    public static final String PRODUCTIVE_LABEL = "Supporting";
-    public static final String NON_PRODUCTIVE_LABEL = "General";
+    public static final String PRODUCTIVE_LABEL = "Productive";
+    public static final String NON_PRODUCTIVE_LABEL = "Non-productive";
 
     private boolean productive;
 
-    public UtilityTag(String name, String tags, boolean productive) {
-        super(name, productive?PRODUCTIVE_LABEL:NON_PRODUCTIVE_LABEL, tags);
+    public UtilityTag(String name, String category, String tags, boolean productive) {
+        super(name, category, tags, productive);
         this.productive = productive;
     }
 
@@ -19,8 +19,8 @@ public class UtilityTag extends Project implements Serializable {
         return productive;
     }
 
-    public void edit(String name, String tags, boolean productive){
-        super.edit(name, productive?PRODUCTIVE_LABEL:NON_PRODUCTIVE_LABEL, tags);
+    public void edit(String name, String category, String tags, boolean productive){
+        super.edit(name, category, tags, productive);
         this.productive = productive;
     }
 }

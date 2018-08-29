@@ -30,9 +30,9 @@ public class ProjectList implements Serializable {
             saveUtilityTags(this);
         } else {
             activeProjects.add(p);
-            getCategories().add(p.getCategory());
             save(this);
         }
+        getCategories().add(p.getCategory());
         getProjectMap().put(p.getHash(), p);
     }
 
@@ -54,14 +54,7 @@ public class ProjectList implements Serializable {
         assureProject(p, "editProject");
         p.edit(name, newCategory, tags);
         save(this);
-        if(!newCategory.equals(oldCategory)){
-            for (Project x: ListUtil.extensiveIterator(activeProjects,finishedProjects)) {
-                if(x.getCategory().equals(oldCategory)){
-                    return;
-                }
-            }
-            categories.remove(oldCategory);
-        }
+        resetCats(newCategory, oldCategory);
     }
 
     @ProjectsOnly
@@ -80,9 +73,21 @@ public class ProjectList implements Serializable {
         save(this);
     }
 
-    public void editUtilityTag(UtilityTag p, String name, String tag, boolean productive){
-        p.edit(name, tag, productive);
+    private void resetCats(String newCategory, String oldCategory){
+        if(!newCategory.equals(oldCategory)){
+            for (Project x: ListUtil.extensiveIterator(activeProjects,finishedProjects,getUtilityTags())) {
+                if(x.getCategory().equals(oldCategory)){
+                    return;
+                }
+            }
+            getCategories().remove(oldCategory);
+        }
+    }
+
+    public void editUtilityTag(UtilityTag p, String name, String newCategory, String oldCategory, String tags, boolean productive){
+        p.edit(name, newCategory, tags, productive);
         saveUtilityTags(this);
+        resetCats(newCategory, oldCategory);
     }
 
     public Project getProjectOf(String windowTitle, ZonedDateTime time){
@@ -116,12 +121,13 @@ public class ProjectList implements Serializable {
 
     private void setCategories(){
         categories = new TreeSet<>();
-        for (Project p:ListUtil.extensiveIterator(activeProjects,finishedProjects)) {
+        for (Project p:ListUtil.extensiveIterator(activeProjects,finishedProjects,utilityTags)) {
             categories.add(p.getCategory());
         }
     }
 
     private boolean delete(ArrayList<Project> list, Project p){
+        resetCats("", p.getCategory());
         getProjectMap().remove(p.getHash());
         list.remove(p);
         save(this);
@@ -129,6 +135,7 @@ public class ProjectList implements Serializable {
     }
 
     private boolean delete(UtilityTagList list, UtilityTag p){
+        resetCats("", p.getCategory());
         getProjectMap().remove(p.getHash());
         list.remove(p);
         saveUtilityTags(this);

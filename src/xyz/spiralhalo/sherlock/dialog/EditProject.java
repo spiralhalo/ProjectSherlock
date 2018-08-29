@@ -27,6 +27,8 @@ public class EditProject extends JDialog {
     private JLabel labelNameLabel;
     private JLabel labelTagsLabel;
     private JLabel helpIcon;
+    private JPanel panelTag;
+    private JComboBox comboTagType;
     private Mode mode;
     private Project p;
     private ProjectList projectList;
@@ -54,7 +56,7 @@ public class EditProject extends JDialog {
         this.projectList = projectList;
 
         if(utilityTag){
-            helpIcon.setVisible(true);
+            panelTag.setVisible(true);
             if(Main.currentTheme.foreground != 0){
                 helpIcon.setIcon(ImgUtil.createTintedIcon(((ImageIcon)helpIcon.getIcon()).getImage(), Main.currentTheme.foreground));
             }
@@ -65,13 +67,11 @@ public class EditProject extends JDialog {
                 }
             });
             labelNameLabel.setText("Tag name");
-            labelCatLabel.setText("Tag type");
             labelTagsLabel.setText("Tag keywords (comma-separated)");
-            comboCat.setModel(new DefaultComboBoxModel(new String[]{UtilityTag.PRODUCTIVE_LABEL, UtilityTag.NON_PRODUCTIVE_LABEL}));
-            comboCat.setEditable(false);
-        } else {
-            comboCat.setModel(new DefaultComboBoxModel<>(projectList.getCategories().toArray(new String[0])));
+            comboTagType.setModel(new DefaultComboBoxModel(new String[]{UtilityTag.PRODUCTIVE_LABEL, UtilityTag.NON_PRODUCTIVE_LABEL}));
         }
+        comboCat.setModel(new DefaultComboBoxModel<>(projectList.getCategories().toArray(new String[0])));
+
 
         if(mode == Mode.EDIT){
             fieldName.setText(p.getName());
@@ -139,16 +139,16 @@ public class EditProject extends JDialog {
         switch (mode) {
             case NEW:
                 if(utilityTag) {
-                    projectList.addProject(new UtilityTag(fieldName.getText(), fieldTag.getText(), comboCat.getSelectedIndex()==0));
+                    projectList.addProject(new UtilityTag(fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), fieldTag.getText(), comboTagType.getSelectedIndex()==0));
                 } else {
                     projectList.addProject(new Project(fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), fieldTag.getText()));
                 }
                 break;
             case EDIT:
+                String category = p.getCategory();
                 if(utilityTag){
-                    projectList.editUtilityTag((UtilityTag)p, fieldName.getText(), fieldTag.getText(), comboCat.getSelectedIndex()==0);
+                    projectList.editUtilityTag((UtilityTag)p, fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), category, fieldTag.getText(), comboTagType.getSelectedIndex()==0);
                 } else {
-                    String category = p.getCategory();
                     projectList.editProject(p, fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), category, fieldTag.getText());
                 }
                 break;

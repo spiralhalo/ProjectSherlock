@@ -1,5 +1,6 @@
 package xyz.spiralhalo.sherlock.persist.project;
 
+import xyz.spiralhalo.sherlock.util.MathUtil;
 import xyz.spiralhalo.sherlock.util.MurmurHash;
 
 import java.awt.*;
@@ -9,7 +10,6 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class Project implements Serializable {
-    private static final HashMap<Long,Integer> colors = new HashMap<>();
     public static final long serialVersionUID = 1L;
 
     private long hash;
@@ -19,16 +19,20 @@ public class Project implements Serializable {
     private ZonedDateTime startDate;
     private ZonedDateTime finishedDate;
     private boolean isFinished;
-    private HashMap<String, Object> appendix;
+    private final HashMap<String, Object> appendix;
 
     public Project(String name, String category, String tags) {
+        this(name, category, tags, true);
+    }
+
+    protected Project(String name, String category, String tags, boolean productive) {
         this.hash = System.currentTimeMillis() ^ ((long)tags.hashCode() << 42);
         this.name = name;
         this.category = category;
         this.startDate = ZonedDateTime.now();
         this.appendix = new HashMap<>();
         setTags(tags);
-        resetColor();
+        resetColor(productive);
     }
 
     public boolean isUtilityTag(){
@@ -40,17 +44,17 @@ public class Project implements Serializable {
     }
 
     void edit(String name, String category, String tags){
-        this.name = name;
-        this.category = category;
-        setTags(tags);
-        resetColor();
+        edit(name, category, tags, false);
     }
 
-    private static int getColor(String name, String category){
-        Random rnd1 = new Random(MurmurHash.hash64(name));
-        float r1 = rnd1.nextFloat();
-        float r2 = new Random(MurmurHash.hash64(category)).nextFloat();
-        return Color.HSBtoRGB((r2-0.05f+r1*0.2f)%1f,0.3f+r1*0.3f,1f);
+    protected void edit(String name, String category, String tags, boolean productive){
+        String oldCat = this.category;
+        this.name = name;
+        setTags(tags);
+        if(!oldCat.equals(category) || this.isProductive() != productive) {
+            this.category = category;
+            resetColor(productive);
+        }
     }
 
     void setStartDate(ZonedDateTime startDate) {
@@ -66,15 +70,27 @@ public class Project implements Serializable {
         if(finished)finishedDate = ZonedDateTime.now();
     }
 
-    public void putAppendix(String name, Object obj){
+    public <T> void putAppendix(String name, T obj){
         appendix.put(name, obj);
     }
 
-    public Object getAppendix(String name){
-        return appendix.get(name);
+    public <T> T getAppendix(String name, Class<T> cls){
+        if(appendix.get(name)==null || !cls.isInstance(appendix.get(name))){
+            return null;
+        } else {
+            return cls.cast(appendix.get(name));
+        }
     }
 
-    public void resetColor(){ colors.put(hash,getColor(name, category)); }
+    public void resetColor(boolean productive){
+        float r0 = new Random(MurmurHash.hash64(category)).nextFloat();
+        float r1 = MathUtil.normalize(new Random(MurmurHash.hash64(name)).nextFloat(), 2f);
+        float r2 = MathUtil.normalize(new Random(hash).nextFloat(), 3f);
+        float m = productive?1f:0.5f;
+        putAppendix("color", Color.HSBtoRGB((r0-0.1f+r1),(1f-r2*2.6f)*m,1f*m));
+//        putAppendix("color", Color.HSBtoRGB((r0-0.1f+r1),0.8f/d,(1f-r2*2)/d));
+//        putAppendix("color", Color.HSBtoRGB((r0-0.1f+r1),(1f-r2)/d,(0.7f+r2)/d));
+    }
 
     public void setTags(String tag) {
         this.tags = tag.split(",");
@@ -86,8 +102,11 @@ public class Project implements Serializable {
     public long getHash() { return hash; }
 
     public int getColor() {
-        if(colors.get(hash) == null)resetColor();
-        return colors.get(hash); }
+        if(getAppendix("color", Integer.class) == null){
+            resetColor(isProductive());
+        }
+        return getAppendix("color", Integer.class);
+    }
 
     public String[] getTags() { return tags; }
 
