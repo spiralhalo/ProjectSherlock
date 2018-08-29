@@ -60,6 +60,8 @@ public class MainView {
     private JButton btnNextYear;
     private JButton btnNewTag;
     private JTable tblUtilityTags;
+    private JButton btnFirstChart;
+    private JButton btnLastChart;
 
     private final JFrame frame = new JFrame(Main.APP_NAME);
 
@@ -74,7 +76,7 @@ public class MainView {
         control.setToolbar(btnNew,btnNewTag,btnView,btnFinish,btnResume,btnEdit,btnDelete,btnSettings,tabs, tabr);
         control.setRefresh(btnRefresh, pnlRefreshing, lblRefresh);
         control.setTables(tblActive, tblFinished, tblUtilityTags);
-        control.setChart(comboCharts, btnPrevChart, btnNextChart);
+        control.setChart(comboCharts, btnPrevChart, btnNextChart, btnFirstChart, btnLastChart);
 
         tblActive.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tblActive.setDefaultRenderer(String.class, new ProjectCell());
@@ -89,7 +91,7 @@ public class MainView {
 
         JButton[] iconButtons = new JButton[]{
                 btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings,
-                btnRefresh, btnPrevChart, btnNextChart
+                btnRefresh, btnPrevChart, btnNextChart, btnFirstChart, btnLastChart
         };
         if(Main.currentTheme.foreground !=0) {
             for (JButton btn : iconButtons) {
@@ -163,6 +165,8 @@ public class MainView {
         }
         btnPrevChart.setEnabled(comboCharts.getSelectedIndex() > 0);
         btnNextChart.setEnabled(comboCharts.getSelectedIndex() < comboCharts.getItemCount() - 1);
+        btnFirstChart.setEnabled(comboCharts.getSelectedIndex() > 0);
+        btnLastChart.setEnabled(comboCharts.getSelectedIndex() < comboCharts.getItemCount() - 1);
     }
 
     public long getSelectedProject(){

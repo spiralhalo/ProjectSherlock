@@ -188,14 +188,32 @@ public class MainControl implements ActionListener {
         tableUtilityTags.getSelectionModel().addListSelectionListener(tableSelectionListener);
     }
 
-    public void setChart(JComboBox comboCharts, JButton prev, JButton next){
+    public void setChart(JComboBox comboCharts, JButton prev, JButton next, JButton first, JButton last){
         chartSelector = comboCharts;
         comboCharts.addItemListener(e->{
-            if(comboCharts.getItemCount()==0)return;
+            if(chartSelector.getItemCount()==0)return;
             view.refreshChart(cache);
         });
-        prev.addActionListener(e->prevChart());
-        next.addActionListener(e->nextChart());
+        prev.addActionListener(e->{
+            if(chartSelector.getSelectedIndex()>0){
+                chartSelector.setSelectedIndex(chartSelector.getSelectedIndex()-1);
+            }
+        });
+        next.addActionListener(e->{
+            if(chartSelector.getSelectedIndex()< chartSelector.getItemCount()-1){
+                chartSelector.setSelectedIndex(chartSelector.getSelectedIndex()+1);
+            }
+        });
+        first.addActionListener(e->{
+            if(chartSelector.getSelectedIndex()>0){
+                chartSelector.setSelectedIndex(0);
+            }
+        });
+        last.addActionListener(e->{
+            if(chartSelector.getSelectedIndex()<chartSelector.getItemCount()-1){
+                chartSelector.setSelectedIndex(chartSelector.getItemCount()-1);
+            }
+        });
         view.refreshChart(cache);
     }
 
@@ -294,18 +312,6 @@ public class MainControl implements ActionListener {
             buttonResume.setVisible(tabProjects.getSelectedIndex()==1 && temp);
         }
     };
-
-    private void prevChart(){
-        if(chartSelector.getSelectedIndex()>0){
-            chartSelector.setSelectedIndex(chartSelector.getSelectedIndex()-1);
-        }
-    }
-
-    private void nextChart(){
-        if(chartSelector.getSelectedIndex()< chartSelector.getItemCount()-1){
-            chartSelector.setSelectedIndex(chartSelector.getSelectedIndex()+1);
-        }
-    }
 
     private MainControl getThis(){return this;}
 

@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="rootPane" default-binding="true" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="0">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="680" height="692"/>
+      <xy x="20" y="20" width="858" height="692"/>
     </constraints>
     <properties>
       <minimumSize width="680" height="680"/>
@@ -211,6 +211,13 @@
                 </properties>
                 <border type="none"/>
                 <children>
+                  <component id="feea3" class="javax.swing.JButton" binding="btnFirstChart">
+                    <constraints/>
+                    <properties>
+                      <icon value="xyz/spiralhalo/sherlock/res/first.png"/>
+                      <text value=""/>
+                    </properties>
+                  </component>
                   <component id="8e31d" class="javax.swing.JButton" binding="btnPrevChart">
                     <constraints/>
                     <properties>
@@ -232,6 +239,13 @@
                     <constraints/>
                     <properties>
                       <icon value="xyz/spiralhalo/sherlock/res/right.png"/>
+                      <text value=""/>
+                    </properties>
+                  </component>
+                  <component id="e990" class="javax.swing.JButton" binding="btnLastChart">
+                    <constraints/>
+                    <properties>
+                      <icon value="xyz/spiralhalo/sherlock/res/last.png"/>
                       <text value=""/>
                     </properties>
                   </component>
