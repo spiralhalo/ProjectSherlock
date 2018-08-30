@@ -1,13 +1,13 @@
 package xyz.spiralhalo.sherlock.util;
 
-import xyz.spiralhalo.sherlock.Main;
+import xyz.spiralhalo.sherlock.Main.Arg;
 
 import java.time.Instant;
 
 public class Debug {
 
     public static void log(Class caller, Throwable e){
-        if(Main.programArgs.debug){
+        if(Arg.Debug.isEnabled()){
             e.printStackTrace();
         }else{
             StackTraceElement[] x = e.getStackTrace();
@@ -15,12 +15,12 @@ public class Debug {
             for (i=0;i<x.length;i++) {
                 if (x[i].toString().startsWith("xyz.spiralhalo")) break;
             }
-            System.out.println(String.format("%s: %s at %s",caller.getCanonicalName(), e.toString(), x[i].toString()));
+            System.err.println(String.format("%s: %s at %s",caller.getCanonicalName(), e.toString(), x[i].toString()));
         }
     }
 
     public static void log(Throwable e){
-        if(Main.programArgs.debug){
+        if(Arg.Debug.isEnabled()){
             e.printStackTrace();
         }else{
             StackTraceElement[] x = e.getStackTrace();
@@ -28,12 +28,12 @@ public class Debug {
             for (i=0;i<x.length;i++) {
                 if (x[i].toString().startsWith("xyz.spiralhalo")) break;
             }
-            System.out.println(String.format("%s: %s at %s",FormatUtil.DTF_FULL.format(Instant.now()), e.toString(), x[i].toString()));
+            System.err.println(String.format("%s: %s at %s",FormatUtil.DTF_FULL.format(Instant.now()), e.toString(), x[i].toString()));
         }
     }
 
     public static void log(String x){
-        if(Main.programArgs.debug) {
+        if(Arg.Debug.isEnabled()) {
             System.out.println(String.format("%s: %s", FormatUtil.DTF_FULL.format(Instant.now()), x));
         }
     }

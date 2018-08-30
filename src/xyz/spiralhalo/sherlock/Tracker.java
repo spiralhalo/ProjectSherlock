@@ -1,5 +1,6 @@
 package xyz.spiralhalo.sherlock;
 
+import xyz.spiralhalo.sherlock.Main.Arg;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.util.Debug;
@@ -34,7 +35,11 @@ public class Tracker {
     public Tracker(ProjectList projectList){
         afkMonitor = new AFKMonitor();
         this.projectList = projectList;
-        Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
+        if(Arg.Sandbox.isEnabled()) {
+            Debug.log("[Sandbox mode] Tracking has been set to mode hiatus.");
+        } else {
+            Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
+        }
     }
 
     public static String getRecordFile(){
@@ -42,16 +47,20 @@ public class Tracker {
     }
 
     public void start(){
-        buffer = new RecordBuffer();
-        int seconds = LocalDateTime.now().get(ChronoField.SECOND_OF_MINUTE);
-        timer = new Timer(TIMER_DELAY_MILLIS, e->log(e.getWhen()));
-        new java.util.Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                last = System.currentTimeMillis();
-                timer.start();
-            }
-        },(seconds%TIMER_DELAY_SECONDS)*ONE_SECOND);
+        if(Arg.Sandbox.isEnabled()) {
+            Debug.log("[Sandbox mode] Starting tracker has been cancelled.");
+        } else {
+            buffer = new RecordBuffer();
+            int seconds = LocalDateTime.now().get(ChronoField.SECOND_OF_MINUTE);
+            timer = new Timer(TIMER_DELAY_MILLIS, e -> log(e.getWhen()));
+            new java.util.Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    last = System.currentTimeMillis();
+                    timer.start();
+                }
+            }, (seconds % TIMER_DELAY_SECONDS) * ONE_SECOND);
+        }
     }
 
     private void exit() {

@@ -11,14 +11,17 @@ public class Main {
 
     public static final String APP_NAME = "Project Sherlock 2";
     public static final String APP_NAME_NOSPACE = APP_NAME.replace(" ", "");
-    public static Args programArgs;
     public static Theme currentTheme;
     private static final Theme FALL_BACK_THEME = Theme.SYSTEM;
 
-    public static void main(String[] args0) {
-        programArgs = Args.getArgs(args0);
+    public static void main(String[] args) {
+        Arg.setArgs(args);
 
-        if(programArgs.delayed) {
+        if(Arg.Sandbox.isEnabled()) {
+            Debug.log("Sandbox mode is enabled.");
+        }
+
+        if(Arg.Delayed.isEnabled()) {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
@@ -42,7 +45,7 @@ public class Main {
 
             Runtime.getRuntime().addShutdownHook(new Thread(SysIntegration::createOrDeleteStartupRegistry));
             MainView m = new MainView();
-            if(!programArgs.minimized) {
+            if(!Arg.Minimized.isEnabled()) {
                 m.getFrame().setVisible(true);
             }
         });
@@ -66,47 +69,25 @@ public class Main {
         None,
         Minimized("-minimized"),
         Delayed("-delayed"),
-        Debug("-debug");
-        private String v;
+        Debug("-debug"),
+        Sandbox("-sandbox");
+        private final String v;
+        private boolean enabled = false;
         Arg(){ v = "";}
         Arg(String v){this.v = v;}
         public String toString() { return v;}
         private static Arg[] values;
         static Arg lookup(String v){
             if(values==null)values=values();
-            for (Arg a:values) {
-                if(a.v.equals(v.toLowerCase())){
-                    return a;
-                }
-            }
+            for (Arg a:values) { if(a.v.equals(v.toLowerCase())){ return a; } }
             return None;
         }
-    }
-
-    public static class Args{
-        public final boolean minimized;
-        public final boolean delayed;
-        public final boolean debug;
-
-        Args(boolean minimized, boolean delayed, boolean debug) {
-            this.minimized = minimized;
-            this.delayed = delayed;
-            this.debug = debug;
-        }
-
-        static Args getArgs(String[] args){
-            boolean minimized = false;
-            boolean delayed = false;
-            boolean debug = false;
+        static void setArgs(String[] args){
             for (String arg:args) {
                 Arg a = Arg.lookup(arg);
-                switch (a){
-                    case Debug: debug = true; break;
-                    case Delayed: delayed = true; break;
-                    case Minimized: minimized = true; break;
-                }
+                if(a!=null){ a.enabled=true; }
             }
-            return new Args(minimized, delayed, debug);
         }
+        public boolean isEnabled() { return enabled; }
     }
 }
