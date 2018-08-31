@@ -1,7 +1,7 @@
 package xyz.spiralhalo.sherlock;
 
-//import com.jgoodies.looks.windows.WindowsLookAndFeel;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.pushingpixels.flamingo.api.common.JCommandButton;
 import xyz.spiralhalo.sherlock.persist.cache.CacheId;
 import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
@@ -28,7 +28,6 @@ import static xyz.spiralhalo.sherlock.util.ColorUtil.*;
 public class MainView {
 
     private JPanel rootPane;
-    private JButton btnNew;
     private JTabbedPane tabs;
     private JProgressBar progress;
     private JTable tblActive;
@@ -37,18 +36,9 @@ public class MainView {
     private JTable tblMonthly;
     private JLabel lblRefresh;
     private JPanel pnlStatus;
-    private JButton btnRefresh;
     private JPanel pnlRefreshing;
     private JLabel lblTracking;
-    private JButton btnView;
-    private JButton btnFinish;
-    private JButton btnEdit;
-    private JButton btnDelete;
-    private JButton btnNextMonth;
-    private JButton btnPrevMonth;
     private JPanel panelChart;
-    private JButton btnResume;
-    private JButton btnSettings;
     private JComboBox comboCharts;
     private JButton btnPrevChart;
     private JButton btnNextChart;
@@ -56,25 +46,82 @@ public class MainView {
     private JLabel lblLogged;
     private JLabel lblWorktime;
     private JLabel lblRatio;
-    private JButton btnPrevYear;
-    private JButton btnNextYear;
-    private JButton btnNewTag;
     private JTable tblUtilityTags;
     private JButton btnFirstChart;
     private JButton btnLastChart;
+    private JToolBar toolbarMain;
+    private JButton btnNew;
+    private JButton btnNewTag;
+    private JButton btnView;
+    private JButton btnFinish;
+    private JButton btnResume;
+    private JButton btnEdit;
+    private JButton btnDelete;
+    private JButton btnSettings;
+    private JButton btnRefresh;
+    private JButton btnInbox;
 
     private final JFrame frame = new JFrame(Main.APP_NAME);
+
+    private void createCommandButtons(MainControl control){
+        if(Main.currentTheme == AppConfig.Theme.SYSTEM){
+            JButton[] iconButtons = new JButton[]{
+                    btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings, btnRefresh
+            };
+            if(Main.currentTheme.foreground != 0) {
+                for (JButton btn : iconButtons) {
+                    ImageIcon icon = (ImageIcon)btn.getIcon();
+                    btn.setRolloverIcon(icon);
+                    btn.setIcon(ImgUtil.createTintedIcon(icon.getImage(), Main.currentTheme.foreground));
+                }
+            }
+            control.setToolbar(btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings, tabs, tabr);
+            control.setRefresh(btnRefresh, pnlRefreshing, lblRefresh);
+        } else {
+            toolbarMain.removeAll();
+            JCommandButton cmdNew = new JCommandButton("New");
+            JCommandButton cmdEdit = new JCommandButton("Edit");
+            JCommandButton cmdDelete = new JCommandButton("Delete");
+            JCommandButton cmdView = new JCommandButton("View");
+            JCommandButton cmdFinish = new JCommandButton("Finish");
+            JCommandButton cmdResume = new JCommandButton("Resume");
+            JCommandButton cmdInbox = new JCommandButton("Inbox");
+            JCommandButton cmdSettings = new JCommandButton("Settings");
+            JCommandButton cmdRefresh = new JCommandButton("Refresh");
+
+            JCommandButton[] iconButtons = new JCommandButton[]{
+                    cmdNew, cmdView, cmdFinish, cmdResume, cmdEdit, cmdDelete, cmdInbox, cmdSettings, cmdRefresh
+            };
+            for (JCommandButton btn : iconButtons) {
+                btn.setIcon(ImgUtil.autoColorIcon(btn.getText().toLowerCase() + ".png", 24, 24));
+            }
+
+            toolbarMain.add(cmdNew);
+            toolbarMain.add(cmdEdit);
+            toolbarMain.add(cmdDelete);
+            toolbarMain.addSeparator();
+            toolbarMain.add(cmdView);
+            toolbarMain.add(cmdFinish);
+            toolbarMain.add(cmdResume);
+            toolbarMain.addSeparator();
+            toolbarMain.add(cmdInbox);
+            toolbarMain.add(cmdSettings);
+            toolbarMain.add(Box.createHorizontalGlue());
+            toolbarMain.add(cmdRefresh);
+            control.setToolbar(cmdNew, cmdView, cmdFinish, cmdResume, cmdEdit, cmdDelete, cmdSettings, tabs, tabr);
+            control.setRefresh(cmdRefresh, pnlRefreshing, lblRefresh);
+        }
+    }
 
     MainView(){
         MainControl control = new MainControl(this);
         frame.setContentPane(rootPane);
         frame.setMinimumSize(rootPane.getMinimumSize());
         frame.setPreferredSize(rootPane.getMinimumSize());
+        createCommandButtons(control);
         frame.pack();
         frame.setLocationByPlatform(true);
 
-        control.setToolbar(btnNew,btnNewTag,btnView,btnFinish,btnResume,btnEdit,btnDelete,btnSettings,tabs, tabr);
-        control.setRefresh(btnRefresh, pnlRefreshing, lblRefresh);
         control.setTables(tblActive, tblFinished, tblUtilityTags);
         control.setChart(comboCharts, btnPrevChart, btnNextChart, btnFirstChart, btnLastChart);
 
@@ -90,8 +137,7 @@ public class MainView {
         tblMonthly.setDefaultRenderer(Integer.class, new DurationCell());
 
         JButton[] iconButtons = new JButton[]{
-                btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings,
-                btnRefresh, btnPrevChart, btnNextChart, btnFirstChart, btnLastChart
+                btnPrevChart, btnNextChart, btnFirstChart, btnLastChart
         };
         if(Main.currentTheme.foreground !=0) {
             for (JButton btn : iconButtons) {

@@ -1,5 +1,8 @@
 package xyz.spiralhalo.sherlock;
 
+import org.pushingpixels.flamingo.api.common.JCommandButton;
+import org.pushingpixels.flamingo.api.common.JCommandMenuButton;
+import org.pushingpixels.flamingo.api.common.popup.JCommandPopupMenu;
 import xyz.spiralhalo.sherlock.async.Loader;
 import xyz.spiralhalo.sherlock.async.LoaderDialog;
 import xyz.spiralhalo.sherlock.dialog.EditProject;
@@ -56,8 +59,8 @@ public class MainControl implements ActionListener {
     private JComponent[] enableOnSelect;
     private JTabbedPane tabProjects;
     private JTabbedPane tabReports;
-    private JButton buttonFinish;
-    private JButton buttonResume;
+    private JComponent buttonFinish;
+    private JComponent buttonResume;
     private JComboBox chartSelector;
     private PopupMenu tablePopUpMenu;
 
@@ -79,7 +82,7 @@ public class MainControl implements ActionListener {
             }
         };
         final ActionListener listenerTrayExit = e -> {
-            exit();
+            System.exit(0);
         };
         trayIcon = SysIntegration.createTrayIcon(listenerTrayToggle,listenerTrayExit);
         trayIconUsed = (trayIcon != null);
@@ -98,26 +101,28 @@ public class MainControl implements ActionListener {
                 quit.setVisible(true);
                 switch (quit.getSelection()) {
                     case EXIT:
-                        exit();
+                        System.exit(0);
                         break;
                     case MINIMIZE:
                         minimizeToTray();
                         break;
                 }
             } else {
-                exit();
+                System.exit(0);
             }
         }
 
         @Override
         public void windowGainedFocus(WindowEvent e) {
-            trayIcon.getPopupMenu().getItem(0).setLabel("Minimize to tray");
+            if(trayIconUsed) {
+                trayIcon.getPopupMenu().getItem(0).setLabel("Minimize to tray");
+            }
             decideRefresh();
         }
 
         @Override
         public void windowStateChanged(WindowEvent e) {
-            if(AppConfig.getBool(AppBool.MINIMIZE_TO_TRAY) && (view.getFrame().getState() == ICONIFIED)){
+            if(trayIconUsed && AppConfig.getBool(AppBool.MINIMIZE_TO_TRAY) && (view.getFrame().getState() == ICONIFIED)){
                 minimizeToTray();
             }
         }
@@ -125,44 +130,116 @@ public class MainControl implements ActionListener {
 
     private void minimizeToTray(){
 //        trayIcon.displayMessage("Minimized to tray", "Double click icon to restore", TrayIcon.MessageType.INFO);
-        trayIcon.getPopupMenu().getItem(0).setLabel("Restore");
-        view.getFrame().setVisible(false);
+        if(trayIconUsed) {
+            trayIcon.getPopupMenu().getItem(0).setLabel("Restore");
+            view.getFrame().setVisible(false);
+        }
     }
 
     public void setToolbar(JButton btnNew, JButton btnNewTag, JButton btnView, JButton btnFinish, JButton btnResume,
                            JButton btnEdit, JButton btnDelete, JButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
-        btnNew.setActionCommand(String.valueOf(Action.A_NEW));
+        btnNew.setName(Action.A_NEW.name());
+        btnNew.setName(Action.A_NEW_TAG.name());
+        btnView.setName(Action.A_VIEW.name());
+        btnFinish.setName(Action.A_FINISH.name());
+        btnResume.setName(Action.A_RESUME.name());
+        btnEdit.setName(Action.A_EDIT.name());
+        btnDelete.setName(Action.A_DELETE.name());
+        btnSettings.setName(Action.A_SETTINGS.name());
         btnNew.addActionListener(this);
-        btnNewTag.setActionCommand(String.valueOf(Action.A_NEW_TAG));
         btnNewTag.addActionListener(this);
-        btnView.setActionCommand(String.valueOf(Action.A_VIEW));
         btnView.addActionListener(this);
-        btnFinish.setActionCommand(String.valueOf(Action.A_FINISH));
         btnFinish.addActionListener(this);
-        buttonFinish = btnFinish;
-        btnResume.setActionCommand(String.valueOf(Action.A_RESUME));
         btnResume.addActionListener(this);
-        buttonResume = btnResume;
-        btnEdit.setActionCommand(String.valueOf(Action.A_EDIT));
         btnEdit.addActionListener(this);
-        btnDelete.setActionCommand(String.valueOf(Action.A_DELETE));
         btnDelete.addActionListener(this);
-        btnSettings.setActionCommand(String.valueOf(Action.A_SETTINGS));
         btnSettings.addActionListener(this);
-        tabProjects = tabs;
-        tabReports = tabr;
-        tabProjects.addChangeListener(tabChangeListener);
-        tabReports.addChangeListener(tabChangeListener);
+        setTabs(btnFinish, btnResume, tabs, tabr);
+        setEnableOnSelect(btnView, btnFinish, btnResume, btnEdit, btnDelete);
+    }
+
+    public void setToolbar(JCommandButton btnNew, JCommandButton btnView, JCommandButton btnFinish, JCommandButton btnResume,
+                           JCommandButton btnEdit, JCommandButton btnDelete, JCommandButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
+        createPopupNew(btnNew);
+        btnNew.setName(Action.A_NEW.name());
+        btnView.setName(Action.A_VIEW.name());
+        btnFinish.setName(Action.A_FINISH.name());
+        btnResume.setName(Action.A_RESUME.name());
+        btnEdit.setName(Action.A_EDIT.name());
+        btnDelete.setName(Action.A_DELETE.name());
+        btnSettings.setName(Action.A_SETTINGS.name());
+        btnNew.addActionListener(this);
+        btnView.addActionListener(this);
+        btnFinish.addActionListener(this);
+        btnResume.addActionListener(this);
+        btnEdit.addActionListener(this);
+        btnDelete.addActionListener(this);
+        btnSettings.addActionListener(this);
+        setTabs(btnFinish, btnResume, tabs, tabr);
+        setEnableOnSelect(btnView, btnFinish, btnResume, btnEdit, btnDelete);
+    }
+
+    public void setEnableOnSelect(JComponent btnView, JComponent btnFinish, JComponent btnResume,
+                                  JComponent btnEdit, JComponent btnDelete) {
         enableOnSelect = new JComponent[]{btnView, btnFinish, btnResume, btnEdit, btnDelete};
         for (JComponent x:enableOnSelect) {
             x.setEnabled(false);
         }
+    }
+
+    private void setTabs(JComponent btnFinish, JComponent btnResume, JTabbedPane tabs, JTabbedPane tabr){
+        buttonFinish = btnFinish;
+        buttonResume = btnResume;
+        tabProjects = tabs;
+        tabReports = tabr;
+        tabProjects.addChangeListener(tabChangeListener);
+        tabReports.addChangeListener(tabChangeListener);
         buttonResume.setVisible(false);
     }
 
+    private void createPopupNew(JCommandButton cmdNew){
+        JCommandMenuButton newP = new JCommandMenuButton("New project...", ImgUtil.autoColorIcon("new.png", 16, 16));
+        JCommandMenuButton newT = new JCommandMenuButton("New tag...", ImgUtil.autoColorIcon("new_tag.png", 16, 16));
+
+        newP.setName(Action.A_NEW.name());
+        newT.setName(Action.A_NEW_TAG.name());
+        newP.addActionListener(this);
+        newT.addActionListener(this);
+
+        JCommandPopupMenu menu = new JCommandPopupMenu();
+        menu.addMenuButton(newP);
+        menu.addMenuButton(newT);
+        cmdNew.setPopupCallback(jCommandButton -> menu);
+        cmdNew.setCommandButtonKind(JCommandButton.CommandButtonKind.ACTION_AND_POPUP_MAIN_POPUP);
+    }
+
+    private void createPopupRefresh(JCommandButton cmdRefresh){
+        JCommandMenuButton rNorm = new JCommandMenuButton("Refresh", ImgUtil.autoColorIcon("refresh.png", 16, 16));
+        JCommandMenuButton rForc = new JCommandMenuButton("Full refresh", null);
+        JCommandMenuButton rAdvn = new JCommandMenuButton("Advanced...", null);
+
+        rNorm.setName(Action.A_REFRESH.name());
+        rNorm.addActionListener(this);
+
+        JCommandPopupMenu menu = new JCommandPopupMenu();
+        menu.addMenuButton(rNorm);
+        menu.addMenuButton(rForc);
+        menu.addMenuButton(rAdvn);
+        cmdRefresh.setPopupCallback(jCommandButton -> menu);
+        cmdRefresh.setCommandButtonKind(JCommandButton.CommandButtonKind.ACTION_AND_POPUP_MAIN_POPUP);
+    }
+
     public void setRefresh(JButton button, JComponent toShow, JComponent toHide){
-        button.setActionCommand(String.valueOf(Action.A_REFRESH));
+        button.setName(Action.A_REFRESH.name());
         button.addActionListener(this);
+        toHideOnRefresh = toHide;
+        toShowOnRefresh = toShow;
+    }
+
+    public void setRefresh(JCommandButton button, JComponent toShow, JComponent toHide){
+        button.setName(Action.A_REFRESH.name());
+        button.addActionListener(this);
+//        createPopupRefresh(button);
         toHideOnRefresh = toHide;
         toShowOnRefresh = toShow;
     }
@@ -219,7 +296,7 @@ public class MainControl implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Action action = Action.valueOf(e.getActionCommand());
+        Action action = Action.valueOf(((JComponent)e.getSource()).getName());
         switch (action){
             case A_NEW:
             case A_NEW_TAG:
@@ -314,10 +391,6 @@ public class MainControl implements ActionListener {
     };
 
     private MainControl getThis(){return this;}
-
-    private void exit(){
-        System.exit(0);
-    }
 
     private void viewProject(){
         Project p = projectList.findByHash(view.getSelectedProject());

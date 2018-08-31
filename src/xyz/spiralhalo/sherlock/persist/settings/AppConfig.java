@@ -18,8 +18,8 @@ public class AppConfig {
         GRAPHITE(3, 0xffffff, 0x4d4d4d, true, "Substance Graphite"),
         TWILIGHT(4, 0xcccc99, 0x4C4A41, true, "Substance Twilight"),
         RAVEN(5, 0xffffff, 0x3A3A3A, true, "Substance Raven"),
-        SYSTEM(6, 0, 0xF0F0F0, false, "System Default Theme"),
         //        MIST_SILVER(3, 0, 0xebf0f4, false, "Substance Mist Silver"),
+                SYSTEM(6, 0, 0xF0F0F0, false, "System Default Theme"),
         ;
         public int x;
         public int foreground;

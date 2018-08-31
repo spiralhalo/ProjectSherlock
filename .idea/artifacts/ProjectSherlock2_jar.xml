@@ -12,6 +12,7 @@
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/pushing-pixels/radiance-substance/0.9-SNAPSHOT/radiance-substance-0.9-SNAPSHOT.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/pushing-pixels/radiance-trident/0.9-SNAPSHOT/radiance-trident-0.9-SNAPSHOT.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/pushing-pixels/radiance-neon/0.9-SNAPSHOT/radiance-neon-0.9-SNAPSHOT.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/pushing-pixels/radiance-flamingo/0.9-SNAPSHOT/radiance-flamingo-0.9-SNAPSHOT.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

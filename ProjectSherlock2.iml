@@ -12,5 +12,6 @@
     <orderEntry type="library" name="jfreechart-1.0.19" level="project" />
     <orderEntry type="library" name="org.ini4j:ini4j:0.5.4" level="project" />
     <orderEntry type="library" name="org.pushing-pixels:radiance-substance:0.9-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="org.pushing-pixels:radiance-flamingo:0.9-SNAPSHOT" level="project" />
   </component>
 </module>

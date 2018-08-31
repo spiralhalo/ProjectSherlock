@@ -1,6 +1,9 @@
 package xyz.spiralhalo.sherlock.util;
 
+import org.pushingpixels.flamingo.api.common.icon.ImageWrapperResizableIcon;
+import org.pushingpixels.neon.icon.ResizableIcon;
 import sun.awt.image.ToolkitImage;
+import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.res.Res;
 
 import javax.imageio.ImageIO;
@@ -19,6 +22,32 @@ public class ImgUtil {
             return null;
         } else {
             return (new ImageIcon(imageURL, description)).getImage();
+        }
+    }
+
+    public static ResizableIcon autoColorIcon(String path, int initW, int initH) {
+        if(Main.currentTheme.foreground==0) {
+            return createResizableIcon(path, initW, initH);
+        } else {
+            return createResizableTintedIcon(path, Main.currentTheme.foreground, initW, initH);
+        }
+    }
+
+    public static ResizableIcon createResizableIcon(String path, int initW, int initH) {
+        try {
+            return ImageWrapperResizableIcon.getIcon(loadImage(path), new Dimension(initW, initH));
+        } catch (IOException e) {
+            Debug.log(e);
+            return null;
+        }
+    }
+
+    public static ResizableIcon createResizableTintedIcon(String path, int rgb, int initW, int initH) {
+        try {
+            return ImageWrapperResizableIcon.getIcon(colorImage(loadImage(path), rgb), new Dimension(initW, initH));
+        } catch (IOException e) {
+            Debug.log(e);
+            return null;
         }
     }
 
