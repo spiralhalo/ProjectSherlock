@@ -90,8 +90,18 @@ public class ProjectList implements Serializable {
         resetCats(newCategory, oldCategory);
     }
 
+    public Project getActiveProjectOf(String windowTitle, ZonedDateTime time) {
+        if(windowTitle == null || windowTitle.length() == 0) return null;
+        return getProjectOfInternal(windowTitle, time, ListUtil.extensiveIterator(activeProjects, getUtilityTags()));
+    }
+
     public Project getProjectOf(String windowTitle, ZonedDateTime time){
-        for (Project p : ListUtil.extensiveIterator(activeProjects,finishedProjects,getUtilityTags())) {
+        if(windowTitle == null || windowTitle.length() == 0) return null;
+        return getProjectOfInternal(windowTitle, time, ListUtil.extensiveIterator(activeProjects, finishedProjects, getUtilityTags()));
+    }
+
+    private Project getProjectOfInternal(String windowTitle, ZonedDateTime time, Iterable<Project> toIterate){
+        for (Project p : toIterate) {
             if((!p.isFinished() || !time.isAfter(p.getFinishedDate())) && !time.isBefore(p.getStartDate())) {
                 for (String tag : p.getTags()) {
                     if (windowTitle.toLowerCase().contains(tag.toLowerCase())) {

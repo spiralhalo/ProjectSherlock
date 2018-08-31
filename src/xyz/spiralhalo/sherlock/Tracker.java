@@ -21,9 +21,9 @@ public class Tracker {
     public static final DateTimeFormatter DTF = FormatUtil.DTF_FULL;
 
     public static final int ONE_SECOND = 1000;
-    public static final int TIMER_DELAY_SECONDS = 5;
+    public static final int TIMER_DELAY_SECONDS = 1;
     public static final int TIMER_DELAY_MILLIS = TIMER_DELAY_SECONDS*ONE_SECOND;
-    public static final int FLUSH_DELAY_MILLIS = TIMER_DELAY_MILLIS*40;
+    public static final int FLUSH_DELAY_MILLIS = TIMER_DELAY_MILLIS*200;
 
     private AFKMonitor afkMonitor;
     private long last;
@@ -56,6 +56,7 @@ public class Tracker {
             new java.util.Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
+                    Debug.log("Tracker is started");
                     last = System.currentTimeMillis();
                     timer.start();
                 }
@@ -79,12 +80,18 @@ public class Tracker {
 
     private void log(long time, boolean exiting){
         if(afkMonitor.isNotAFK() && projectList.getActiveSize()>0) {
+            final ZonedDateTime now = ZonedDateTime.now();
             temps = EnumerateWindows.getActiveWindowTitle();
-            if(temps.length()!=0) {
-                Project p = projectList.getProjectOf(temps, ZonedDateTime.now());
-                if(p != null || !exiting) {
-                    buffer.log(p, time - last);
-                }
+            Project p = projectList.getActiveProjectOf(temps, now);
+            Debug.log("[ForegroundWindow] "+temps);
+            if(p==null) {
+                temps = EnumerateWindows.getRootWindowTitle();
+                p = projectList.getActiveProjectOf(temps, now);
+                Debug.log("[GW_OWNER] "+temps);
+            }
+            Debug.log("Detected project: "+p);
+            if(p != null || !exiting) {
+                buffer.log(p, time - last);
             }
         }
         last = time;

@@ -11,17 +11,21 @@ import java.time.Instant;
 import java.time.ZoneId;
 
 public class RecordBuffer {
+    private static final String DEBUG_OTHER = "(Other)";
 
     private static class Last{
-        private long hash = -1;
+        private String debug_name;
+        private long hash = 0;
         private boolean productive;
         private boolean utilityTag;
         public void set(Project p){
             if(p==null){
+                debug_name = DEBUG_OTHER;
                 hash = -1;
                 productive = false;
                 utilityTag = false;
             } else {
+                debug_name = p.toString();
                 hash = p.getHash();
                 productive = p.isProductive();
                 utilityTag = p.isUtilityTag();
@@ -57,7 +61,7 @@ public class RecordBuffer {
     }
 
     public void flush(){
-        Debug.log("Writing record entry");
+        Debug.log("[Buffer] Writing record entry for: "+last.debug_name);
         StringBuilder buffer = new StringBuilder();
         buffer.append(Tracker.DTF.format(Instant.ofEpochSecond(System.currentTimeMillis()/1000-accuS).atZone(ZoneId.systemDefault())))
             .append(Tracker.SPLIT_DIVIDER).append(accuS).append(Tracker.SPLIT_DIVIDER).append(last.hash);
@@ -67,7 +71,7 @@ public class RecordBuffer {
         out.println(buffer.toString());
         accuS = 0;
         if(elapsed>Tracker.FLUSH_DELAY_MILLIS){
-            Debug.log("Flushing record");
+            Debug.log("[Buffer] Flushing record");
             elapsed = 0;
             out.flush();
         }
