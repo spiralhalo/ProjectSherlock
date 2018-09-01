@@ -61,7 +61,7 @@ public class MainView {
     private JButton btnRefresh;
     private JButton btnInbox;
 
-    private final JFrame frame = new JFrame(Main.APP_NAME);
+    private final JFrame frame = new JFrame(Main.APP_TITLE);
 
     private void createCommandButtons(MainControl control){
         if(Main.currentTheme == AppConfig.Theme.SYSTEM){

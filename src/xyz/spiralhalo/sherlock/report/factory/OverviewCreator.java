@@ -1,11 +1,12 @@
 package xyz.spiralhalo.sherlock.report.factory;
 
 import org.jfree.data.category.DefaultCategoryDataset;
-import xyz.spiralhalo.sherlock.Tracker;
 import xyz.spiralhalo.sherlock.async.AsyncTask;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.persist.project.UtilityTag;
+import xyz.spiralhalo.sherlock.record.RecordData;
+import xyz.spiralhalo.sherlock.record.SequentalRecordScanner;
 import xyz.spiralhalo.sherlock.report.persist.ChartMeta;
 import xyz.spiralhalo.sherlock.report.persist.AllReportRow;
 import xyz.spiralhalo.sherlock.report.persist.AllReportRows;
@@ -15,32 +16,29 @@ import xyz.spiralhalo.sherlock.util.ColorUtil;
 import xyz.spiralhalo.sherlock.util.Debug;
 
 import java.awt.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
-import java.util.Scanner;
-import java.util.function.Supplier;
 
 import static xyz.spiralhalo.sherlock.report.factory.Const.MINIMUM_SECOND;
 
 public class OverviewCreator extends AsyncTask<OverviewResult> {
     private final ProjectList projectList;
     private final HashMap<Long,Boolean> productiveMap = new HashMap<>();
+    private final LocalDate from, until;
 
     public OverviewCreator(ProjectList projectList) {
-        this.projectList = projectList;
+        this(projectList, null, null);
     }
 
-    private int getElapsed(String[] s){return Integer.parseInt(s[1]);}
-    private long getHash(String[] s) throws NumberFormatException{return Long.parseLong(s[2]);}
-    private ZonedDateTime getTimestamp(String[] s)throws DateTimeParseException {return ZonedDateTime.parse(s[0], Tracker.DTF);}
-    private boolean isUtilityTag(String[] s){return s.length>3;}
-    private boolean getRawProductivityValue(String[] s){return !isUtilityTag(s) || Boolean.parseBoolean(s[3]);}
+    public OverviewCreator(ProjectList projectList, LocalDate from, LocalDate until) {
+        this.projectList = projectList;
+        this.from = from;
+        this.until = until;
+    }
 
     private OverviewResult result;
 
@@ -53,16 +51,14 @@ public class OverviewCreator extends AsyncTask<OverviewResult> {
     protected void doRun() throws Exception{
         final DatasetCreator dc = new DatasetCreator(projectList, productiveMap);
         final ReportCreator rc = new ReportCreator(projectList, productiveMap);
-        final File recordFile = new File(Tracker.getRecordFile());
-        try(FileInputStream fis = new FileInputStream(recordFile);
-            Scanner sc = new Scanner(fis)){
-            while (sc.hasNextLine()) {
-                String[] recordEntry = sc.nextLine().split(Tracker.SPLIT_DIVIDER);
+        try(SequentalRecordScanner sc = new SequentalRecordScanner(from, until)){
+            while (sc.hasNext()) {
+                RecordData recordData = sc.next();
                 try {
-                    ZonedDateTime timestamp = getTimestamp(recordEntry);
-                    int dur = getElapsed(recordEntry);
-                    long pHash = getHash(recordEntry);
-                    boolean productive = pHash != -1 && getRawProductivityValue(recordEntry);
+                    ZonedDateTime timestamp = recordData.getTime().atZone(ZoneId.systemDefault());
+                    int dur = recordData.getElapsed();
+                    long pHash = recordData.getHash();
+                    boolean productive = (pHash != -1) && (recordData.isProductive() || !recordData.isUtility());
 
                     Project p = projectList.findByHash(pHash);
                     LocalDate date = timestamp.toLocalDate();

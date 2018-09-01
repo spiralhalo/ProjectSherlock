@@ -3,9 +3,9 @@ package xyz.spiralhalo.sherlock;
 import xyz.spiralhalo.sherlock.Main.Arg;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
+import xyz.spiralhalo.sherlock.record.RealtimeRecordWriter;
 import xyz.spiralhalo.sherlock.util.Debug;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
-import xyz.spiralhalo.sherlock.util.PathUtil;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -16,21 +16,19 @@ import java.time.temporal.ChronoField;
 import java.util.TimerTask;
 
 public class Tracker {
-    public static final String LOG_FILENAME = "record2.txt";
     public static final String SPLIT_DIVIDER = "::";
     public static final DateTimeFormatter DTF = FormatUtil.DTF_FULL;
 
     public static final int ONE_SECOND = 1000;
     public static final int TIMER_DELAY_SECONDS = 1;
     public static final int TIMER_DELAY_MILLIS = TIMER_DELAY_SECONDS*ONE_SECOND;
-    public static final int FLUSH_DELAY_MILLIS = TIMER_DELAY_MILLIS*200;
 
     private AFKMonitor afkMonitor;
     private long last;
     private String temps;
     private Timer timer;
     private ProjectList projectList;
-    private RecordBuffer buffer;
+    private RealtimeRecordWriter buffer;
 
     public Tracker(ProjectList projectList){
         afkMonitor = new AFKMonitor();
@@ -42,15 +40,11 @@ public class Tracker {
         }
     }
 
-    public static String getRecordFile(){
-        return PathUtil.getSaveDir()+ LOG_FILENAME;
-    }
-
     public void start(){
         if(Arg.Sandbox.isEnabled()) {
             Debug.log("[Sandbox mode] Starting tracker has been cancelled.");
         } else {
-            buffer = new RecordBuffer();
+            buffer = new RealtimeRecordWriter();
             int seconds = LocalDateTime.now().get(ChronoField.SECOND_OF_MINUTE);
             timer = new Timer(TIMER_DELAY_MILLIS, e -> log(e.getWhen()));
             new java.util.Timer().schedule(new TimerTask() {
@@ -87,7 +81,7 @@ public class Tracker {
                 Debug.log("[GW_OWNER] "+temps);
             }
             Debug.log("Detected project: "+p);
-            buffer.log(p, time - last);
+            buffer.log(time - last, p);
         }
         last = time;
     }

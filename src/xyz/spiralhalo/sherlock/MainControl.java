@@ -17,6 +17,7 @@ import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppBool;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt;
+import xyz.spiralhalo.sherlock.record.legacy.AutoImporter2;
 import xyz.spiralhalo.sherlock.report.*;
 import xyz.spiralhalo.sherlock.report.factory.*;
 import xyz.spiralhalo.sherlock.report.persist.ReportRows;
@@ -87,7 +88,7 @@ public class MainControl implements ActionListener {
         trayIcon = SysIntegration.createTrayIcon(listenerTrayToggle,listenerTrayExit);
         trayIconUsed = (trayIcon != null);
         projectList = ProjectListIO.load();
-        AutoImporter.importRecord(projectList);
+        AutoImporter2.importRecord(projectList);
         tracker = new Tracker(projectList);
         tracker.start();
         view.refreshOverview(cache);

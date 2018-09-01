@@ -3,6 +3,8 @@ package xyz.spiralhalo.sherlock.report.factory;
 import xyz.spiralhalo.sherlock.Tracker;
 import xyz.spiralhalo.sherlock.async.AsyncTask;
 import xyz.spiralhalo.sherlock.persist.project.Project;
+import xyz.spiralhalo.sherlock.record.RecordData;
+import xyz.spiralhalo.sherlock.record.SequentalRecordScanner;
 import xyz.spiralhalo.sherlock.report.persist.ReportRow;
 import xyz.spiralhalo.sherlock.report.persist.ReportRows;
 import xyz.spiralhalo.sherlock.util.Debug;
@@ -10,6 +12,7 @@ import xyz.spiralhalo.sherlock.util.Debug;
 import java.io.FileInputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Scanner;
@@ -17,19 +20,25 @@ import java.util.Scanner;
 import static xyz.spiralhalo.sherlock.report.factory.Const.MINIMUM_SECOND;
 
 public class ProjectViewCreator extends AsyncTask<ProjectViewResult> {
-    private final Project p;
     private ProjectViewResult result;
+    private final Project p;
+    private final LocalDate from, until;
 
     public ProjectViewCreator(Project p) {
+        this(p, null, null);
+    }
+
+    public ProjectViewCreator(Project p, LocalDate from, LocalDate until) {
         this.p = p;
+        this.from = from;
+        this.until = until;
     }
 
     @Override
     public void doRun() throws Exception {
-        try (FileInputStream fis = new FileInputStream(Tracker.getRecordFile());
-             Scanner sc = new Scanner(fis)) {
-            String[] temp;
-            LocalDateTime c2;
+        try (SequentalRecordScanner sc = new SequentalRecordScanner(from, until)) {
+            RecordData temp;
+            ZonedDateTime c2;
             LocalDate cd=null,cm=null;
             int accuS = 0;
             int accuSM = 0;
@@ -38,9 +47,9 @@ public class ProjectViewCreator extends AsyncTask<ProjectViewResult> {
             final LocalDate today = LocalDate.now();
             while (sc.hasNext()) {
                 try {
-                    temp = sc.nextLine().split(Tracker.SPLIT_DIVIDER);
-                    if(p.getHash()!=Long.parseLong(temp[2])) continue;
-                    c2 = ZonedDateTime.parse(temp[0],Tracker.DTF).toLocalDateTime();
+                    temp = sc.next();
+                    if(p.getHash()!=temp.getHash()) continue;
+                    c2 = temp.getTime().atZone(ZoneId.systemDefault());
                     if(cd==null)cd=c2.toLocalDate();
                     if(cm==null)cm=c2.toLocalDate();
                     if (c2.toLocalDate().isAfter(cd)) {
@@ -59,8 +68,7 @@ public class ProjectViewCreator extends AsyncTask<ProjectViewResult> {
                         cm = c2.toLocalDate();
                         accuSM = 0;
                     }
-                    int x = Integer.parseInt(temp[1]);
-                    accuS += x;
+                    accuS += temp.getElapsed();
                 } catch (NumberFormatException e) {
                     Debug.log(e);
                 }

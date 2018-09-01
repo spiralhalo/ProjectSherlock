@@ -9,6 +9,7 @@ import javax.swing.*;
 
 public class Main {
 
+    public static final String APP_TITLE = "Project Sherlock 2 beta version 5 preview";
     public static final String APP_NAME = "Project Sherlock 2";
     public static final String APP_NAME_NOSPACE = APP_NAME.replace(" ", "");
     public static Theme currentTheme;

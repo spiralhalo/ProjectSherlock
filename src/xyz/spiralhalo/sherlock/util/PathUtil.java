@@ -6,14 +6,17 @@ import java.io.File;
 import java.net.URISyntaxException;
 
 public class PathUtil {
+    public static final String RECDIR = "record";
     private static final String ORGDIR = "spiralhalo";
     private static final String SAVEDIR = "ProjectLogger2";
     private static String cachedSaveDir;
     private static String cachedCacheDir;
+    private static String cachedRecordDir;
     private static String cachedJarPath;
     private static String cachedJavawPath;
 
-    public static String getJavawPath(){
+    public static String getJavawPath()
+    {
         if(cachedJavawPath == null){
             String javaHome = System.getProperty("java.home");
             File f = new File(javaHome + File.separator + "bin", "javaw.exe");
@@ -24,7 +27,8 @@ public class PathUtil {
         return cachedJavawPath;
     }
 
-    public static String getJarPath(){
+    public static String getJarPath()
+    {
         if(cachedJarPath == null){
             try {
                 cachedJarPath = new File(MainView.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
@@ -69,11 +73,10 @@ public class PathUtil {
 
     public static String getCacheDir()
     {
-        if(cachedCacheDir != null){
+        File cacheDir = new File(getSaveDir(), "cache");
+        if(cacheDir.isDirectory() && cachedCacheDir != null){
             return cachedCacheDir;
         }
-        File saveDir = new File(getSaveDir());
-        File cacheDir = new File(getSaveDir(), "cache");
         if(cacheDir.exists() && !cacheDir.isDirectory()) {
             cacheDir.delete();
         }
@@ -81,6 +84,21 @@ public class PathUtil {
             cacheDir.mkdir();
         }
         return cachedCacheDir = cacheDir.getPath();
+    }
+
+    public static String getRecordDir()
+    {
+        File recordDir = new File(getSaveDir(), RECDIR);
+        if(recordDir.isDirectory() && cachedRecordDir != null){
+            return cachedRecordDir;
+        }
+        if(recordDir.exists() && !recordDir.isDirectory()) {
+            recordDir.delete();
+        }
+        if(!recordDir.exists()){
+            recordDir.mkdir();
+        }
+        return cachedRecordDir = recordDir.getPath();
     }
 
     public static boolean isWindows(){

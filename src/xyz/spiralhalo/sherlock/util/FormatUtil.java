@@ -11,6 +11,7 @@ public class FormatUtil {
     public static final DateTimeFormatter DTF_LONG_DATE = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG);
     public static final DateTimeFormatter DTF_DATE_SELECTOR = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy");
     public static final DateTimeFormatter DTF_YMD = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
+    public static final DateTimeFormatter DTF_YM = DateTimeFormatter.ofPattern("yyyy-MM").withZone(ZoneId.systemDefault());
     public static final DateTimeFormatter DTF_HMA = DateTimeFormatter.ofPattern("hh:mm a").withZone(ZoneId.systemDefault());
 
     public static String hms(int seconds) {
