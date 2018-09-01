@@ -67,18 +67,15 @@ public class Tracker {
     private void exit() {
         Debug.log("Terminating tracker");
         Debug.log("Logging final entry");
-        log(System.currentTimeMillis(), true);
+        log(System.currentTimeMillis());
         try {
             buffer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    private void log(long time){
-        log(time, false);
-    }
 
-    private void log(long time, boolean exiting){
+    private void log(long time){
         if(afkMonitor.isNotAFK() && projectList.getActiveSize()>0) {
             final ZonedDateTime now = ZonedDateTime.now();
             temps = EnumerateWindows.getActiveWindowTitle();
@@ -90,9 +87,7 @@ public class Tracker {
                 Debug.log("[GW_OWNER] "+temps);
             }
             Debug.log("Detected project: "+p);
-            if(p != null || !exiting) {
-                buffer.log(p, time - last);
-            }
+            buffer.log(p, time - last);
         }
         last = time;
     }
