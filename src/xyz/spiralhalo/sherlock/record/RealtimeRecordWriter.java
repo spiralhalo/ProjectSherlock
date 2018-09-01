@@ -6,7 +6,7 @@ import xyz.spiralhalo.sherlock.persist.project.Project;
 import java.time.YearMonth;
 
 public class RealtimeRecordWriter extends MultiFileRecordWriter {
-    private static final int RECORD_CAPACITY = 200;
+    private static final int RECORD_CAPACITY = 50;
 
     public RealtimeRecordWriter() {
         super(RECORD_CAPACITY);
