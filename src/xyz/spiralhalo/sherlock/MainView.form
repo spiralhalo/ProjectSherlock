@@ -163,8 +163,8 @@
             <properties>
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/inbox.png"/>
-              <text value="Settings"/>
-              <toolTipText value="Settings"/>
+              <text value="Inbox"/>
+              <toolTipText value="Inbox"/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>
