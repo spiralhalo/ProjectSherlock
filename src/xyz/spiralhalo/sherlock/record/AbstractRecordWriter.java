@@ -2,6 +2,7 @@ package xyz.spiralhalo.sherlock.record;
 
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.util.Debug;
+import xyz.spiralhalo.sherlock.util.FormatUtil;
 
 import java.io.*;
 import java.time.Instant;
@@ -9,58 +10,144 @@ import java.time.Instant;
 public abstract class AbstractRecordWriter {
     private static final String DEBUG_OTHER = "(Other)";
 
-    private static class Last{
+    protected static class TempRecord {
+        private long timestamp = 0;
         private String debug_name;
         private long hash = 0;
         private boolean productive;
         private boolean utilityTag;
+
+        private TempRecord() { }
+
+        private TempRecord(long timestamp, String debug_name, long hash, boolean productive, boolean utilityTag) {
+            this.timestamp = timestamp;
+            this.debug_name = debug_name;
+            this.hash = hash;
+            this.productive = productive;
+            this.utilityTag = utilityTag;
+        }
+
+        void setTimestamp(long timestamp){
+            this.timestamp = timestamp;
+        }
+
         void set(String debug_name, long hash, boolean productive, boolean utilityTag){
-            if(hash == -1){
-                this.debug_name = DEBUG_OTHER;
-                this.hash = -1;
-                this.productive = false;
-                this.utilityTag = false;
-            } else {
-                this.debug_name = debug_name;
-                this.hash = hash;
-                this.productive = productive;
-                this.utilityTag = utilityTag;
-            }
+            this.debug_name = debug_name;
+            this.hash = hash;
+            this.productive = productive;
+            this.utilityTag = utilityTag;
+        }
+
+        protected long getTimestamp() {
+            return timestamp;
+        }
+
+        protected String getDebug_name() {
+            return debug_name;
+        }
+
+        protected long getHash() {
+            return hash;
+        }
+
+        protected boolean isProductive() {
+            return productive;
+        }
+
+        protected boolean isUtilityTag() {
+            return utilityTag;
         }
     }
 
-    private int lastRAF = 0;
-    private final Last last = new Last();
-    private final DiskOutput writer;
-    private int accuMilli = 0;
-    private long lastTime = 0;
+    private final TempRecord working = new TempRecord();
+    private final DiskOutputBuffer buffer;
+    private final int nRecordCapacity;
+    private int accuMillis = 0;
+    private RecordFileAppend lastFile = null;
+    private long lastFlushTimestamp = 0;
+    private boolean asyncFlushInProgress = false;
 
-    protected AbstractRecordWriter(int numOfRecordCapacity) {
+    protected AbstractRecordWriter(int nRecordCapacity) {
         final int byteCapacity;
         try {
-            byteCapacity = DiskOutput.getBytesOnDisk(RecordData.BYTES) * numOfRecordCapacity;
+            byteCapacity = DiskOutputBuffer.getBytesOnDisk(RecordData.BYTES) * nRecordCapacity;
         } catch (ArithmeticException e) {
             throw new IllegalArgumentException("Too big.");
         }
-        writer = new DiskOutput(byteCapacity);
+        this.buffer = new DiskOutputBuffer(byteCapacity);
+        this.nRecordCapacity = nRecordCapacity;
+        Debug.logImportant(String.format("[Buffer] New buffer created with class: %s", this.getClass().getSimpleName()));
     }
 
     protected abstract int getMarginOfError();
 
-    protected abstract RandomAccessFile getRafSeekLatest();
+    /**
+     * Returns minimum record on buffer before flushing is enforced.
+     * This rule exists as a safety net to prevent the buffer from overflowing.
+     *
+     * @return default value of half of record capacity
+     */
+    protected int getEnforcedMaxTimesWritten(){
+        return nRecordCapacity/2;
+    }
 
-    protected abstract void closeRAF() throws IOException;
+    /**
+     * Returns minimum delay since the last flushing before flushing is enforced.
+     * This rule exists to ensure a good User Experience (UX).
+     *
+     * @return default value of exactly 5 minutes in milliseconds
+     */
+    protected int getEnforcedFlushDelayMillis(){
+        return 5 * 60 * 1000;
+    }
 
-    protected final void logInternal(long timeMillis, long delay, String debug_name, long hash, boolean productive, boolean utilityTag){
-        if(lastTime == 0){
-            lastTime = timeMillis - delay;
+    /**
+     * Returns whether a different {@link RandomAccessFile} is returned by {@code getRecordFile()}.
+     * This rule exists to ensure that records are written to the right file.
+     * In that case, the current record is written to the last file instead of the current one.
+     *
+     * @return whether the current file is different from the last
+     */
+    private boolean fileChanged(TempRecord currentRecord){
+        RecordFileAppend currentFile = getRecordFile(currentRecord);
+        boolean changed = !lastFile.equals(currentFile);
+        if(changed){
+            Debug.logImportant(String.format("[Buffer] Record file is changed. Previous RF: %s, Current RF: %s",
+                    lastFile.toString(), currentFile.toString()));
         }
-        if((timeMillis-lastTime > accuMilli+delay+getMarginOfError() && accuMilli != 0) || (hash!= last.hash && last.hash !=0)){
-            flush(false);
-            lastTime = timeMillis - delay;
+        return changed;
+    }
+
+    protected abstract RecordFileAppend getRecordFile(TempRecord forRecord);
+
+    protected final void logInternal(long timestamp, long delay, String debug_name, long hash, boolean productive, boolean utilityTag) {
+        TempRecord potential = new TempRecord(timestamp - delay, debug_name, hash, productive, utilityTag);
+        if (lastFile == null) {
+            lastFile = getRecordFile(potential);
         }
-        last.set(debug_name, hash, productive, utilityTag);
-        accuMilli += delay;
+        if (working.timestamp == 0) {
+            working.setTimestamp(timestamp - delay);
+        }
+        if (lastFlushTimestamp == 0) {
+            lastFlushTimestamp = timestamp;
+        }
+        boolean discontinuous = (timestamp - working.timestamp > accuMillis + delay + getMarginOfError() && accuMillis != 0);
+        boolean differentHash = (hash != working.hash && working.hash != 0);
+        boolean fileChanged = fileChanged(potential);
+        if (discontinuous || differentHash || fileChanged) {
+            flush(fileChanged == true);
+            working.setTimestamp(timestamp - delay);
+            if(fileChanged){
+                try {
+                    lastFile.close();
+                } catch (IOException e) {
+                    Debug.log(e);
+                }
+                lastFile = getRecordFile(potential);
+            }
+        }
+        working.set(debug_name, hash, productive, utilityTag);
+        accuMillis += delay;
     }
 
     protected final void logInternal(long timeMillis, long delay, Project p){
@@ -72,26 +159,47 @@ public abstract class AbstractRecordWriter {
     }
 
     private void flush(boolean forced){
-        Debug.log("[Buffer] Writing record entry for: "+last.debug_name);
-        byte[] recordRaw = RecordData.serialize(Instant.ofEpochMilli(lastTime),
-                accuMilli/1000, last.hash, last.utilityTag, last.productive);
-        writer.put(recordRaw);
-        accuMilli = 0;
-        if(forced || writer.full() || (lastRAF != 0 && lastRAF != getRafSeekLatest().hashCode())){
-            Debug.log("[Buffer] Flushing record");
-            try {
-                writer.flush(getRafSeekLatest());
-            } catch (IOException e) {
-                Debug.log(e);
-            }
-            lastRAF = getRafSeekLatest().hashCode();
+        final Instant recordTime = Instant.ofEpochMilli(working.timestamp);
+        final int recordElapsed = accuMillis/1000;
+        Debug.log(String.format("[Buffer] Writing record entry for: %s", working.debug_name));
+        Debug.logVerbose(String.format("%8s %s, %s", "", FormatUtil.DTF_FULL.format(recordTime), recordElapsed));
+        byte[] recordRaw = RecordData.serialize(recordTime, recordElapsed, working.hash, working.utilityTag, working.productive);
+        buffer.put(recordRaw);
+        accuMillis = 0;
+        boolean enforceMaxTimesWritten = buffer.getTimesWritten() >= getEnforcedMaxTimesWritten();
+        boolean enforceFlushDelay = System.currentTimeMillis() - lastFlushTimestamp >= getEnforcedFlushDelayMillis();
+        if(forced || buffer.full() || enforceMaxTimesWritten || enforceFlushDelay){
+            flushToDisk();
         }
     }
 
+    private void flushToDisk(){
+        if(lastFile == null) {
+            Debug.log(new RuntimeException("[Buffer] No file to write to"));
+            return;
+        }
+        if(asyncFlushInProgress){
+            Debug.logImportant("[Buffer] Async flush is in progress");
+            return;
+        }
+        asyncFlushInProgress = true;
+        lastFlushTimestamp = System.currentTimeMillis();
+        Debug.log("[Buffer] Flushing record");
+        try {
+            buffer.flush(lastFile.raf());
+        } catch (IOException e) {
+            Debug.log(e);
+        }
+        asyncFlushInProgress = false;
+    }
+
     public final void close() throws IOException {
-        if(accuMilli >0) {
+        Debug.logImportant("[Buffer] Closing buffer");
+        if(accuMillis >0) {
             flush(true);
         }
-        closeRAF();
+        if(lastFile!=null){
+            lastFile.close();
+        }
     }
 }

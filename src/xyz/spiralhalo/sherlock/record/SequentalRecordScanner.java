@@ -69,7 +69,7 @@ public class SequentalRecordScanner implements Iterator<RecordData>, AutoCloseab
             byte[] raw = null;
             boolean eof = false;
             try {
-                raw = DiskOutput.read(raf);
+                raw = DiskOutputBuffer.read(raf);
             } catch (EOFException e){
                 Debug.log(e);
                 nextFile();

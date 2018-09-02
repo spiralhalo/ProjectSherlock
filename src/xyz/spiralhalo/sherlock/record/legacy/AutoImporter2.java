@@ -60,21 +60,15 @@ public class AutoImporter2 {
 
     private static class ReconstructorWriter extends MultiFileRecordWriter {
         ReconstructorWriter() {
-            super(1000);
+            super(10000);
         }
 
         void log(long timeMillis, int delayS, String debug_name, long hash, boolean productive, boolean utilityTag){
-            setWorkingDate(timeMillis);
             super.logInternal(timeMillis + delayS * 1000, delayS * 1000, debug_name, hash, productive, utilityTag);
         }
 
         void log(long timeMillis, int delayS, Project p) {
-            setWorkingDate(timeMillis);
             super.logInternal(timeMillis + delayS * 1000, delayS * 1000, p);
-        }
-
-        private void setWorkingDate(long timeMillis){
-            super.setWorkingYM(YearMonth.from(Instant.ofEpochMilli(timeMillis).atZone(ZoneId.systemDefault())));
         }
 
         @Override

@@ -34,7 +34,7 @@ public class Tracker {
         afkMonitor = new AFKMonitor();
         this.projectList = projectList;
         if(Arg.Sandbox.isEnabled()) {
-            Debug.log("[Sandbox mode] Tracking has been set to mode hiatus.");
+            Debug.logImportant("[Sandbox mode] Tracking has been set to mode hiatus.");
         } else {
             Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
         }
@@ -42,7 +42,7 @@ public class Tracker {
 
     public void start(){
         if(Arg.Sandbox.isEnabled()) {
-            Debug.log("[Sandbox mode] Starting tracker has been cancelled.");
+            Debug.logImportant("[Sandbox mode] Starting tracker has been cancelled.");
         } else {
             buffer = new RealtimeRecordWriter();
             int seconds = LocalDateTime.now().get(ChronoField.SECOND_OF_MINUTE);
@@ -50,7 +50,7 @@ public class Tracker {
             new java.util.Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    Debug.log("Tracker is started");
+                    Debug.logImportant("Tracker is started");
                     last = System.currentTimeMillis();
                     timer.start();
                 }
@@ -59,8 +59,8 @@ public class Tracker {
     }
 
     private void exit() {
-        Debug.log("Terminating tracker");
-        Debug.log("Logging final entry");
+        Debug.logImportant("Terminating tracker");
+        Debug.logImportant("Logging final entry");
         log(System.currentTimeMillis());
         try {
             buffer.close();
@@ -74,13 +74,14 @@ public class Tracker {
             final ZonedDateTime now = ZonedDateTime.now();
             temps = EnumerateWindows.getActiveWindowTitle();
             Project p = projectList.getActiveProjectOf(temps, now);
-            Debug.logVerbose("[ForegroundWindow] "+temps);
+            Debug.logVerbose(String.format("%18s %s", "[ForegroundWindow]", temps));
             if(p==null) {
                 temps = EnumerateWindows.getRootWindowTitle();
                 p = projectList.getActiveProjectOf(temps, now);
-                Debug.logVerbose("[GW_OWNER] "+temps);
+                Debug.logVerbose(String.format("%18s %s", "[GW_OWNER]", temps));
             }
-            Debug.logVerbose("Detected project: "+p);
+            final String pn = String.valueOf(p);
+            Debug.logVerbose(String.format("%18s Detected project: %s", "", pn));
             buffer.log(time - last, p);
         }
         last = time;

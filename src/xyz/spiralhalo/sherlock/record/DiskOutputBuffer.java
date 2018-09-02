@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
 
-public class DiskOutput {
+public class DiskOutputBuffer {
     public static int getBytesOnDisk(int originalLength){
         return originalLength+1;
     }
@@ -17,8 +17,9 @@ public class DiskOutput {
     }
 
     private final SimpleByteBuffer byteBuffer;
+    private int timesWritten = 0;
 
-    public DiskOutput(int capacityBytesOnDisk) {
+    public DiskOutputBuffer(int capacityBytesOnDisk) {
         byteBuffer = new SimpleByteBuffer(capacityBytesOnDisk);
     }
 
@@ -28,6 +29,7 @@ public class DiskOutput {
         toWrite[0] = (byte)toBeWritten.length;
         System.arraycopy(toBeWritten, 0, toWrite, 1, toBeWritten.length);
         byteBuffer.put(toWrite);
+        timesWritten ++;
     }
 
     public void flush(RandomAccessFile raf) throws IOException{
@@ -39,10 +41,15 @@ public class DiskOutput {
             ex = e;
         } finally {
             byteBuffer.clear();
+            timesWritten = 0;
         }
         if(ex!=null){
             throw ex;
         }
+    }
+
+    public int getTimesWritten() {
+        return timesWritten;
     }
 
     public boolean full(){
