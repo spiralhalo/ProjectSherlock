@@ -71,6 +71,7 @@ public class Main {
         Minimized("-minimized"),
         Delayed("-delayed"),
         Debug("-debug"),
+        Verbose("-verbose"),
         Sandbox("-sandbox");
         private final String v;
         private boolean enabled = false;

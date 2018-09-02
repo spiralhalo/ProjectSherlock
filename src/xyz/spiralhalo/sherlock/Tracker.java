@@ -74,13 +74,13 @@ public class Tracker {
             final ZonedDateTime now = ZonedDateTime.now();
             temps = EnumerateWindows.getActiveWindowTitle();
             Project p = projectList.getActiveProjectOf(temps, now);
-            Debug.log("[ForegroundWindow] "+temps);
+            Debug.logVerbose("[ForegroundWindow] "+temps);
             if(p==null) {
                 temps = EnumerateWindows.getRootWindowTitle();
                 p = projectList.getActiveProjectOf(temps, now);
-                Debug.log("[GW_OWNER] "+temps);
+                Debug.logVerbose("[GW_OWNER] "+temps);
             }
-            Debug.log("Detected project: "+p);
+            Debug.logVerbose("Detected project: "+p);
             buffer.log(time - last, p);
         }
         last = time;

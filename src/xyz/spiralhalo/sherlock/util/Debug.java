@@ -6,6 +6,7 @@ import java.time.Instant;
 
 public class Debug {
 
+    @Deprecated
     public static void log(Class caller, Throwable e){
         if(Arg.Debug.isEnabled()){
             e.printStackTrace();
@@ -34,6 +35,12 @@ public class Debug {
 
     public static void log(String x){
         if(Arg.Debug.isEnabled()) {
+            System.out.println(String.format("%s: %s", FormatUtil.DTF_FULL.format(Instant.now()), x));
+        }
+    }
+
+    public static void logVerbose(String x){
+        if(Arg.Debug.isEnabled() && Arg.Verbose.isEnabled()) {
             System.out.println(String.format("%s: %s", FormatUtil.DTF_FULL.format(Instant.now()), x));
         }
     }
