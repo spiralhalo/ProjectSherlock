@@ -43,7 +43,7 @@ public class AutoImporter2 {
                             } else {
                                 productive = true;
                             }
-                            y.log(d.toInstant().toEpochMilli(), dur, "(Deleted)", hash, productive, utility);
+                            y.log(d.toInstant().toEpochMilli(), dur, "(Deleted)", hash, utility, productive);
                         } else {
                             y.log(d.toInstant().toEpochMilli(), dur, p);
                         }
@@ -59,21 +59,38 @@ public class AutoImporter2 {
     }
 
     private static class ReconstructorWriter extends MultiFileRecordWriter {
+        private long lastTimestamp = 0;
+        private int lastDelayS = 0;
         ReconstructorWriter() {
             super(10000);
         }
 
-        void log(long timeMillis, int delayS, String debug_name, long hash, boolean productive, boolean utilityTag){
-            super.logInternal(timeMillis + delayS * 1000, delayS * 1000, debug_name, hash, productive, utilityTag);
+        void log(long timestamp, int delayS, String debug_name, long hash, boolean utilityTag, boolean productive){
+            if(timestamp < lastTimestamp) return; //prevent erroneous or duplicate record
+            lastTimestamp = timestamp;
+            lastDelayS = 0;
+            super.log(timestamp, debug_name, hash, utilityTag, productive);
+            lastDelayS = delayS;
+            super.log(timestamp + delayS*1000, debug_name, hash, utilityTag, productive);
         }
 
-        void log(long timeMillis, int delayS, Project p) {
-            super.logInternal(timeMillis + delayS * 1000, delayS * 1000, p);
+        void log(long timestamp, int delayS, Project p) {
+            if(timestamp < lastTimestamp) return; //prevent erroneous or duplicate record
+            lastTimestamp = timestamp;
+            lastDelayS = 0;
+            super.log(timestamp, p);
+            lastDelayS = delayS;
+            super.log(timestamp + delayS*1000, p);
         }
 
         @Override
-        protected int getMarginOfError() {
-            return 100;
+        protected int getGranularityMillis() {
+            return lastDelayS * 1000;
+        }
+
+        @Override
+        protected void onClosing() {
+            lastDelayS = 0;
         }
     }
 }

@@ -82,7 +82,7 @@ public class Tracker {
             }
             final String pn = String.valueOf(p);
             Debug.logVerbose(String.format("%18s Detected project: %s", "", pn));
-            buffer.log(time - last, p);
+            buffer.log(p);
         }
         last = time;
     }

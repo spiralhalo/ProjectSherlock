@@ -10,13 +10,15 @@ public class RealtimeRecordWriter extends MultiFileRecordWriter {
         super(RECORD_CAPACITY);
     }
 
-    public void log(long delay, Project p) {
-        super.logInternal(System.currentTimeMillis(), delay, p);
+    public void log(Project p) {
+        super.log(System.currentTimeMillis(), p);
     }
 
     @Override
-    protected int getMarginOfError() {
-        return Tracker.TIMER_DELAY_MILLIS / 2;
+    protected int getGranularityMillis() {
+        return Tracker.TIMER_DELAY_MILLIS;
     }
 
+    @Override
+    protected void onClosing() { }
 }

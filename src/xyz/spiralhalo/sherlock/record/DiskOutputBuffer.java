@@ -10,8 +10,8 @@ public class DiskOutputBuffer {
     }
 
     public static byte[] read(RandomAccessFile radFile) throws IOException{
-        byte meta = radFile.readByte();
-        byte[] toRead = new byte[meta & 0xff]; //extreme bitwise magick!!! (`meta` becomes positive int)
+        int meta = radFile.readUnsignedByte();
+        byte[] toRead = new byte[meta];
         radFile.readFully(toRead);
         return toRead;
     }
