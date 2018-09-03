@@ -10,7 +10,7 @@ import java.time.Instant;
 /**
  * An abstract class that represents a record writer with an internal buffer.
  *
- * This class handles the aggregation of data points into record entries as well as handles the writing
+ * This class handles the aggregation of data points into record entries as well as the writing
  * of those entries into the disk when some of the conditions or rules are met.
  *
  * The file to which the records are written into is decided by the implementation.
