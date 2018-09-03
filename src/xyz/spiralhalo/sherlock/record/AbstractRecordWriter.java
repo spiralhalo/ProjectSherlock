@@ -10,7 +10,7 @@ import java.time.Instant;
 /**
  * An abstract class that represents a record writer with an internal buffer.
  *
- * This class handles the aggregation of data points into record entries as well as the writing
+ * This class handles the aggregation of virtual data points into record entries as well as the writing
  * of those entries into the disk when some of the conditions or rules are met.
  *
  * The file to which the records are written into is decided by the implementation.
@@ -94,7 +94,7 @@ public abstract class AbstractRecordWriter {
     }
 
     /**
-     * Returns the granularity (the period of time between {@code log()} calls) of the record.
+     * Returns the granularity (the period of time between virtual data points) of the record.
      *
      * @return the granularity of the record in milliseconds
      */
@@ -114,7 +114,7 @@ public abstract class AbstractRecordWriter {
     protected abstract void onClosing();
 
     /**
-     * Returns maximum delay between two {@code log()} calls of the same hash before they are treated
+     * Returns the maximum delay between virtual data points of the same hash before they are treated
      * as belonging to separate record entries.
      *
      * @return the granularity of the record plus a margin of error of 50%

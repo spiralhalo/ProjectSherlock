@@ -40,9 +40,9 @@ public abstract class AsyncTask<Y> implements Runnable {
      * This method is executed once while the task is running.
      *
      * Any exception thrown by this method will be handled by the
-     * callback function in the {@code EventDispatcher} thread
+     * callback function in the {@code EventDispatcher} thread.
      *
-     * @throws Exception the exceptions to be handled by the callback function
+     * @throws Exception to be handled by the callback function
      */
     abstract protected void doRun() throws Exception;
 
@@ -71,7 +71,7 @@ public abstract class AsyncTask<Y> implements Runnable {
     }
 
     /**
-     * Throws an {@code Exception} to be handled by the callback function.
+     * Throws an {@link Exception} to be handled by the callback function.
      *
      * @param message the message for this exception
      */
