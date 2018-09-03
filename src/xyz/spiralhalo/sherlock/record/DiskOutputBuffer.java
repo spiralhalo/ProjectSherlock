@@ -24,27 +24,31 @@ public class DiskOutputBuffer {
     }
 
     public void put(byte[] toBeWritten){
-        if(toBeWritten.length > 255) throw new IllegalArgumentException("Byte array is too big.");
-        byte[] toWrite = new byte[1+toBeWritten.length];
-        toWrite[0] = (byte)toBeWritten.length;
-        System.arraycopy(toBeWritten, 0, toWrite, 1, toBeWritten.length);
-        byteBuffer.put(toWrite);
-        timesWritten ++;
+        synchronized (byteBuffer) {
+            if (toBeWritten.length > 255) throw new IllegalArgumentException("Byte array is too big.");
+            byte[] toWrite = new byte[1 + toBeWritten.length];
+            toWrite[0] = (byte) toBeWritten.length;
+            System.arraycopy(toBeWritten, 0, toWrite, 1, toBeWritten.length);
+            byteBuffer.put(toWrite);
+            timesWritten++;
+        }
     }
 
     public void flush(RandomAccessFile raf) throws IOException{
-        IOException ex;
-        try {
-            raf.write(byteBuffer.array());
-            ex = null;
-        } catch (IOException e) {
-            ex = e;
-        } finally {
-            byteBuffer.clear();
-            timesWritten = 0;
-        }
-        if(ex!=null){
-            throw ex;
+        synchronized (byteBuffer) {
+            IOException ex;
+            try {
+                raf.write(byteBuffer.array());
+                ex = null;
+            } catch (IOException e) {
+                ex = e;
+            } finally {
+                byteBuffer.clear();
+                timesWritten = 0;
+            }
+            if (ex != null) {
+                throw ex;
+            }
         }
     }
 
@@ -53,7 +57,9 @@ public class DiskOutputBuffer {
     }
 
     public boolean full(){
-        return byteBuffer.full();
+        synchronized (byteBuffer) {
+            return byteBuffer.full();
+        }
     }
 
     private static class SimpleByteBuffer{
