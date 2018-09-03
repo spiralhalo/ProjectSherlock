@@ -86,4 +86,8 @@ public class Tracker {
         }
         last = time;
     }
+
+    public void flushRecordBuffer() {
+        buffer.flushBuffer();
+    }
 }

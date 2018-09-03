@@ -439,6 +439,7 @@ public class MainControl implements ActionListener {
     }
 
     private void refresh(){
+        tracker.flushRecordBuffer();
         Loader.execute("refresh", new OverviewCreator(projectList), this::refreshCB,
                 toShowOnRefresh, toHideOnRefresh);
     }

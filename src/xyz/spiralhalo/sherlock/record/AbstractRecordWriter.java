@@ -238,15 +238,15 @@ public abstract class AbstractRecordWriter {
         boolean enforceMaxTimesWritten = buffer.getTimesWritten() >= getEnforcedMaxTimesWritten();
         boolean enforceFlushDelay = System.currentTimeMillis() - lastFlushTimestamp >= getEnforcedFlushDelayMillis();
 
-        if(forced || buffer.full() || enforceMaxTimesWritten || enforceFlushDelay){
-            flushToDisk();
+        if (forced || buffer.full() || enforceMaxTimesWritten || enforceFlushDelay) {
+            flushBuffer();
         }
     }
 
     /**
      * Flushes the buffer into disk.
      */
-    private void flushToDisk(){
+    public synchronized final void flushBuffer(){
         if(lastFile == null) {
             Debug.log(new RuntimeException("[Buffer] No file to write to"));
             return;
