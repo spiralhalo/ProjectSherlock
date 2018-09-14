@@ -1,9 +1,7 @@
 package xyz.spiralhalo.sherlock;
 
-import lc.kra.system.keyboard.GlobalKeyboardHook;
 import lc.kra.system.keyboard.event.GlobalKeyAdapter;
 import lc.kra.system.keyboard.event.GlobalKeyEvent;
-import lc.kra.system.mouse.GlobalMouseHook;
 import lc.kra.system.mouse.event.GlobalMouseAdapter;
 import lc.kra.system.mouse.event.GlobalMouseEvent;
 import xyz.spiralhalo.sherlock.Main.Arg;
@@ -20,6 +18,9 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.util.TimerTask;
+
+import static xyz.spiralhalo.sherlock.GlobalInputHook.GLOBAL_KEYBOARD_HOOK;
+import static xyz.spiralhalo.sherlock.GlobalInputHook.GLOBAL_MOUSE_HOOK;
 
 public class Tracker {
     public static final String SPLIT_DIVIDER = "::";
@@ -116,18 +117,13 @@ public class Tracker {
 
         private void logNow(){ lastInput = System.currentTimeMillis(); }
 
-        private GlobalKeyboardHook keyboardHook;
-        private GlobalMouseHook mouseHook;
-
         private long lastInput;
         private boolean keyPressed;
         private boolean mousePressed;
 
         AFKMonitor() {
-            keyboardHook = new GlobalKeyboardHook(false);
-            mouseHook = new GlobalMouseHook(false);
-            keyboardHook.addKeyListener(new KeyAdapter());
-            mouseHook.addMouseListener(new MouseAdapter());
+            GLOBAL_KEYBOARD_HOOK.addKeyListener(new KeyAdapter());
+            GLOBAL_MOUSE_HOOK.addMouseListener(new MouseAdapter());
         }
 
         boolean isNotAFK() {
