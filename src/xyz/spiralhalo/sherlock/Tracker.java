@@ -11,7 +11,6 @@ import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
 import xyz.spiralhalo.sherlock.record.RealtimeRecordWriter;
-import xyz.spiralhalo.sherlock.util.Debug;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 
 import javax.swing.*;

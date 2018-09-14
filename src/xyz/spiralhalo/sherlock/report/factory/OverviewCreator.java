@@ -13,7 +13,7 @@ import xyz.spiralhalo.sherlock.report.persist.AllReportRows;
 import xyz.spiralhalo.sherlock.report.persist.ReportRow;
 import xyz.spiralhalo.sherlock.report.persist.ReportRows;
 import xyz.spiralhalo.sherlock.util.ColorUtil;
-import xyz.spiralhalo.sherlock.util.Debug;
+import xyz.spiralhalo.sherlock.Debug;
 
 import java.awt.*;
 import java.time.LocalDate;

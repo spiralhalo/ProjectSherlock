@@ -2,7 +2,7 @@ package xyz.spiralhalo.sherlock.persist.settings;
 
 import org.ini4j.Ini;
 import org.ini4j.IniPreferences;
-import xyz.spiralhalo.sherlock.util.Debug;
+import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.Application;
 
 import java.io.File;
@@ -32,7 +32,7 @@ public class IniHandler extends IniPreferences{
                 ini.load();
             }
         } catch (IOException e) {
-            Debug.log(IniHandler.class, e);
+            Debug.log(e);
         }
         this.ini = ini;
     }
@@ -41,7 +41,7 @@ public class IniHandler extends IniPreferences{
         try {
             super.node(node).removeNode();
         } catch (BackingStoreException e) {
-            Debug.log(IniHandler.class, e);
+            Debug.log(e);
         }
     }
 
@@ -193,7 +193,7 @@ public class IniHandler extends IniPreferences{
         try {
             ini.store();
         } catch (IOException e) {
-            Debug.log(IniHandler.class, e);
+            Debug.log(e);
         }
     }
 }

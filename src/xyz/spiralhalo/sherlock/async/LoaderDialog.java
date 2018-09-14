@@ -1,13 +1,10 @@
 package xyz.spiralhalo.sherlock.async;
 
-import xyz.spiralhalo.sherlock.util.Debug;
+import xyz.spiralhalo.sherlock.Debug;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 public class LoaderDialog extends JDialog {
     private static CompletableFuture completableFuture;
@@ -19,7 +16,7 @@ public class LoaderDialog extends JDialog {
 
     public static <T> void execute(JFrame owner, AsyncTask<T> supplier, BiConsumer<T, ? super Throwable> callback){
         supplier.start((e,t) -> {
-            if(t!=null) Debug.log(LoaderDialog.class,t);
+            if(t!=null) Debug.log(t);
             completableFuture = null;
             loaderDialog.dispose();
             callback.accept(e,t);

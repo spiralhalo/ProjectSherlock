@@ -4,7 +4,7 @@ import xyz.spiralhalo.sherlock.Tracker;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.record.MultiFileRecordWriter;
-import xyz.spiralhalo.sherlock.util.Debug;
+import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.Application;
 
 import java.io.*;

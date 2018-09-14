@@ -3,6 +3,7 @@ package xyz.spiralhalo.sherlock.util;
 import org.pushingpixels.flamingo.api.common.icon.ImageWrapperResizableIcon;
 import org.pushingpixels.neon.icon.ResizableIcon;
 import sun.awt.image.ToolkitImage;
+import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.res.Res;
 

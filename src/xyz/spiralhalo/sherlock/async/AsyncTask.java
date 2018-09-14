@@ -1,6 +1,6 @@
 package xyz.spiralhalo.sherlock.async;
 
-import xyz.spiralhalo.sherlock.util.Debug;
+import xyz.spiralhalo.sherlock.Debug;
 
 import javax.swing.*;
 import java.util.function.BiConsumer;

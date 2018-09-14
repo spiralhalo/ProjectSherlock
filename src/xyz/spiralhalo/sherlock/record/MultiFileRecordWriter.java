@@ -1,6 +1,6 @@
 package xyz.spiralhalo.sherlock.record;
 
-import xyz.spiralhalo.sherlock.util.Debug;
+import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 import xyz.spiralhalo.sherlock.Application;
 

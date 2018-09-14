@@ -1,21 +1,17 @@
 package xyz.spiralhalo.sherlock.report.factory;
 
-import xyz.spiralhalo.sherlock.Tracker;
 import xyz.spiralhalo.sherlock.async.AsyncTask;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.record.RecordData;
 import xyz.spiralhalo.sherlock.record.SequentalRecordScanner;
 import xyz.spiralhalo.sherlock.report.persist.ReportRow;
 import xyz.spiralhalo.sherlock.report.persist.ReportRows;
-import xyz.spiralhalo.sherlock.util.Debug;
+import xyz.spiralhalo.sherlock.Debug;
 
-import java.io.FileInputStream;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
-import java.util.Scanner;
 
 import static xyz.spiralhalo.sherlock.report.factory.Const.MINIMUM_SECOND;
 

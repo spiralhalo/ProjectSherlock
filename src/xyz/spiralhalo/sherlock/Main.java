@@ -3,7 +3,6 @@ package xyz.spiralhalo.sherlock;
 import org.pushingpixels.substance.api.skin.*;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.Theme;
-import xyz.spiralhalo.sherlock.util.Debug;
 
 import javax.swing.*;
 

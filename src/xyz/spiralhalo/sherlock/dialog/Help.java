@@ -2,7 +2,7 @@ package xyz.spiralhalo.sherlock.dialog;
 
 import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.res.Res;
-import xyz.spiralhalo.sherlock.util.Debug;
+import xyz.spiralhalo.sherlock.Debug;
 
 import java.awt.*;
 

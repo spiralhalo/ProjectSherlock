@@ -1,7 +1,6 @@
 package xyz.spiralhalo.sherlock;
 
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
-import xyz.spiralhalo.sherlock.util.Debug;
 import xyz.spiralhalo.sherlock.util.ImgUtil;
 import xyz.spiralhalo.sherlock.util.WinRegistry;
 

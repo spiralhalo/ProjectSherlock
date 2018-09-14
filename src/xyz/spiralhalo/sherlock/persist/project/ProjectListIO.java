@@ -1,6 +1,6 @@
 package xyz.spiralhalo.sherlock.persist.project;
 
-import xyz.spiralhalo.sherlock.util.Debug;
+import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.Application;
 
 import java.io.*;
