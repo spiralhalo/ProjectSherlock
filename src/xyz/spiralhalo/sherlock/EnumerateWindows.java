@@ -1,49 +1,74 @@
 package xyz.spiralhalo.sherlock;
 
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.User32;
+import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.HWND;
-import com.sun.jna.platform.win32.WinDef.UINT;
+import com.sun.jna.platform.win32.Psapi;
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinNT.HANDLE;
+import com.sun.jna.platform.win32.WinUser.WNDENUMPROC;
+import com.sun.jna.ptr.IntByReference;
+
+import java.util.ArrayList;
 
 public class EnumerateWindows {
     private static final int MAX_TITLE_LENGTH = 1024;
-//    private static final long GW_HWNDFIRST = 0L;
-//    private static final long GW_HWNDLAST = 1L;
-    private static final UINT GW_OWNER = new UINT(4L);
+    private static final DWORD GW_OWNER = new DWORD(4L);
+    private static final User32 user32 = User32.INSTANCE;
+    private static final Kernel32 kernel32 = Kernel32.INSTANCE;
+    private static final Psapi psapi = Psapi.INSTANCE;
 
     public static String getActiveWindowTitle() {
         char[] buffer = new char[MAX_TITLE_LENGTH * 2];
-        User32DLL.GetWindowTextW(User32DLL.GetForegroundWindow(), buffer, MAX_TITLE_LENGTH);
+        user32.GetWindowText(user32.GetForegroundWindow(), buffer, MAX_TITLE_LENGTH);
         return Native.toString(buffer);
     }
 
     public static String getRootWindowTitle() {
         char[] buffer = new char[MAX_TITLE_LENGTH * 2];
-        HWND foregroundWindow = User32DLL.GetForegroundWindow();
-        User32DLL.GetWindowTextW(User32DLL.GetWindow(foregroundWindow, GW_OWNER), buffer, MAX_TITLE_LENGTH);
+        HWND foregroundWindow = user32.GetForegroundWindow();
+        user32.GetWindowText(user32.GetWindow(foregroundWindow, GW_OWNER), buffer, MAX_TITLE_LENGTH);
         return Native.toString(buffer);
     }
 
-//    public static void debug(){
-//        char[] buffer0 = new char[MAX_TITLE_LENGTH * 2];
-//        char[] buffer1 = new char[MAX_TITLE_LENGTH * 2];
-//        char[] buffer2 = new char[MAX_TITLE_LENGTH * 2];
-//        char[] buffer3 = new char[MAX_TITLE_LENGTH * 2];
-//        HWND x = User32DLL.GetForegroundWindow();
-//        User32DLL.GetWindowTextW(User32DLL.GetWindow(x, new UINT(GW_HWNDFIRST)), buffer0, MAX_TITLE_LENGTH);
-//        User32DLL.GetWindowTextW(User32DLL.GetWindow(x, new UINT(GW_HWNDLAST)), buffer1, MAX_TITLE_LENGTH);
-//        User32DLL.GetWindowTextW(User32DLL.GetWindow(x, new UINT(GW_OWNER)), buffer2, MAX_TITLE_LENGTH);
-//        User32DLL.GetWindowTextW(User32DLL.GetTopWindow(x), buffer3, MAX_TITLE_LENGTH);
-//        Debug.log("[TopWindow] "+Native.toString(buffer3));
-//        Debug.log("[GW_HWNDFIRST] "+Native.toString(buffer0));
-//        Debug.log("[GW_HWNDLAST] "+Native.toString(buffer1));
-//        Debug.log("[GW_OWNER] "+Native.toString(buffer2));
-//    }
+    public static String[] getOpenWindowTitles() {
+        EnumWindowsProc enumproc = new EnumWindowsProc();
+        user32.EnumWindows(enumproc, null);
+        return enumproc.getTitles();
+    }
 
-    static class User32DLL {
-        static { Native.register("user32"); }
-        public static native HWND GetForegroundWindow();
-//        public static native HWND GetTopWindow(HWND hWnd);
-        public static native HWND GetWindow (HWND hWnd, UINT uCmd);
-        public static native int GetWindowTextW(HWND hWnd, char[] lpString, int nMaxCount);
+    private static class EnumWindowsProc implements WNDENUMPROC{
+        private final ArrayList<String> titles = new ArrayList<>();
+        @Override
+        public boolean callback(HWND hwnd, Pointer pointer) {
+            if (user32.IsWindowVisible(hwnd)) {
+                char[] buffer = new char[MAX_TITLE_LENGTH * 2];
+                user32.GetWindowText(hwnd, buffer, MAX_TITLE_LENGTH);
+                char[] buffer2 = new char[MAX_TITLE_LENGTH * 2];
+                IntByReference pidPtr = new IntByReference();
+                user32.GetWindowThreadProcessId(hwnd, pidPtr);
+                HANDLE handle = kernel32.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, pidPtr.getValue());
+                psapi.GetModuleFileNameExW(handle, null, buffer2, MAX_TITLE_LENGTH);
+                String title = Native.toString(buffer);
+                String path = Native.toString(buffer2);
+                if(path.length() > 0) {
+                    String toPut = String.format("%s, %s", title, path.substring(path.lastIndexOf('\\') + 1));
+                    if (title.length() > 0 && !titles.contains(toPut) && !excluded(path)) {
+                        titles.add(toPut);
+                    }
+                }
+            }
+            return true;
+        }
+        private static boolean excluded(String path){
+            return path.toLowerCase().contains("windows\\explorer.exe");
+        }
+
+        public String[] getTitles() {
+            return titles.toArray(new String[0]);
+        }
     }
 }
