@@ -44,7 +44,7 @@ public class Main {
                 }
             }
 
-            Runtime.getRuntime().addShutdownHook(new Thread(SysIntegration::createOrDeleteStartupRegistry));
+            Runtime.getRuntime().addShutdownHook(new Thread(Application::createOrDeleteStartupRegistry));
             MainView m = new MainView();
             if(!Arg.Minimized.isEnabled()) {
                 m.getFrame().setVisible(true);

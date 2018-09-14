@@ -5,20 +5,17 @@ import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.record.MultiFileRecordWriter;
 import xyz.spiralhalo.sherlock.util.Debug;
-import xyz.spiralhalo.sherlock.util.PathUtil;
+import xyz.spiralhalo.sherlock.Application;
 
 import java.io.*;
-import java.time.Instant;
-import java.time.YearMonth;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Scanner;
 
 public class AutoImporter2 {
     public static final String OLD_LOG_FILENAME = "record2.txt";
     public static void importRecord(ProjectList projectList) {
-        File file = new File(PathUtil.getSaveDir(), OLD_LOG_FILENAME);
-        File file2 = new File(PathUtil.getSaveDir(), PathUtil.RECDIR);
+        File file = new File(Application.getSaveDir(), OLD_LOG_FILENAME);
+        File file2 = new File(Application.getSaveDir(), Application.RECDIR);
         if (file.exists() && !file2.isDirectory()) {
             try (FileInputStream fis = new FileInputStream(file);
                  Scanner sc = new Scanner(fis)) {

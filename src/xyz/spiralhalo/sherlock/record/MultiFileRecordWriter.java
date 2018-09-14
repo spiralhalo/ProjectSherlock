@@ -2,7 +2,7 @@ package xyz.spiralhalo.sherlock.record;
 
 import xyz.spiralhalo.sherlock.util.Debug;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
-import xyz.spiralhalo.sherlock.util.PathUtil;
+import xyz.spiralhalo.sherlock.Application;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,7 @@ public abstract class MultiFileRecordWriter extends AbstractRecordWriter{
     }
 
     private void createFile() {
-        File file = new File(PathUtil.getRecordDir(), workingFilename);
+        File file = new File(Application.getRecordDir(), workingFilename);
         try {
             recordFile = new RecordFileAppend(file);
         } catch (IOException e) {

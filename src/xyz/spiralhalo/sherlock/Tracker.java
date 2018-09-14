@@ -88,6 +88,10 @@ public class Tracker {
     }
 
     public void flushRecordBuffer() {
-        buffer.flushBuffer();
+        if(Arg.Sandbox.isEnabled()) {
+            Debug.logImportant("[Sandbox mode] Flushing buffer has been cancelled.");
+        } else {
+            buffer.flushBuffer();
+        }
     }
 }

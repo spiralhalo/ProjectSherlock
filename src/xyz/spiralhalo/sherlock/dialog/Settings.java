@@ -1,7 +1,7 @@
 package xyz.spiralhalo.sherlock.dialog;
 
 import xyz.spiralhalo.sherlock.Main;
-import xyz.spiralhalo.sherlock.SysIntegration;
+import xyz.spiralhalo.sherlock.Application;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppBool;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt;
@@ -222,11 +222,11 @@ public class Settings extends JDialog {
         UserConfig.setInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND, sliderTarget.getValue());
         for (int i = 0; i < days.length; i++) { UserConfig.setWorkDay(i, days[i].isSelected()); }
         buttonApply.setEnabled(false);
-        SysIntegration.createOrDeleteStartupRegistry();
+        Application.createOrDeleteStartupRegistry();
         if(Main.currentTheme != AppConfig.getTheme()){
             if(JOptionPane.showConfirmDialog(this, "Theme has been changed. Restart the app?",
             "Confirm restart", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-                SysIntegration.restartApp();
+                Application.restartApp();
             }
         }
     }

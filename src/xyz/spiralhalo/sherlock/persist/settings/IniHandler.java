@@ -3,7 +3,7 @@ package xyz.spiralhalo.sherlock.persist.settings;
 import org.ini4j.Ini;
 import org.ini4j.IniPreferences;
 import xyz.spiralhalo.sherlock.util.Debug;
-import xyz.spiralhalo.sherlock.util.PathUtil;
+import xyz.spiralhalo.sherlock.Application;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class IniHandler extends IniPreferences{
 
     private IniHandler(Ini ini){
         super(ini);
-        File iniFile = new File(PathUtil.getSaveDir(), SETTINGS_FILENAME);
+        File iniFile = new File(Application.getSaveDir(), SETTINGS_FILENAME);
         ini.setFile(iniFile);
         try {
             if(iniFile.exists()) {

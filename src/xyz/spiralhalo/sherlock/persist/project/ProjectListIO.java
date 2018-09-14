@@ -1,7 +1,7 @@
 package xyz.spiralhalo.sherlock.persist.project;
 
 import xyz.spiralhalo.sherlock.util.Debug;
-import xyz.spiralhalo.sherlock.util.PathUtil;
+import xyz.spiralhalo.sherlock.Application;
 
 import java.io.*;
 
@@ -12,7 +12,7 @@ public class ProjectListIO {
     private ProjectListIO(){}
 
     synchronized public static ProjectList load() {
-        File file = new File(PathUtil.getSaveDir(), PROJECTS_FILE);
+        File file = new File(Application.getSaveDir(), PROJECTS_FILE);
         if(file.exists()){
             try (FileInputStream fis = new FileInputStream(file);
                  ObjectInputStream ois = new ObjectInputStream(fis)) {
@@ -32,7 +32,7 @@ public class ProjectListIO {
     }
 
     private static void loadUtilityTags(ProjectList projectList) {
-        File file2 = new File(PathUtil.getSaveDir(), UTILITY_TAGS_FILE);
+        File file2 = new File(Application.getSaveDir(), UTILITY_TAGS_FILE);
         if(file2.exists()) {
             try (FileInputStream fis2 = new FileInputStream(file2);
                  ObjectInputStream ois2 = new ObjectInputStream(fis2)) {
@@ -76,7 +76,7 @@ public class ProjectListIO {
     }
 
     synchronized static void save(ProjectList projectList){
-        File file = new File(PathUtil.getSaveDir(),PROJECTS_FILE);
+        File file = new File(Application.getSaveDir(),PROJECTS_FILE);
         try(FileOutputStream fis = new FileOutputStream(file);
             ObjectOutputStream ois = new ObjectOutputStream(fis)){
             ois.writeObject(projectList);
@@ -86,7 +86,7 @@ public class ProjectListIO {
     }
 
     synchronized static void saveUtilityTags(ProjectList projectList) {
-        File file2 = new File(PathUtil.getSaveDir(), UTILITY_TAGS_FILE);
+        File file2 = new File(Application.getSaveDir(), UTILITY_TAGS_FILE);
         try (FileOutputStream fis2 = new FileOutputStream(file2);
              ObjectOutputStream ois2 = new ObjectOutputStream(fis2)) {
             ois2.writeObject(projectList.getUtilityTags());

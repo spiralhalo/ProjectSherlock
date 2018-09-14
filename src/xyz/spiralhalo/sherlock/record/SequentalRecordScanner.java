@@ -2,7 +2,7 @@ package xyz.spiralhalo.sherlock.record;
 
 import xyz.spiralhalo.sherlock.util.Debug;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
-import xyz.spiralhalo.sherlock.util.PathUtil;
+import xyz.spiralhalo.sherlock.Application;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -29,7 +29,7 @@ public class SequentalRecordScanner implements Iterator<RecordData>, AutoCloseab
     public SequentalRecordScanner(LocalDate from, LocalDate until) {
         this.from = from;
         this.until = until;
-        File[] records = new File(PathUtil.getRecordDir()).listFiles();
+        File[] records = new File(Application.getRecordDir()).listFiles();
         if (records != null) {
             Arrays.sort(records);
             for (File f : records) {

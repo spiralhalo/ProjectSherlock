@@ -85,7 +85,7 @@ public class MainControl implements ActionListener {
         final ActionListener listenerTrayExit = e -> {
             System.exit(0);
         };
-        trayIcon = SysIntegration.createTrayIcon(listenerTrayToggle,listenerTrayExit);
+        trayIcon = Application.createTrayIcon(listenerTrayToggle,listenerTrayExit);
         trayIconUsed = (trayIcon != null);
         projectList = ProjectListIO.load();
         AutoImporter2.importRecord(projectList);
