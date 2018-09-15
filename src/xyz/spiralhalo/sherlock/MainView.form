@@ -158,6 +158,16 @@
             <constraints/>
             <properties/>
           </component>
+          <component id="de6a0" class="javax.swing.JButton" binding="btnBookmarks">
+            <constraints/>
+            <properties>
+              <horizontalTextPosition value="0"/>
+              <icon value="xyz/spiralhalo/sherlock/res/marks.png"/>
+              <text value="Marks"/>
+              <toolTipText value="Bookmarks"/>
+              <verticalTextPosition value="3"/>
+            </properties>
+          </component>
           <component id="115de" class="javax.swing.JButton" binding="btnInbox">
             <constraints/>
             <properties>

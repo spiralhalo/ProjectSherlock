@@ -2,6 +2,10 @@ package xyz.spiralhalo.sherlock.dialog;
 
 import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.Application;
+import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig;
+import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkBool;
+import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkInt;
+import xyz.spiralhalo.sherlock.bookmark.BookmarkMgr;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppBool;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt;
@@ -10,6 +14,8 @@ import xyz.spiralhalo.sherlock.persist.settings.AppConfig.Theme;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode;
+import xyz.spiralhalo.sherlock.persist.settings.VkSelection;
+import xyz.spiralhalo.sherlock.persist.settings.VkSelectorModel;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 
 import javax.swing.*;
@@ -45,7 +51,14 @@ public class Settings extends JDialog {
     private JLabel lblAutoRefresh;
     private JSlider sliderAutoRefresh;
     private JComboBox comboTheme;
+    private JComboBox comboBkmkHotkey;
+    private JCheckBox checkBookmarks;
+    private JCheckBox checkBkmkCtrl;
+    private JCheckBox checkBkmkShift;
+    private JButton btnDefBookmarks;
     private boolean result = false;
+
+    private VkSelectorModel vkSelectorModel;
 
     private final JCheckBox[] days = new JCheckBox[]{day0,day1,day2,day3,day4,day5,day6};
     private final ApplyButtonEnabler enabler = new ApplyButtonEnabler(buttonApply);
@@ -143,18 +156,19 @@ public class Settings extends JDialog {
         setLocationRelativeTo(owner);
         buttonApply.setEnabled(false);
 
-        comboHMSMode.setModel(new DefaultComboBoxModel(new String[]{"12:45:30", "12h 45m 30s"}));
+        comboHMSMode.setModel(new DefaultComboBoxModel(new String[]{HMSMode.COLON.text, HMSMode.STRICT.text}));
         String[] themes = new String[Theme.values().length];
-        for (Theme x:Theme.values()) {
-            themes[x.x] = String.format("%s%s",x.label, (x.dark?" (dark)":""));
-        }
+        for (Theme x:Theme.values()) { themes[x.x] = x.label; }
         comboTheme.setModel(new DefaultComboBoxModel(themes));
+        vkSelectorModel = new VkSelectorModel(BookmarkMgr.ALLOWED_VK_NAME, BookmarkMgr.ALLOWED_VK);
+        comboBkmkHotkey.setModel(vkSelectorModel);
 
         buttonOK.addActionListener(e -> onOK());
         buttonApply.addActionListener(e -> onApply());
         buttonCancel.addActionListener(e -> onCancel());
         btnDefTracking.addActionListener(e -> defaultTracking());
         btnDefApp.addActionListener(e -> defaultApp());
+        btnDefBookmarks.addActionListener(e -> defaultBookmarks());
         resetSlider(sliderTarget, 4, 5*4, 12*4, 15*60);
         resetSlider(sliderTimeout, 1, 5, 30, 60);
         resetSlider(sliderAutoRefresh, 1, 10, 30, 60);
@@ -191,6 +205,10 @@ public class Settings extends JDialog {
             final int z = i;
             bind(days[z], ()->UserConfig.isWorkDay(z));
         }
+        bind(checkBookmarks, ()->BookmarkConfig.getBool(BookmarkBool.ENABLED));
+        bind(checkBkmkCtrl, ()->BookmarkConfig.getBool(BookmarkBool.CTRL));
+        bind(checkBkmkShift, ()->BookmarkConfig.getBool(BookmarkBool.SHIFT));
+        bind(comboBkmkHotkey, ()->vkSelectorModel.getIndexFor(BookmarkConfig.getInt(BookmarkInt.HOTKEY)));
     }
 
     private void defaultApp() {
@@ -209,6 +227,13 @@ public class Settings extends JDialog {
         for (int i = 0; i < days.length; i++) { days[i].setSelected(UserConfig.defaultWorkDay(i)); }
     }
 
+    private void defaultBookmarks() {
+        checkBookmarks.setSelected(BookmarkConfig.defaultBool(BookmarkBool.ENABLED));
+        checkBkmkCtrl.setSelected(BookmarkConfig.defaultBool(BookmarkBool.CTRL));
+        checkBkmkShift.setSelected(BookmarkConfig.defaultBool(BookmarkBool.SHIFT));
+        comboBkmkHotkey.setSelectedIndex(vkSelectorModel.getIndexFor(BookmarkConfig.defaultInt(BookmarkInt.HOTKEY)));
+    }
+
     private void onApply() {
         result = true;
         AppConfig.setBoolean(AppBool.ASK_BEFORE_QUIT, checkAAskBeforeQuit.isSelected());
@@ -221,6 +246,10 @@ public class Settings extends JDialog {
         UserConfig.setInt(UserNode.TRACKING, UserInt.AFK_TIMEOUT_SECOND, sliderTimeout.getValue());
         UserConfig.setInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND, sliderTarget.getValue());
         for (int i = 0; i < days.length; i++) { UserConfig.setWorkDay(i, days[i].isSelected()); }
+        BookmarkConfig.setBool(BookmarkBool.ENABLED, checkBookmarks.isSelected());
+        BookmarkConfig.setBool(BookmarkBool.CTRL, checkBkmkCtrl.isSelected());
+        BookmarkConfig.setBool(BookmarkBool.SHIFT, checkBkmkShift.isSelected());
+        BookmarkConfig.setInt(BookmarkInt.HOTKEY, ((VkSelection)comboBkmkHotkey.getSelectedItem()).getValue());
         buttonApply.setEnabled(false);
         Application.createOrDeleteStartupRegistry();
         if(Main.currentTheme != AppConfig.getTheme()){

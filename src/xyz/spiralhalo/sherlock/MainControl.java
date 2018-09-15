@@ -32,6 +32,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import static java.awt.Frame.ICONIFIED;
@@ -48,7 +49,8 @@ public class MainControl implements ActionListener {
         A_EDIT,
         A_DELETE,
         A_SETTINGS,
-        A_REFRESH
+        A_REFRESH,
+        A_EXTRA_BOOKMARKS
     }
     private final MainView view;
     private final ProjectList projectList;
@@ -57,9 +59,9 @@ public class MainControl implements ActionListener {
     private final TrayIcon trayIcon;
     private final boolean trayIconUsed;
     private final BookmarkMgr bookmark;
+    private final ArrayList<JComponent> enableOnSelect = new ArrayList<>();
     private JComponent toHideOnRefresh;
     private JComponent toShowOnRefresh;
-    private JComponent[] enableOnSelect;
     private JTabbedPane tabProjects;
     private JTabbedPane tabReports;
     private JComponent buttonFinish;
@@ -140,16 +142,23 @@ public class MainControl implements ActionListener {
         }
     }
 
-    public void setToolbar(JButton btnNew, JButton btnNewTag, JButton btnView, JButton btnFinish, JButton btnResume,
-                           JButton btnEdit, JButton btnDelete, JButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
+    private void setToolbarInternal(JComponent btnNew, JComponent btnView, JComponent btnFinish, JComponent btnResume,
+                                    JComponent btnEdit, JComponent btnDelete, JComponent btnSettings, JTabbedPane tabs, JTabbedPane tabr){
         btnNew.setName(Action.A_NEW.name());
-        btnNew.setName(Action.A_NEW_TAG.name());
         btnView.setName(Action.A_VIEW.name());
         btnFinish.setName(Action.A_FINISH.name());
         btnResume.setName(Action.A_RESUME.name());
         btnEdit.setName(Action.A_EDIT.name());
         btnDelete.setName(Action.A_DELETE.name());
         btnSettings.setName(Action.A_SETTINGS.name());
+        addEnableOnSelect(btnView, btnFinish, btnResume, btnEdit, btnDelete);
+        setTabs(btnFinish, btnResume, tabs, tabr);
+    }
+
+    public void setToolbar(JButton btnNew, JButton btnNewTag, JButton btnView, JButton btnFinish, JButton btnResume,
+                           JButton btnEdit, JButton btnDelete, JButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
+        setToolbarInternal(btnNew, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings, tabs, tabr);
+        btnNewTag.setName(Action.A_NEW_TAG.name());
         btnNew.addActionListener(this);
         btnNewTag.addActionListener(this);
         btnView.addActionListener(this);
@@ -158,20 +167,12 @@ public class MainControl implements ActionListener {
         btnEdit.addActionListener(this);
         btnDelete.addActionListener(this);
         btnSettings.addActionListener(this);
-        setTabs(btnFinish, btnResume, tabs, tabr);
-        setEnableOnSelect(btnView, btnFinish, btnResume, btnEdit, btnDelete);
     }
 
     public void setToolbar(JCommandButton btnNew, JCommandButton btnView, JCommandButton btnFinish, JCommandButton btnResume,
                            JCommandButton btnEdit, JCommandButton btnDelete, JCommandButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
         createPopupNew(btnNew);
-        btnNew.setName(Action.A_NEW.name());
-        btnView.setName(Action.A_VIEW.name());
-        btnFinish.setName(Action.A_FINISH.name());
-        btnResume.setName(Action.A_RESUME.name());
-        btnEdit.setName(Action.A_EDIT.name());
-        btnDelete.setName(Action.A_DELETE.name());
-        btnSettings.setName(Action.A_SETTINGS.name());
+        setToolbarInternal(btnNew, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings, tabs, tabr);
         btnNew.addActionListener(this);
         btnView.addActionListener(this);
         btnFinish.addActionListener(this);
@@ -179,15 +180,24 @@ public class MainControl implements ActionListener {
         btnEdit.addActionListener(this);
         btnDelete.addActionListener(this);
         btnSettings.addActionListener(this);
-        setTabs(btnFinish, btnResume, tabs, tabr);
-        setEnableOnSelect(btnView, btnFinish, btnResume, btnEdit, btnDelete);
     }
 
-    public void setEnableOnSelect(JComponent btnView, JComponent btnFinish, JComponent btnResume,
-                                  JComponent btnEdit, JComponent btnDelete) {
-        enableOnSelect = new JComponent[]{btnView, btnFinish, btnResume, btnEdit, btnDelete};
-        for (JComponent x:enableOnSelect) {
-            x.setEnabled(false);
+    public void setExtras(JButton btnBookmarks) {
+        btnBookmarks.setName(Action.A_EXTRA_BOOKMARKS.name());
+        btnBookmarks.addActionListener(this);
+        addEnableOnSelect(btnBookmarks);
+    }
+
+    public void setExtras(JCommandButton btnBookmarks) {
+        btnBookmarks.setName(Action.A_EXTRA_BOOKMARKS.name());
+        btnBookmarks.addActionListener(this);
+        addEnableOnSelect(btnBookmarks);
+    }
+
+    public void addEnableOnSelect(JComponent... components) {
+        for (JComponent component:components) {
+            enableOnSelect.add(component);
+            component.setEnabled(false);
         }
     }
 
@@ -336,6 +346,12 @@ public class MainControl implements ActionListener {
                 break;
             case A_REFRESH:
                 refresh();
+                break;
+            case A_EXTRA_BOOKMARKS:
+                Project p = projectList.findByHash(view.getSelectedProject());
+                if(!p.isUtilityTag()){
+                    bookmark.invoke(p);
+                }
                 break;
         }
     }

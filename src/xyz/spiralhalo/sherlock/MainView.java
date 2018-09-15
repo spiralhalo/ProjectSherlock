@@ -60,16 +60,19 @@ public class MainView {
     private JButton btnSettings;
     private JButton btnRefresh;
     private JButton btnInbox;
+    private JButton btnBookmarks;
 
     private final JFrame frame = new JFrame(Main.APP_TITLE);
 
     private void createCommandButtons(MainControl control){
         if(Main.currentTheme == AppConfig.Theme.SYSTEM){
             JButton[] iconButtons = new JButton[]{
-                    btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings, btnRefresh
+                    btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings,
+                    btnBookmarks, btnInbox, btnRefresh
             };
             Main.applyButtonTheme(iconButtons);
             control.setToolbar(btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings, tabs, tabr);
+            control.setExtras(btnBookmarks);
             control.setRefresh(btnRefresh, pnlRefreshing, lblRefresh);
         } else {
             toolbarMain.removeAll();
@@ -79,12 +82,13 @@ public class MainView {
             JCommandButton cmdView = new JCommandButton("View");
             JCommandButton cmdFinish = new JCommandButton("Finish");
             JCommandButton cmdResume = new JCommandButton("Resume");
+            JCommandButton cmdBookmarks = new JCommandButton("Marks");
             JCommandButton cmdInbox = new JCommandButton("Inbox");
             JCommandButton cmdSettings = new JCommandButton("Settings");
             JCommandButton cmdRefresh = new JCommandButton("Refresh");
 
             JCommandButton[] iconButtons = new JCommandButton[]{
-                    cmdNew, cmdView, cmdFinish, cmdResume, cmdEdit, cmdDelete, cmdInbox, cmdSettings, cmdRefresh
+                    cmdNew, cmdView, cmdFinish, cmdResume, cmdEdit, cmdDelete, cmdBookmarks, cmdInbox, cmdSettings, cmdRefresh
             };
             for (JCommandButton btn : iconButtons) {
                 btn.setIcon(ImgUtil.autoColorIcon(btn.getText().toLowerCase() + ".png", 24, 24));
@@ -98,11 +102,13 @@ public class MainView {
             toolbarMain.add(cmdFinish);
             toolbarMain.add(cmdResume);
             toolbarMain.addSeparator();
+            toolbarMain.add(cmdBookmarks);
             toolbarMain.add(cmdInbox);
             toolbarMain.add(cmdSettings);
             toolbarMain.add(Box.createHorizontalGlue());
             toolbarMain.add(cmdRefresh);
             control.setToolbar(cmdNew, cmdView, cmdFinish, cmdResume, cmdEdit, cmdDelete, cmdSettings, tabs, tabr);
+            control.setExtras(cmdBookmarks);
             control.setRefresh(cmdRefresh, pnlRefreshing, lblRefresh);
         }
     }

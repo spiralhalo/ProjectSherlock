@@ -35,6 +35,14 @@ public class BookmarkMgr {
     }
 
     @ProjectsOnly
+    public void invoke(Project p) {
+        SwingUtilities.invokeLater(() -> {
+            ProjectBookmarkList dialog = ProjectBookmarkList.getDialog(getThis(), p);
+            dialog.forceShow();
+        });
+    }
+
+    @ProjectsOnly
     public ProjectBookmarks getOrAdd(Project p){
         assureProject(p, "getOrAdd");
         long hash = p.getHash();
@@ -73,15 +81,13 @@ public class BookmarkMgr {
 
         @Override public void keyPressed(GlobalKeyEvent event) {
             int hotkey = getHotkey();
-            if (event.getVirtualKeyCode() == hotkey
+            if (BookmarkConfig.getBool(BookmarkBool.ENABLED)
+                    && event.getVirtualKeyCode() == hotkey
                     && (!BookmarkConfig.getBool(BookmarkBool.CTRL) || event.isControlPressed())
                     && (!BookmarkConfig.getBool(BookmarkBool.SHIFT) || event.isShiftPressed())){
                 if(!hotkeyPressed && tracker.lastTracked() != null && !tracker.lastTracked().isUtilityTag()) {
                     hotkeyPressed = true;
-                    SwingUtilities.invokeLater(() -> {
-                        ProjectBookmarkList dialog = ProjectBookmarkList.getDialog(getThis(), tracker.lastTracked());
-                        dialog.forceShow();
-                    });
+                    getThis().invoke(tracker.lastTracked());
                 }
             }
         }

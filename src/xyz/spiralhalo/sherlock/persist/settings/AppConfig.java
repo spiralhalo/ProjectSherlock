@@ -7,8 +7,10 @@ public class AppConfig {
     private static final String KEY_THEME = "THEME";
 
     public enum HMSMode{
-        COLON,
-        STRICT
+        COLON("12:45:30"),
+        STRICT("12h 45m 30s");
+        public String text;
+        HMSMode(String text){this.text=text;}
     }
 
     public enum Theme{
@@ -31,7 +33,7 @@ public class AppConfig {
             this.foreground = foreground;
             this.background = background;
             this.dark = dark;
-            this.label = label;
+            this.label = String.format("%s%s",label, (dark?" (dark)":""));
         }
     }
 

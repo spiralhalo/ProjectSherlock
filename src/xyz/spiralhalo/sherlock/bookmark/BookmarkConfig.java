@@ -6,10 +6,11 @@ import xyz.spiralhalo.sherlock.persist.settings.IniHandler;
 public class BookmarkConfig {
     private static final String NODE = "BOOKMARK";
     public enum BookmarkInt { HOTKEY }
-    public enum BookmarkBool { CTRL, SHIFT }
+    public enum BookmarkBool { ENABLED, CTRL, SHIFT }
 
-    public static boolean defaultBoolean(BookmarkBool key){
+    public static boolean defaultBool(BookmarkBool key){
         switch (key){
+            case ENABLED:
             case CTRL:
             case SHIFT:
             default: return false;
@@ -17,10 +18,10 @@ public class BookmarkConfig {
     }
 
     public static boolean getBool(BookmarkBool key){
-        return IniHandler.getInstance().getBoolean(NODE, key.name(), defaultBoolean(key));
+        return IniHandler.getInstance().getBoolean(NODE, key.name(), defaultBool(key));
     }
 
-    public static void setBoolean(BookmarkBool key, boolean value) {
+    public static void setBool(BookmarkBool key, boolean value) {
         IniHandler.getInstance().putBoolean(NODE, key.name(), value);
     }
 
