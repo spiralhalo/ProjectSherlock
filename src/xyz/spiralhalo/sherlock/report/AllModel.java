@@ -1,17 +1,19 @@
 package xyz.spiralhalo.sherlock.report;
 
 import xyz.spiralhalo.sherlock.persist.project.UtilityTag;
+import xyz.spiralhalo.sherlock.report.persist.AllReportRow;
 import xyz.spiralhalo.sherlock.report.persist.AllReportRows;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 
+import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 
 public class AllModel extends AbstractTableModel {
-    private static final String[] columnName = new String[]{"Project","Period","Days worked","Time spent"};
-    private static final String[] columnNameUtility = new String[]{"Tag", "Type", "Time spent"};
+    private static final String[] columnName = new String[]{" ", "Project","Period","Days worked","Time spent"};
+    private static final String[] columnNameUtility = new String[]{" ", "Tag", "Type", "Time spent"};
 
-    private final AllReportRows data;
+    private AllReportRows data;
     private final boolean utility;
 
     public AllModel(AllReportRows data) {
@@ -21,6 +23,16 @@ public class AllModel extends AbstractTableModel {
     public AllModel(AllReportRows data, boolean utility){
         this.data = data;
         this.utility = utility;
+    }
+
+    public void reset(AllReportRows data){
+        this.data = data;
+        fireTableDataChanged();
+    }
+
+    public void setTableColumnWidths(JTable table){
+        table.getColumnModel().getColumn(0).setMaxWidth(24);
+        table.getColumnModel().getColumn(1).setPreferredWidth(150);
     }
 
     public long getProjectHash(int rowIndex){
@@ -60,18 +72,28 @@ public class AllModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
-            case 0:
-                return data.get(rowIndex).getProjectName();
+            case 0: return String.format("%s",rowIndex+1);
             case 1:
+                return data.get(rowIndex).getProjectName();
+            case 2:
                 if(utility) return data.get(rowIndex).isProductive()? UtilityTag.PRODUCTIVE_LABEL:UtilityTag.NON_PRODUCTIVE_LABEL;
                 String fromDate = data.get(rowIndex).getStartDate().format(FormatUtil.DTF_YMD);
                 String toDate = (data.get(rowIndex).getFinishDate()==null?"ongoing":data.get(rowIndex).getFinishDate().format(FormatUtil.DTF_YMD));
                 return String.format("%s ~ %s",fromDate,toDate);
-            case 2:
+            case 3:
                 if(utility) return FormatUtil.hms(data.get(rowIndex).getSeconds());
                 return String.format("%d days", data.get(rowIndex).getDays());
             default:
                 return FormatUtil.hms(data.get(rowIndex).getSeconds());
         }
+    }
+
+    public int findIndex(long hash) {
+        for (int i = 0; i < data.size(); i++) {
+            if(data.get(i).getProjectHash() == hash){
+                return i;
+            }
+        }
+        return -1;
     }
 }

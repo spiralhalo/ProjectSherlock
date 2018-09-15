@@ -10,9 +10,10 @@ public class ProjectCell extends DefaultTableCellRenderer {
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         if(table.getModel() instanceof AllModel){
+            int i = table.convertRowIndexToModel(row);
             AllModel x = (AllModel) table.getModel();
-            super.setForeground((isSelected?interpolateNicely(0.5f,x.getColor(row),Color.white):(x.isDark(row)?Color.white:foreground)));
-            super.setBackground(isSelected?multiply(Color.gray,x.getColor(row)):x.getColor(row));
+            super.setForeground((isSelected?interpolateNicely(0.5f,x.getColor(i),Color.white):(x.isDark(i)?Color.white:foreground)));
+            super.setBackground(isSelected?multiply(Color.gray,x.getColor(i)):x.getColor(i));
         }
         return this;
     }

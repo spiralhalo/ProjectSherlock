@@ -21,6 +21,7 @@ import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt;
 import xyz.spiralhalo.sherlock.record.legacy.AutoImporter2;
 import xyz.spiralhalo.sherlock.report.*;
 import xyz.spiralhalo.sherlock.report.factory.*;
+import xyz.spiralhalo.sherlock.report.ops.OverviewOps;
 import xyz.spiralhalo.sherlock.report.persist.ReportRows;
 import xyz.spiralhalo.sherlock.util.ImgUtil;
 
@@ -48,6 +49,8 @@ public class MainControl implements ActionListener {
         A_RESUME,
         A_EDIT,
         A_DELETE,
+        A_UP,
+        A_DOWN,
         A_SETTINGS,
         A_REFRESH,
         A_EXTRA_BOOKMARKS
@@ -66,6 +69,7 @@ public class MainControl implements ActionListener {
     private JTabbedPane tabReports;
     private JComponent buttonFinish;
     private JComponent buttonResume;
+    private JComponent buttonBookmarks;
     private JComboBox chartSelector;
     private PopupMenu tablePopUpMenu;
 
@@ -143,21 +147,26 @@ public class MainControl implements ActionListener {
     }
 
     private void setToolbarInternal(JComponent btnNew, JComponent btnView, JComponent btnFinish, JComponent btnResume,
-                                    JComponent btnEdit, JComponent btnDelete, JComponent btnSettings, JTabbedPane tabs, JTabbedPane tabr){
+                                    JComponent btnEdit, JComponent btnDelete, JComponent btnUp, JComponent btnDown,
+                                    JComponent btnSettings, JTabbedPane tabs, JTabbedPane tabr){
         btnNew.setName(Action.A_NEW.name());
         btnView.setName(Action.A_VIEW.name());
         btnFinish.setName(Action.A_FINISH.name());
         btnResume.setName(Action.A_RESUME.name());
         btnEdit.setName(Action.A_EDIT.name());
         btnDelete.setName(Action.A_DELETE.name());
+        btnUp.setName(Action.A_UP.name());
+        btnDown.setName(Action.A_DOWN.name());
         btnSettings.setName(Action.A_SETTINGS.name());
-        addEnableOnSelect(btnView, btnFinish, btnResume, btnEdit, btnDelete);
+        addEnableOnSelect(btnView, btnEdit, btnDelete, btnUp, btnDown);
+        btnFinish.setEnabled(false);
         setTabs(btnFinish, btnResume, tabs, tabr);
     }
 
     public void setToolbar(JButton btnNew, JButton btnNewTag, JButton btnView, JButton btnFinish, JButton btnResume,
-                           JButton btnEdit, JButton btnDelete, JButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
-        setToolbarInternal(btnNew, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings, tabs, tabr);
+                           JButton btnEdit, JButton btnDelete, JButton btnUp, JButton btnDown,
+                           JButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
+        setToolbarInternal(btnNew, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnUp, btnDown, btnSettings, tabs, tabr);
         btnNewTag.setName(Action.A_NEW_TAG.name());
         btnNew.addActionListener(this);
         btnNewTag.addActionListener(this);
@@ -166,32 +175,37 @@ public class MainControl implements ActionListener {
         btnResume.addActionListener(this);
         btnEdit.addActionListener(this);
         btnDelete.addActionListener(this);
+        btnUp.addActionListener(this);
+        btnDown.addActionListener(this);
         btnSettings.addActionListener(this);
     }
 
     public void setToolbar(JCommandButton btnNew, JCommandButton btnView, JCommandButton btnFinish, JCommandButton btnResume,
-                           JCommandButton btnEdit, JCommandButton btnDelete, JCommandButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
+                           JCommandButton btnEdit, JCommandButton btnDelete, JCommandButton btnUp, JCommandButton btnDown,
+                           JCommandButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
         createPopupNew(btnNew);
-        setToolbarInternal(btnNew, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings, tabs, tabr);
+        setToolbarInternal(btnNew, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnUp, btnDown, btnSettings, tabs, tabr);
         btnNew.addActionListener(this);
         btnView.addActionListener(this);
         btnFinish.addActionListener(this);
         btnResume.addActionListener(this);
         btnEdit.addActionListener(this);
         btnDelete.addActionListener(this);
+        btnUp.addActionListener(this);
+        btnDown.addActionListener(this);
         btnSettings.addActionListener(this);
     }
 
     public void setExtras(JButton btnBookmarks) {
         btnBookmarks.setName(Action.A_EXTRA_BOOKMARKS.name());
         btnBookmarks.addActionListener(this);
-        addEnableOnSelect(btnBookmarks);
+        buttonBookmarks = btnBookmarks;
     }
 
     public void setExtras(JCommandButton btnBookmarks) {
         btnBookmarks.setName(Action.A_EXTRA_BOOKMARKS.name());
         btnBookmarks.addActionListener(this);
-        addEnableOnSelect(btnBookmarks);
+        buttonBookmarks = btnBookmarks;
     }
 
     public void addEnableOnSelect(JComponent... components) {
@@ -337,6 +351,23 @@ public class MainControl implements ActionListener {
             case A_DELETE:
                 deleteProject();
                 break;
+            case A_UP:
+            case A_DOWN:
+                int selected = view.getSelectedModelIndex();
+                if(selected != -1) {
+                    long hash;
+                    if(action==Action.A_UP){
+                        hash = projectList.moveUp(tabProjects.getSelectedIndex(), selected);
+                    } else {
+                        hash = projectList.moveDown(tabProjects.getSelectedIndex(), selected);
+                    }
+                    if(hash!=-1){
+                        OverviewOps.refreshOrdering(cache, projectList, OverviewOps.Type.index(tabProjects.getSelectedIndex()));
+                        view.refreshProjects(cache, tabProjects.getSelectedIndex());
+                        view.setSelectedItem(hash);
+                    }
+                }
+                break;
             case A_SETTINGS:
                 Settings settings = new Settings(view.getFrame());
                 settings.setVisible(true);
@@ -407,6 +438,7 @@ public class MainControl implements ActionListener {
             buttonFinish.setVisible(tabProjects.getSelectedIndex()!=1 || !temp);
             buttonFinish.setEnabled(tabProjects.getSelectedIndex()==0 && temp);
             buttonResume.setVisible(tabProjects.getSelectedIndex()==1 && temp);
+            buttonBookmarks.setEnabled(tabProjects.getSelectedIndex()!=2 && temp);
         }
     };
 

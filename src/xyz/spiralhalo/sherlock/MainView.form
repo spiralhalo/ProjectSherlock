@@ -150,7 +150,27 @@
               <horizontalTextPosition value="0"/>
               <icon value="xyz/spiralhalo/sherlock/res/resume.png"/>
               <text value="Resume"/>
-              <toolTipText value="Mark as not finished"/>
+              <toolTipText value="Mark as active"/>
+              <verticalTextPosition value="3"/>
+            </properties>
+          </component>
+          <component id="7a1c5" class="javax.swing.JButton" binding="btnUp">
+            <constraints/>
+            <properties>
+              <horizontalTextPosition value="0"/>
+              <icon value="xyz/spiralhalo/sherlock/res/up.png"/>
+              <text value="Up"/>
+              <toolTipText value="Move up"/>
+              <verticalTextPosition value="3"/>
+            </properties>
+          </component>
+          <component id="3ae5b" class="javax.swing.JButton" binding="btnDown">
+            <constraints/>
+            <properties>
+              <horizontalTextPosition value="0"/>
+              <icon value="xyz/spiralhalo/sherlock/res/down.png"/>
+              <text value="Down"/>
+              <toolTipText value="Move down"/>
               <verticalTextPosition value="3"/>
             </properties>
           </component>

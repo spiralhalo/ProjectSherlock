@@ -5,14 +5,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class AllReportRow implements Serializable {
-    private long projectHash;
-    private int projectColor;
-    private String projectName;
-    private LocalDate startDate;
-    private LocalDate finishDate;
-    private int days;
-    private int seconds;
-    private boolean productive;
+    public static final long serialVersionUID = 1L;
+
+    private final long projectHash;
+    private final int projectColor;
+    private final String projectName;
+    private final LocalDate startDate;
+    private final LocalDate finishDate;
+    private final int days;
+    private final int seconds;
+    private final boolean productive;
 
     public AllReportRow(long projectHash, int projectColor, String projectName, LocalDateTime startDate, LocalDateTime finishDate, int days, int seconds) {
         this.projectHash = projectHash;
@@ -22,17 +24,19 @@ public class AllReportRow implements Serializable {
         this.finishDate = finishDate==null?null:LocalDate.from(finishDate);
         this.days = days;
         this.seconds = seconds;
+        this.productive = true;
     }
 
     public AllReportRow(long projectHash, int projectColor, String projectName, boolean isProductive, int days, int seconds) {
         this.projectHash = projectHash;
         this.projectColor = projectColor;
         this.projectName = projectName;
-        this.productive = isProductive;
+        this.startDate = null;
+        this.finishDate = null;
         this.days = days;
         this.seconds = seconds;
+        this.productive = isProductive;
     }
-
     public long getProjectHash() { return projectHash; }
 
     public int getProjectColor() {

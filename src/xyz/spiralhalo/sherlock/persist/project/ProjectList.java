@@ -125,6 +125,33 @@ public class ProjectList implements Serializable {
         return categories;
     }
 
+    public long moveUp(int list, int pos) {
+        switch (list){
+            case 0: return move(activeProjects, pos, -1);
+            case 1: return move(finishedProjects, pos, -1);
+            case 2: return move(getUtilityTags(), pos, -1);
+            default: return -1;
+        }
+    }
+
+    public long moveDown(int list, int pos) {
+        switch (list){
+            case 0: return move(activeProjects, pos, 1);
+            case 1: return move(finishedProjects, pos, 1);
+            case 2: return move(getUtilityTags(), pos, 1);
+            default: return -1;
+        }
+    }
+
+    private <T extends Project> long move(ArrayList<T> list, int pos, int moveBy){
+        int newPos = pos + moveBy;
+        if(newPos < 0 || newPos >= list.size()) return -1;
+        T moving = list.get(pos);
+        list.remove(pos);
+        list.add(newPos, moving);
+        return moving.getHash();
+    }
+
     public int getTotalSize() {
         return getProjectMap().size();
     }
@@ -136,18 +163,20 @@ public class ProjectList implements Serializable {
         }
     }
 
-    private boolean delete(ArrayList<Project> list, Project p){
+    private <T extends Project> void deleteInternal(ArrayList<T> list, T p){
         resetCats("", p.getCategory());
         getProjectMap().remove(p.getHash());
         list.remove(p);
+    }
+
+    private boolean delete(ArrayList<Project> list, Project p){
+        deleteInternal(list, p);
         save(this);
         return true;
     }
 
     private boolean delete(UtilityTagList list, UtilityTag p){
-        resetCats("", p.getCategory());
-        getProjectMap().remove(p.getHash());
-        list.remove(p);
+        deleteInternal(list, p);
         saveUtilityTags(this);
         return true;
     }

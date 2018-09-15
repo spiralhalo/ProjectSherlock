@@ -61,6 +61,8 @@ public class MainView {
     private JButton btnRefresh;
     private JButton btnInbox;
     private JButton btnBookmarks;
+    private JButton btnUp;
+    private JButton btnDown;
 
     private final JFrame frame = new JFrame(Main.APP_TITLE);
 
@@ -68,7 +70,7 @@ public class MainView {
         if(Main.currentTheme == AppConfig.Theme.SYSTEM){
             Main.applyButtonTheme(btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings,
                     btnBookmarks, btnInbox, btnRefresh);
-            control.setToolbar(btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings, tabs, tabr);
+            control.setToolbar(btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnUp, btnDown, btnSettings, tabs, tabr);
             control.setExtras(btnBookmarks);
             control.setRefresh(btnRefresh, pnlRefreshing, lblRefresh);
         } else {
@@ -79,13 +81,15 @@ public class MainView {
             JCommandButton cmdView = new JCommandButton("View");
             JCommandButton cmdFinish = new JCommandButton("Finish");
             JCommandButton cmdResume = new JCommandButton("Resume");
+            JCommandButton cmdUp = new JCommandButton("Up");
+            JCommandButton cmdDown = new JCommandButton("Down");
             JCommandButton cmdBookmarks = new JCommandButton("Marks");
             JCommandButton cmdInbox = new JCommandButton("Inbox");
             JCommandButton cmdSettings = new JCommandButton("Settings");
             JCommandButton cmdRefresh = new JCommandButton("Refresh");
 
             JCommandButton[] iconButtons = new JCommandButton[]{
-                    cmdNew, cmdView, cmdFinish, cmdResume, cmdEdit, cmdDelete, cmdBookmarks, cmdInbox, cmdSettings, cmdRefresh
+                    cmdNew, cmdView, cmdFinish, cmdResume, cmdEdit, cmdDelete, cmdUp, cmdDown, cmdBookmarks, cmdInbox, cmdSettings, cmdRefresh
             };
             for (JCommandButton btn : iconButtons) {
                 btn.setIcon(ImgUtil.autoColorIcon(btn.getText().toLowerCase() + ".png", 24, 24));
@@ -98,13 +102,15 @@ public class MainView {
             toolbarMain.add(cmdView);
             toolbarMain.add(cmdFinish);
             toolbarMain.add(cmdResume);
+            toolbarMain.add(cmdUp);
+            toolbarMain.add(cmdDown);
             toolbarMain.addSeparator();
             toolbarMain.add(cmdBookmarks);
             toolbarMain.add(cmdInbox);
             toolbarMain.add(cmdSettings);
             toolbarMain.add(Box.createHorizontalGlue());
             toolbarMain.add(cmdRefresh);
-            control.setToolbar(cmdNew, cmdView, cmdFinish, cmdResume, cmdEdit, cmdDelete, cmdSettings, tabs, tabr);
+            control.setToolbar(cmdNew, cmdView, cmdFinish, cmdResume, cmdEdit, cmdDelete, cmdUp, cmdDown, cmdSettings, tabs, tabr);
             control.setExtras(cmdBookmarks);
             control.setRefresh(cmdRefresh, pnlRefreshing, lblRefresh);
         }
@@ -160,18 +166,50 @@ public class MainView {
     public void refreshOverview(CacheMgr cache) {
         refreshStatus(cache);
         if(cache.getCreated(CacheId.ActiveRows).equals(CacheMgr.NEVER)){return;}
-        final AllModel activeModel = new AllModel(cache.getObj(CacheId.ActiveRows, AllReportRows.class));
-        final AllModel finishedModel = new AllModel(cache.getObj(CacheId.FinishedRows, AllReportRows.class));
-        final AllModel utilityTagsModel = new AllModel(cache.getObj(CacheId.UtilityRows, AllReportRows.class), true);
+        refreshProjects(cache, 0);
+        refreshProjects(cache, 1);
+        refreshProjects(cache, 2);
         final DayModel dayModel = new DayModel(cache.getObj(CacheId.DayRows, ReportRows.class));
         final MonthModel monthModel = new MonthModel(cache.getObj(CacheId.MonthRows, ReportRows.class));
-        tblActive.setModel(activeModel);
-        tblFinished.setModel(finishedModel);
-        tblUtilityTags.setModel(utilityTagsModel);
         tblDaily.setModel(dayModel);
         tblMonthly.setModel(monthModel);
         comboCharts.setModel(new DateSelectorModel(cache.getObj(CacheId.ChartList, DateList.class)));
         comboCharts.setSelectedIndex(comboCharts.getModel().getSize()-1);
+    }
+
+    public void refreshProjects(CacheMgr cache, int index){
+        switch (index){
+            case 0:
+                final AllReportRows activeRows = cache.getObj(CacheId.ActiveRows, AllReportRows.class);
+                if(tblActive.getModel() instanceof AllModel){
+                    ((AllModel) tblActive.getModel()).reset(activeRows);
+                } else {
+                    final AllModel allModel = new AllModel(activeRows);
+                    tblActive.setModel(allModel);
+                    allModel.setTableColumnWidths(tblActive);
+                }
+                break;
+            case 1:
+                final AllReportRows finishedRows = cache.getObj(CacheId.FinishedRows, AllReportRows.class);
+                if(tblFinished.getModel() instanceof AllModel){
+                    ((AllModel) tblFinished.getModel()).reset(finishedRows);
+                } else {
+                    final AllModel allModel = new AllModel(finishedRows);
+                    tblFinished.setModel(allModel);
+                    allModel.setTableColumnWidths(tblFinished);
+                }
+                break;
+            case 2:
+                final AllReportRows utilityTagsRows = cache.getObj(CacheId.UtilityRows, AllReportRows.class);
+                if(tblUtilityTags.getModel() instanceof AllModel){
+                    ((AllModel) tblUtilityTags.getModel()).reset(utilityTagsRows);
+                } else {
+                    final AllModel allModel = new AllModel(utilityTagsRows, true);
+                    tblUtilityTags.setModel(allModel);
+                    allModel.setTableColumnWidths(tblUtilityTags);
+                }
+                break;
+        }
     }
 
     public void refreshChart(CacheMgr cache) {
@@ -205,14 +243,36 @@ public class MainView {
     public long getSelectedProject(){
         if(tabs.getSelectedIndex()==0 && tblActive.getSelectedRow() != -1) {
             return ((AllModel) tblActive.getModel())
-                    .getProjectHash(tblActive.getRowSorter().convertRowIndexToModel(tblActive.getSelectedRow()));
+                    .getProjectHash(tblActive.convertRowIndexToModel(tblActive.getSelectedRow()));
         } else if(tabs.getSelectedIndex()==1 && tblFinished.getSelectedRow() != -1) {
             return ((AllModel) tblFinished.getModel())
-                    .getProjectHash(tblFinished.getRowSorter().convertRowIndexToModel(tblFinished.getSelectedRow()));
+                    .getProjectHash(tblFinished.convertRowIndexToModel(tblFinished.getSelectedRow()));
         } else if(tabs.getSelectedIndex()==2 && tblUtilityTags.getSelectedRow() != -1) {
             return ((AllModel) tblUtilityTags.getModel())
-                    .getProjectHash(tblUtilityTags.getRowSorter().convertRowIndexToModel(tblUtilityTags.getSelectedRow()));
+                    .getProjectHash(tblUtilityTags.convertRowIndexToModel(tblUtilityTags.getSelectedRow()));
         }
         return -1;
+    }
+
+    public int getSelectedModelIndex(){
+        switch (tabs.getSelectedIndex()){
+            case 0: return tblActive.convertRowIndexToModel(tblActive.getSelectedRow());
+            case 1: return tblFinished.convertRowIndexToModel(tblFinished.getSelectedRow());
+            case 2: return tblUtilityTags.convertRowIndexToModel(tblUtilityTags.getSelectedRow());
+            default: return -1;
+        }
+    }
+
+    public void setSelectedItem(long hash){
+        if(tabs.getSelectedIndex()==0 && tblActive.getModel() instanceof AllModel) {
+            int i = tblActive.convertRowIndexToView(((AllModel) tblActive.getModel()).findIndex(hash));
+            tblActive.setRowSelectionInterval(i, i);
+        } else if(tabs.getSelectedIndex()==1 && tblFinished.getModel() instanceof AllModel) {
+            int i = tblFinished.convertRowIndexToView(((AllModel) tblFinished.getModel()).findIndex(hash));
+            tblFinished.setRowSelectionInterval(i, i);
+        } else if(tabs.getSelectedIndex()==2 && tblUtilityTags.getModel() instanceof AllModel) {
+            int i = tblUtilityTags.convertRowIndexToView(((AllModel) tblUtilityTags.getModel()).findIndex(hash));
+            tblUtilityTags.setRowSelectionInterval(i, i);
+        }
     }
 }
