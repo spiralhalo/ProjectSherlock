@@ -4,5 +4,6 @@ import java.io.Serializable;
 
 public enum BookmarkType implements Serializable {
     FILE,
-    URL
+    URL;
+    public static final long serialVersionUID = 1L;
 }

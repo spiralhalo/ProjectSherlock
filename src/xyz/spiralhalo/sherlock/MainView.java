@@ -68,13 +68,7 @@ public class MainView {
             JButton[] iconButtons = new JButton[]{
                     btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings, btnRefresh
             };
-            if(Main.currentTheme.foreground != 0) {
-                for (JButton btn : iconButtons) {
-                    ImageIcon icon = (ImageIcon)btn.getIcon();
-                    btn.setRolloverIcon(icon);
-                    btn.setIcon(ImgUtil.createTintedIcon(icon.getImage(), Main.currentTheme.foreground));
-                }
-            }
+            Main.applyButtonTheme(iconButtons);
             control.setToolbar(btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings, tabs, tabr);
             control.setRefresh(btnRefresh, pnlRefreshing, lblRefresh);
         } else {

@@ -5,6 +5,7 @@ import org.pushingpixels.flamingo.api.common.JCommandMenuButton;
 import org.pushingpixels.flamingo.api.common.popup.JCommandPopupMenu;
 import xyz.spiralhalo.sherlock.async.Loader;
 import xyz.spiralhalo.sherlock.async.LoaderDialog;
+import xyz.spiralhalo.sherlock.bookmark.BookmarkMgr;
 import xyz.spiralhalo.sherlock.dialog.EditProject;
 import xyz.spiralhalo.sherlock.dialog.Quit;
 import xyz.spiralhalo.sherlock.dialog.Settings;
@@ -55,6 +56,7 @@ public class MainControl implements ActionListener {
     private final CacheMgr cache;
     private final TrayIcon trayIcon;
     private final boolean trayIconUsed;
+    private final BookmarkMgr bookmark;
     private JComponent toHideOnRefresh;
     private JComponent toShowOnRefresh;
     private JComponent[] enableOnSelect;
@@ -91,6 +93,7 @@ public class MainControl implements ActionListener {
         AutoImporter2.importRecord(projectList);
         tracker = new Tracker(projectList);
         tracker.start();
+        bookmark = new BookmarkMgr(tracker);
         view.refreshOverview(cache);
     }
 

@@ -3,6 +3,7 @@ package xyz.spiralhalo.sherlock;
 import org.pushingpixels.substance.api.skin.*;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.Theme;
+import xyz.spiralhalo.sherlock.util.ImgUtil;
 
 import javax.swing.*;
 
@@ -49,6 +50,16 @@ public class Main {
                 m.getFrame().setVisible(true);
             }
         });
+    }
+
+    public static void applyButtonTheme(JButton[] buttons){
+        if(currentTheme.foreground != 0) {
+            for (JButton btn : buttons) {
+                ImageIcon icon = (ImageIcon)btn.getIcon();
+                btn.setRolloverIcon(icon);
+                btn.setIcon(ImgUtil.createTintedIcon(icon.getImage(), currentTheme.foreground));
+            }
+        }
     }
 
     private static void setTheme(Theme theme) throws UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException, ClassNotFoundException {

@@ -127,7 +127,7 @@ public abstract class AbstractRecordWriter {
      * Returns minimum record on buffer before flushing is enforced.
      * This rule exists as a safety net to prevent the buffer from overflowing.
      *
-     * @return default value of half of record capacity
+     * @return default getValue of half of record capacity
      */
     protected int getEnforcedMaxTimesWritten(){
         return nRecordCapacity/2;
@@ -137,7 +137,7 @@ public abstract class AbstractRecordWriter {
      * Returns minimum delay since the last flushing before flushing is enforced.
      * This rule exists to ensure a good User Experience (UX).
      *
-     * @return default value of exactly 5 minutes in milliseconds
+     * @return default getValue of exactly 5 minutes in milliseconds
      */
     protected int getEnforcedFlushDelayMillis(){
         return 5 * 60 * 1000;
@@ -248,7 +248,7 @@ public abstract class AbstractRecordWriter {
      */
     public synchronized final void flushBuffer(){
         if(lastFile == null) {
-            Debug.log(new RuntimeException("[Buffer] No file to write to"));
+            Debug.logImportant("[Buffer] No file to write to");
             return;
         }
         lastFlushTimestamp = System.currentTimeMillis();

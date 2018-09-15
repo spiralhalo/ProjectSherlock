@@ -47,12 +47,12 @@ public class RecordData {
     }
 
     private static long deserializeLong(final byte[] ba){
-        if(ba.length != Long.BYTES) throw new IllegalArgumentException("Byte array needs to represent a long value.");
+        if(ba.length != Long.BYTES) throw new IllegalArgumentException("Byte array needs to represent a long getValue.");
         return ((ByteBuffer)ByteBuffer.allocate(Long.BYTES).put(ba).flip()).getLong();
     }
 
     private static int deserializeInt(final byte[] ba){
-        if(ba.length != Integer.BYTES) throw new IllegalArgumentException("Byte array needs to represent a long value.");
+        if(ba.length != Integer.BYTES) throw new IllegalArgumentException("Byte array needs to represent a long getValue.");
         return ((ByteBuffer)ByteBuffer.allocate(Integer.BYTES).put(ba).flip()).getInt();
     }
 

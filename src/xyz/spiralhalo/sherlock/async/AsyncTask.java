@@ -9,7 +9,7 @@ import java.util.function.BiConsumer;
  * Represents a one-time asynchronous task that handles its results
  * and exceptions within the {@code EventDispatcher} thread.
  *
- * @param <Y> the type of the result of the task
+ * @param <Y> the getType of the result of the task
  */
 public abstract class AsyncTask<Y> implements Runnable {
     private boolean started = false;

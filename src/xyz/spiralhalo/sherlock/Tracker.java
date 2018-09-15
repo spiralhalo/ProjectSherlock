@@ -22,7 +22,7 @@ import java.util.TimerTask;
 import static xyz.spiralhalo.sherlock.GlobalInputHook.GLOBAL_KEYBOARD_HOOK;
 import static xyz.spiralhalo.sherlock.GlobalInputHook.GLOBAL_MOUSE_HOOK;
 
-public class Tracker {
+public class Tracker implements TrackerAccessor{
     public static final String SPLIT_DIVIDER = "::";
     public static final DateTimeFormatter DTF = FormatUtil.DTF_FULL;
 
@@ -36,6 +36,7 @@ public class Tracker {
     private Timer timer;
     private ProjectList projectList;
     private RealtimeRecordWriter buffer;
+    private Project lastTracked;
 
     public Tracker(ProjectList projectList){
         afkMonitor = new AFKMonitor();
@@ -80,16 +81,16 @@ public class Tracker {
         if(afkMonitor.isNotAFK() && projectList.getActiveSize()>0) {
             final ZonedDateTime now = ZonedDateTime.now();
             temps = EnumerateWindows.getActiveWindowTitle();
-            Project p = projectList.getActiveProjectOf(temps, now);
+            lastTracked = projectList.getActiveProjectOf(temps, now);
             Debug.logVerbose(String.format("%18s %s", "[ForegroundWindow]", temps));
-            if(p==null) {
+            if(lastTracked==null) {
                 temps = EnumerateWindows.getRootWindowTitle();
-                p = projectList.getActiveProjectOf(temps, now);
+                lastTracked = projectList.getActiveProjectOf(temps, now);
                 Debug.logVerbose(String.format("%18s %s", "[GW_OWNER]", temps));
             }
-            final String pn = String.valueOf(p);
+            final String pn = String.valueOf(lastTracked);
             Debug.logVerbose(String.format("%18s Detected project: %s", "", pn));
-            buffer.log(p);
+            buffer.log(lastTracked);
         }
         last = time;
     }
@@ -100,6 +101,11 @@ public class Tracker {
         } else {
             buffer.flushBuffer();
         }
+    }
+
+    @Override
+    public Project lastTracked() {
+        return lastTracked;
     }
 
     private static class AFKMonitor {

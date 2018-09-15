@@ -14,7 +14,7 @@ public class IniHandler extends IniPreferences{
     private static final String SETTINGS_FILENAME = "settings.ini";
     private static IniHandler instance;
 
-    synchronized static IniHandler getInstance() {
+    public synchronized static IniHandler getInstance() {
         if(instance==null) {
             instance = new IniHandler(new Ini());
         }
