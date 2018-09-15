@@ -121,6 +121,7 @@ public class MainView {
 
         control.setTables(tblActive, tblFinished, tblUtilityTags);
         control.setChart(comboCharts, btnPrevChart, btnNextChart, btnFirstChart, btnLastChart);
+        Main.applyButtonTheme(btnPrevChart, btnNextChart, btnFirstChart, btnLastChart);
 
         tblActive.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tblActive.setDefaultRenderer(String.class, new ProjectCell());
@@ -133,17 +134,6 @@ public class MainView {
         tblDaily.setDefaultRenderer(Integer.class, new DurationCell(true));
         tblMonthly.setDefaultRenderer(Integer.class, new DurationCell());
 
-        JButton[] iconButtons = new JButton[]{
-                btnPrevChart, btnNextChart, btnFirstChart, btnLastChart
-        };
-        if(Main.currentTheme.foreground !=0) {
-            for (JButton btn : iconButtons) {
-                if(Main.currentTheme.dark) {
-                    btn.setRolloverIcon(btn.getIcon());
-                }
-                btn.setIcon(ImgUtil.createTintedIcon(((ImageIcon)btn.getIcon()).getImage(), Main.currentTheme.foreground));
-            }
-        }
         ((JLabel)comboCharts.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
     }
 

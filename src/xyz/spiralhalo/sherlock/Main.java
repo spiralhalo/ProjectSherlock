@@ -56,7 +56,9 @@ public class Main {
         if(currentTheme.foreground != 0) {
             for (JButton btn : buttons) {
                 ImageIcon icon = (ImageIcon)btn.getIcon();
-                btn.setRolloverIcon(icon);
+                if(Main.currentTheme.dark) {
+                    btn.setRolloverIcon(icon);
+                }
                 btn.setIcon(ImgUtil.createTintedIcon(icon.getImage(), currentTheme.foreground));
             }
         }
