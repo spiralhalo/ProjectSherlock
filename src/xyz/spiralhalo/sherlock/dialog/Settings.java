@@ -56,6 +56,7 @@ public class Settings extends JDialog {
     private JCheckBox checkBkmkCtrl;
     private JCheckBox checkBkmkShift;
     private JButton btnDefBookmarks;
+    private JLabel lblHotkey;
     private boolean result = false;
 
     private VkSelectorModel vkSelectorModel;
@@ -180,6 +181,7 @@ public class Settings extends JDialog {
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         Dependency.setChildren(checkAStartup, checkARunMinimized);
+        Dependency.setChildren(checkBookmarks, lblHotkey, checkBkmkCtrl, checkBkmkShift, comboBkmkHotkey);
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
