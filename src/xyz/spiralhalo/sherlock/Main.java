@@ -52,7 +52,7 @@ public class Main {
         });
     }
 
-    public static void applyButtonTheme(JButton[] buttons){
+    public static void applyButtonTheme(JButton... buttons){
         if(currentTheme.foreground != 0) {
             for (JButton btn : buttons) {
                 ImageIcon icon = (ImageIcon)btn.getIcon();

@@ -29,6 +29,7 @@ public class EditProject extends JDialog {
     private JLabel helpIcon;
     private JPanel panelTag;
     private JComboBox comboTagType;
+    private JButton buttonPick;
     private Mode mode;
     private Project p;
     private ProjectList projectList;
@@ -68,7 +69,7 @@ public class EditProject extends JDialog {
             });
             labelNameLabel.setText("Tag name");
             labelTagsLabel.setText("Tag keywords (comma-separated)");
-            comboTagType.setModel(new DefaultComboBoxModel(new String[]{UtilityTag.PRODUCTIVE_LABEL, UtilityTag.NON_PRODUCTIVE_LABEL}));
+            comboTagType.setModel(new DefaultComboBoxModel<>(new String[]{UtilityTag.PRODUCTIVE_LABEL, UtilityTag.NON_PRODUCTIVE_LABEL}));
         }
         comboCat.setModel(new DefaultComboBoxModel<>(projectList.getCategories().toArray(new String[0])));
 
@@ -91,17 +92,9 @@ public class EditProject extends JDialog {
         pack();
         setLocationRelativeTo(owner);
 
-        buttonOK.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onOK();
-            }
-        });
-
-        buttonCancel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        });
+        buttonOK.addActionListener(e -> onOK());
+        buttonCancel.addActionListener(e -> onCancel());
+        buttonPick.addActionListener(e -> useTagPicker());
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
@@ -110,14 +103,19 @@ public class EditProject extends JDialog {
             }
         });
 
-        contentPane.registerKeyboardAction(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
-    private void validateInput(){
+    private void useTagPicker() {
+        String[] tags = TagPicker.select(this);
+        if(tags == null || tags.length==0) return;
+        String trimmed = fieldTag.getText().trim();
+        boolean addComma = !trimmed.endsWith(",");
+        fieldTag.setText(String.format("%s%s %s", trimmed, addComma?",":"", String.join(", ", tags)));
+    }
+
+    private void validateInput() {
         boolean enabled = fieldName.getText().trim().length() > 0;
         boolean warning = false;
         int trimLen;

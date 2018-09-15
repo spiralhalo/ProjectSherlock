@@ -66,11 +66,8 @@ public class MainView {
 
     private void createCommandButtons(MainControl control){
         if(Main.currentTheme == AppConfig.Theme.SYSTEM){
-            JButton[] iconButtons = new JButton[]{
-                    btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings,
-                    btnBookmarks, btnInbox, btnRefresh
-            };
-            Main.applyButtonTheme(iconButtons);
+            Main.applyButtonTheme(btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings,
+                    btnBookmarks, btnInbox, btnRefresh);
             control.setToolbar(btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings, tabs, tabr);
             control.setExtras(btnBookmarks);
             control.setRefresh(btnRefresh, pnlRefreshing, lblRefresh);

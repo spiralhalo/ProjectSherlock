@@ -59,8 +59,7 @@ public class ProjectBookmarkList extends JFrame {
         tblBookmarks.getSelectionModel().addListSelectionListener(e->tableSelectionChanged());
         tblBookmarks.getColumnModel().getColumn(0).setMaxWidth(50);
         tblBookmarks.getColumnModel().getColumn(1).setMaxWidth(50);
-        JButton[] buttons = new JButton[]{ btnLaunch, btnAdd, btnRemove, btnMoveUp, btnMoveDown, btnEdit };
-        Main.applyButtonTheme(buttons);
+        Main.applyButtonTheme(btnLaunch, btnAdd, btnRemove, btnMoveUp, btnMoveDown, btnEdit);
         if(Main.currentTheme.foreground!=0){
             lblWarning.setIcon(ImgUtil.createTintedIcon(((ImageIcon)lblWarning.getIcon()).getImage(), Main.currentTheme.foreground));
         }
