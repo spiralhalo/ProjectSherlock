@@ -22,10 +22,11 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
+import java.util.ArrayList;
 
 import static xyz.spiralhalo.sherlock.util.ColorUtil.*;
 
-public class MainView {
+public class MainView implements MainViewAccessor {
 
     private JPanel rootPane;
     private JTabbedPane tabs;
@@ -39,7 +40,7 @@ public class MainView {
     private JPanel pnlRefreshing;
     private JLabel lblTracking;
     private JPanel panelChart;
-    private JComboBox comboCharts;
+    private JComboBox comboDayCharts;
     private JButton btnPrevChart;
     private JButton btnNextChart;
     private JTabbedPane tabr;
@@ -63,6 +64,11 @@ public class MainView {
     private JButton btnBookmarks;
     private JButton btnUp;
     private JButton btnDown;
+    private JComboBox comboList;
+
+    private final MainControl control;
+    private final ArrayList<JComponent> enableOnSelect = new ArrayList<>();
+    private PopupMenu tablePopUpMenu;
 
     private final JFrame frame = new JFrame(Main.APP_TITLE);
 
@@ -72,7 +78,7 @@ public class MainView {
                     btnBookmarks, btnInbox, btnRefresh);
             control.setToolbar(btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnUp, btnDown, btnSettings, tabs, tabr);
             control.setExtras(btnBookmarks);
-            control.setRefresh(btnRefresh, pnlRefreshing, lblRefresh);
+            control.setRefresh(btnRefresh);
         } else {
             toolbarMain.removeAll();
             JCommandButton cmdNew = new JCommandButton("New");
@@ -112,21 +118,12 @@ public class MainView {
             toolbarMain.add(cmdRefresh);
             control.setToolbar(cmdNew, cmdView, cmdFinish, cmdResume, cmdEdit, cmdDelete, cmdUp, cmdDown, cmdSettings, tabs, tabr);
             control.setExtras(cmdBookmarks);
-            control.setRefresh(cmdRefresh, pnlRefreshing, lblRefresh);
+            control.setRefresh(cmdRefresh);
         }
     }
 
-    MainView(){
-        MainControl control = new MainControl(this);
-        frame.setContentPane(rootPane);
-        frame.setMinimumSize(rootPane.getMinimumSize());
-        frame.setPreferredSize(rootPane.getMinimumSize());
-        createCommandButtons(control);
-        frame.pack();
-        frame.setLocationByPlatform(true);
-
-        control.setTables(tblActive, tblFinished, tblUtilityTags);
-        control.setChart(comboCharts, btnPrevChart, btnNextChart, btnFirstChart, btnLastChart);
+    MainView(MainControl control){
+        this.control = control;
         Main.applyButtonTheme(btnPrevChart, btnNextChart, btnFirstChart, btnLastChart);
 
         tblActive.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -140,11 +137,24 @@ public class MainView {
         tblDaily.setDefaultRenderer(Integer.class, new DurationCell(true));
         tblMonthly.setDefaultRenderer(Integer.class, new DurationCell());
 
-        ((JLabel)comboCharts.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
+        ((JLabel) comboDayCharts.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
     }
 
-    public JFrame getFrame() {
+    public JFrame frame() {
         return frame;
+    }
+
+    @Override
+    public void init() {
+        createCommandButtons(control);
+        control.setTables(tblActive, tblFinished, tblUtilityTags);
+        control.setChart(comboDayCharts, btnPrevChart, btnNextChart, btnFirstChart, btnLastChart);
+
+        frame.setContentPane(rootPane);
+        frame.setMinimumSize(rootPane.getMinimumSize());
+        frame.setPreferredSize(rootPane.getMinimumSize());
+        frame.pack();
+        frame.setLocationByPlatform(true);
     }
 
     public void refreshStatus(CacheMgr cache) {
@@ -173,8 +183,8 @@ public class MainView {
         final MonthModel monthModel = new MonthModel(cache.getObj(CacheId.MonthRows, ReportRows.class));
         tblDaily.setModel(dayModel);
         tblMonthly.setModel(monthModel);
-        comboCharts.setModel(new DateSelectorModel(cache.getObj(CacheId.ChartList, DateList.class)));
-        comboCharts.setSelectedIndex(comboCharts.getModel().getSize()-1);
+        comboDayCharts.setModel(new DateSelectorModel(cache.getObj(CacheId.ChartList, DateList.class)));
+        comboDayCharts.setSelectedIndex(comboDayCharts.getModel().getSize()-1);
     }
 
     public void refreshProjects(CacheMgr cache, int index){
@@ -213,7 +223,7 @@ public class MainView {
     }
 
     public void refreshChart(CacheMgr cache) {
-        DateSelectorEntry selected = (DateSelectorEntry) comboCharts.getSelectedItem();
+        DateSelectorEntry selected = (DateSelectorEntry) comboDayCharts.getSelectedItem();
         if (selected == null) return;
         final DefaultCategoryDataset dataset = cache.getObj(CacheId.ChartData(selected.date), DefaultCategoryDataset.class);
         final ChartMeta meta = cache.getObj(CacheId.ChartMeta(selected.date), ChartMeta.class);
@@ -234,13 +244,13 @@ public class MainView {
             lblRatio.setText(String.format("Rating: %d%% (holiday)", ratio));
             lblRatio.setForeground(AppConfig.getTheme().dark ? light_gray : gray);
         }
-        btnPrevChart.setEnabled(comboCharts.getSelectedIndex() > 0);
-        btnNextChart.setEnabled(comboCharts.getSelectedIndex() < comboCharts.getItemCount() - 1);
-        btnFirstChart.setEnabled(comboCharts.getSelectedIndex() > 0);
-        btnLastChart.setEnabled(comboCharts.getSelectedIndex() < comboCharts.getItemCount() - 1);
+        btnPrevChart.setEnabled(comboDayCharts.getSelectedIndex() > 0);
+        btnNextChart.setEnabled(comboDayCharts.getSelectedIndex() < comboDayCharts.getItemCount() - 1);
+        btnFirstChart.setEnabled(comboDayCharts.getSelectedIndex() > 0);
+        btnLastChart.setEnabled(comboDayCharts.getSelectedIndex() < comboDayCharts.getItemCount() - 1);
     }
 
-    public long getSelectedProject(){
+    public long selected(){
         if(tabs.getSelectedIndex()==0 && tblActive.getSelectedRow() != -1) {
             return ((AllModel) tblActive.getModel())
                     .getProjectHash(tblActive.convertRowIndexToModel(tblActive.getSelectedRow()));
@@ -254,7 +264,7 @@ public class MainView {
         return -1;
     }
 
-    public int getSelectedModelIndex(){
+    public int selectedIndex(){
         switch (tabs.getSelectedIndex()){
             case 0: return tblActive.convertRowIndexToModel(tblActive.getSelectedRow());
             case 1: return tblFinished.convertRowIndexToModel(tblFinished.getSelectedRow());
@@ -263,7 +273,7 @@ public class MainView {
         }
     }
 
-    public void setSelectedItem(long hash){
+    public void setSelected(long hash){
         if(tabs.getSelectedIndex()==0 && tblActive.getModel() instanceof AllModel) {
             int i = tblActive.convertRowIndexToView(((AllModel) tblActive.getModel()).findIndex(hash));
             tblActive.setRowSelectionInterval(i, i);
@@ -274,5 +284,55 @@ public class MainView {
             int i = tblUtilityTags.convertRowIndexToView(((AllModel) tblUtilityTags.getModel()).findIndex(hash));
             tblUtilityTags.setRowSelectionInterval(i, i);
         }
+    }
+
+    @Override
+    public ArrayList<JComponent> enableOnSelect() {
+        return enableOnSelect;
+    }
+
+    @Override
+    public JComponent toHideOnRefresh() {
+        return lblRefresh;
+    }
+
+    @Override
+    public JComponent getToShowOnRefresh() {
+        return pnlRefreshing;
+    }
+
+    @Override
+    public JTabbedPane getTabProjects() {
+        return tabs;
+    }
+
+    @Override
+    public JTabbedPane getTabReports() {
+        return tabr;
+    }
+
+    @Override
+    public JComponent getButtonFinish() {
+        return btnFinish;
+    }
+
+    @Override
+    public JComponent getButtonResume() {
+        return btnResume;
+    }
+
+    @Override
+    public JComponent getButtonBookmarks() {
+        return btnBookmarks;
+    }
+
+    @Override
+    public void setTablePopUpMenu(PopupMenu popUpMenu) {
+        tablePopUpMenu = popUpMenu;
+    }
+
+    @Override
+    public PopupMenu getTablePopUpMenu() {
+        return tablePopUpMenu;
     }
 }

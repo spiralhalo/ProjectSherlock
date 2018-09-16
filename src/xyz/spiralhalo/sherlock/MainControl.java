@@ -33,13 +33,19 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import static java.awt.Frame.ICONIFIED;
 import static java.awt.Frame.NORMAL;
 
 public class MainControl implements ActionListener {
+
+    private static MainControl instance;
+
+    public static void create() {
+        if(instance!=null)return;
+        instance = new MainControl();
+    }
 
     public enum Action{
         A_NEW,
@@ -55,37 +61,26 @@ public class MainControl implements ActionListener {
         A_REFRESH,
         A_EXTRA_BOOKMARKS
     }
-    private final MainView view;
+    private MainViewAccessor view;
     private final ProjectList projectList;
     private final Tracker tracker;
     private final CacheMgr cache;
     private final TrayIcon trayIcon;
     private final boolean trayIconUsed;
     private final BookmarkMgr bookmark;
-    private final ArrayList<JComponent> enableOnSelect = new ArrayList<>();
-    private JComponent toHideOnRefresh;
-    private JComponent toShowOnRefresh;
-    private JTabbedPane tabProjects;
-    private JTabbedPane tabReports;
-    private JComponent buttonFinish;
-    private JComponent buttonResume;
-    private JComponent buttonBookmarks;
-    private JComboBox chartSelector;
-    private PopupMenu tablePopUpMenu;
 
-    public MainControl(MainView view) {
-        this.view = view;
-        view.getFrame().addWindowListener(windowAdapter);
-        view.getFrame().addWindowStateListener(windowAdapter);
-        view.getFrame().addWindowFocusListener(windowAdapter);
-        view.getFrame().setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        view.getFrame().setIconImages(Arrays.asList(ImgUtil.createImage("icon.png","App Icon Small"),
-                ImgUtil.createImage("med_icon.png","App Icon")));
+    private MainControl() {
         cache = new CacheMgr();
+        projectList = ProjectListIO.load();
+        AutoImporter2.importRecord(projectList);
+        tracker = new Tracker(projectList);
+        tracker.start();
+        bookmark = new BookmarkMgr(tracker);
+
+        createView();
         final ActionListener listenerTrayToggle = e -> {
-            if(!view.getFrame().isVisible()) {
-                view.getFrame().setVisible(true);
-                view.getFrame().setState(NORMAL);
+            if(view == null || !view.frame().isVisible()) {
+                showView();
             } else {
                 minimizeToTray();
             }
@@ -95,11 +90,29 @@ public class MainControl implements ActionListener {
         };
         trayIcon = Application.createTrayIcon(listenerTrayToggle,listenerTrayExit);
         trayIconUsed = (trayIcon != null);
-        projectList = ProjectListIO.load();
-        AutoImporter2.importRecord(projectList);
-        tracker = new Tracker(projectList);
-        tracker.start();
-        bookmark = new BookmarkMgr(tracker);
+
+        if(!Main.Arg.Minimized.isEnabled()){
+            showView();
+        }
+    }
+
+    private void showView() {
+        if(view == null){
+            createView();
+        }
+        view.frame().setVisible(true);
+        view.frame().setState(NORMAL);
+    }
+
+    private void createView(){
+        view = new MainView(this);
+        view.init();
+        view.frame().addWindowListener(windowAdapter);
+        view.frame().addWindowStateListener(windowAdapter);
+        view.frame().addWindowFocusListener(windowAdapter);
+        view.frame().setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        view.frame().setIconImages(Arrays.asList(ImgUtil.createImage("icon.png","App Icon Small"),
+                ImgUtil.createImage("med_icon.png","App Icon")));
         view.refreshOverview(cache);
     }
 
@@ -107,7 +120,7 @@ public class MainControl implements ActionListener {
         @Override
         public void windowClosing(WindowEvent e) {
             if(AppConfig.getBool(AppBool.ASK_BEFORE_QUIT)) {
-                Quit quit = new Quit(view.getFrame());
+                Quit quit = new Quit(view.frame());
                 quit.setVisible(true);
                 switch (quit.getSelection()) {
                     case EXIT:
@@ -132,17 +145,16 @@ public class MainControl implements ActionListener {
 
         @Override
         public void windowStateChanged(WindowEvent e) {
-            if(trayIconUsed && AppConfig.getBool(AppBool.MINIMIZE_TO_TRAY) && (view.getFrame().getState() == ICONIFIED)){
+            if(trayIconUsed && AppConfig.getBool(AppBool.MINIMIZE_TO_TRAY) && (view.frame().getState() == ICONIFIED)){
                 minimizeToTray();
             }
         }
     };
 
     private void minimizeToTray(){
-//        trayIcon.displayMessage("Minimized to tray", "Double click icon to restore", TrayIcon.MessageType.INFO);
         if(trayIconUsed) {
             trayIcon.getPopupMenu().getItem(0).setLabel("Restore");
-            view.getFrame().setVisible(false);
+            view.frame().setVisible(false);
         }
     }
 
@@ -160,7 +172,7 @@ public class MainControl implements ActionListener {
         btnSettings.setName(Action.A_SETTINGS.name());
         addEnableOnSelect(btnView, btnEdit, btnDelete, btnUp, btnDown);
         btnFinish.setEnabled(false);
-        setTabs(btnFinish, btnResume, tabs, tabr);
+        setTabs(btnResume, tabs, tabr);
     }
 
     public void setToolbar(JButton btnNew, JButton btnNewTag, JButton btnView, JButton btnFinish, JButton btnResume,
@@ -199,30 +211,24 @@ public class MainControl implements ActionListener {
     public void setExtras(JButton btnBookmarks) {
         btnBookmarks.setName(Action.A_EXTRA_BOOKMARKS.name());
         btnBookmarks.addActionListener(this);
-        buttonBookmarks = btnBookmarks;
     }
 
     public void setExtras(JCommandButton btnBookmarks) {
         btnBookmarks.setName(Action.A_EXTRA_BOOKMARKS.name());
         btnBookmarks.addActionListener(this);
-        buttonBookmarks = btnBookmarks;
     }
 
     public void addEnableOnSelect(JComponent... components) {
         for (JComponent component:components) {
-            enableOnSelect.add(component);
+            view.enableOnSelect().add(component);
             component.setEnabled(false);
         }
     }
 
-    private void setTabs(JComponent btnFinish, JComponent btnResume, JTabbedPane tabs, JTabbedPane tabr){
-        buttonFinish = btnFinish;
-        buttonResume = btnResume;
-        tabProjects = tabs;
-        tabReports = tabr;
-        tabProjects.addChangeListener(tabChangeListener);
-        tabReports.addChangeListener(tabChangeListener);
-        buttonResume.setVisible(false);
+    private void setTabs(JComponent btnResume, JTabbedPane tabs, JTabbedPane tabr){
+        tabs.addChangeListener(tabChangeListener);
+        tabr.addChangeListener(tabChangeListener);
+        btnResume.setVisible(false);
     }
 
     private void createPopupNew(JCommandButton cmdNew){
@@ -257,34 +263,29 @@ public class MainControl implements ActionListener {
         cmdRefresh.setCommandButtonKind(JCommandButton.CommandButtonKind.ACTION_AND_POPUP_MAIN_POPUP);
     }
 
-    public void setRefresh(JButton button, JComponent toShow, JComponent toHide){
+    public void setRefresh(JButton button){
         button.setName(Action.A_REFRESH.name());
         button.addActionListener(this);
-        toHideOnRefresh = toHide;
-        toShowOnRefresh = toShow;
     }
 
-    public void setRefresh(JCommandButton button, JComponent toShow, JComponent toHide){
+    public void setRefresh(JCommandButton button){
         button.setName(Action.A_REFRESH.name());
         button.addActionListener(this);
-//        createPopupRefresh(button);
-        toHideOnRefresh = toHide;
-        toShowOnRefresh = toShow;
     }
 
     public void setTables(JTable tableActive, JTable tableFinished, JTable tableUtilityTags){
-        tablePopUpMenu = new PopupMenu();
-        MenuItem view = new MenuItem("View");
+        view.setTablePopUpMenu(new PopupMenu());
+        MenuItem viewMenu = new MenuItem("View");
         MenuItem edit = new MenuItem("Edit");
         MenuItem delete = new MenuItem("Delete");
-        view.addActionListener(e->viewProject());
+        viewMenu.addActionListener(e->viewProject());
         edit.addActionListener(e->editProject());
         delete.addActionListener(e->deleteProject());
-        tablePopUpMenu.add(view);
-        tablePopUpMenu.add(edit);
-        tablePopUpMenu.addSeparator();
-        tablePopUpMenu.add(delete);
-        tabProjects.add(tablePopUpMenu);
+        view.getTablePopUpMenu().add(viewMenu);
+        view.getTablePopUpMenu().add(edit);
+        view.getTablePopUpMenu().addSeparator();
+        view.getTablePopUpMenu().add(delete);
+//        view.getTabProjects().add(view.getTablePopUpMenu());
         tableActive.addMouseListener(tableAdapter);
         tableFinished.addMouseListener(tableAdapter);
         tableUtilityTags.addMouseListener(tableAdapter);
@@ -294,29 +295,28 @@ public class MainControl implements ActionListener {
     }
 
     public void setChart(JComboBox comboCharts, JButton prev, JButton next, JButton first, JButton last){
-        chartSelector = comboCharts;
         comboCharts.addItemListener(e->{
-            if(chartSelector.getItemCount()==0)return;
+            if(comboCharts.getItemCount()==0)return;
             view.refreshChart(cache);
         });
         prev.addActionListener(e->{
-            if(chartSelector.getSelectedIndex()>0){
-                chartSelector.setSelectedIndex(chartSelector.getSelectedIndex()-1);
+            if(comboCharts.getSelectedIndex()>0){
+                comboCharts.setSelectedIndex(comboCharts.getSelectedIndex()-1);
             }
         });
         next.addActionListener(e->{
-            if(chartSelector.getSelectedIndex()< chartSelector.getItemCount()-1){
-                chartSelector.setSelectedIndex(chartSelector.getSelectedIndex()+1);
+            if(comboCharts.getSelectedIndex()< comboCharts.getItemCount()-1){
+                comboCharts.setSelectedIndex(comboCharts.getSelectedIndex()+1);
             }
         });
         first.addActionListener(e->{
-            if(chartSelector.getSelectedIndex()>0){
-                chartSelector.setSelectedIndex(0);
+            if(comboCharts.getSelectedIndex()>0){
+                comboCharts.setSelectedIndex(0);
             }
         });
         last.addActionListener(e->{
-            if(chartSelector.getSelectedIndex()<chartSelector.getItemCount()-1){
-                chartSelector.setSelectedIndex(chartSelector.getItemCount()-1);
+            if(comboCharts.getSelectedIndex()<comboCharts.getItemCount()-1){
+                comboCharts.setSelectedIndex(comboCharts.getItemCount()-1);
             }
         });
         view.refreshChart(cache);
@@ -328,7 +328,7 @@ public class MainControl implements ActionListener {
         switch (action){
             case A_NEW:
             case A_NEW_TAG:
-                EditProject x = new EditProject(view.getFrame(), projectList, action == Action.A_NEW_TAG);
+                EditProject x = new EditProject(view.frame(), projectList, action == Action.A_NEW_TAG);
                 x.setVisible(true);
                 if(x.getResult()){
                     refresh();
@@ -338,11 +338,11 @@ public class MainControl implements ActionListener {
                 viewProject();
                 break;
             case A_FINISH:
-                projectList.setProjectFinished(view.getSelectedProject(), true);
+                projectList.setProjectFinished(view.selected(), true);
                 refresh();
                 break;
             case A_RESUME:
-                projectList.setProjectFinished(view.getSelectedProject(), false);
+                projectList.setProjectFinished(view.selected(), false);
                 refresh();
                 break;
             case A_EDIT:
@@ -353,23 +353,23 @@ public class MainControl implements ActionListener {
                 break;
             case A_UP:
             case A_DOWN:
-                int selected = view.getSelectedModelIndex();
+                int selected = view.selectedIndex();
                 if(selected != -1) {
                     long hash;
                     if(action==Action.A_UP){
-                        hash = projectList.moveUp(tabProjects.getSelectedIndex(), selected);
+                        hash = projectList.moveUp(view.getTabProjects().getSelectedIndex(), selected);
                     } else {
-                        hash = projectList.moveDown(tabProjects.getSelectedIndex(), selected);
+                        hash = projectList.moveDown(view.getTabProjects().getSelectedIndex(), selected);
                     }
                     if(hash!=-1){
-                        OverviewOps.refreshOrdering(cache, projectList, OverviewOps.Type.index(tabProjects.getSelectedIndex()));
-                        view.refreshProjects(cache, tabProjects.getSelectedIndex());
-                        view.setSelectedItem(hash);
+                        OverviewOps.refreshOrdering(cache, projectList, OverviewOps.Type.index(view.getTabProjects().getSelectedIndex()));
+                        view.refreshProjects(cache, view.getTabProjects().getSelectedIndex());
+                        view.setSelected(hash);
                     }
                 }
                 break;
             case A_SETTINGS:
-                Settings settings = new Settings(view.getFrame());
+                Settings settings = new Settings(view.frame());
                 settings.setVisible(true);
                 if(settings.getResult()){
                     refresh();
@@ -379,7 +379,7 @@ public class MainControl implements ActionListener {
                 refresh();
                 break;
             case A_EXTRA_BOOKMARKS:
-                Project p = projectList.findByHash(view.getSelectedProject());
+                Project p = projectList.findByHash(view.selected());
                 if(!p.isUtilityTag()){
                     bookmark.invoke(p);
                 }
@@ -403,7 +403,7 @@ public class MainControl implements ActionListener {
         @Override
         public void mouseReleased(MouseEvent e) {
             if(e.getButton() == 3){
-                tablePopUpMenu.show(e.getComponent(), e.getX(), e.getY());
+                view.getTablePopUpMenu().show(e.getComponent(), e.getX(), e.getY());
             }
         }
 
@@ -418,34 +418,34 @@ public class MainControl implements ActionListener {
     private final ListSelectionListener tableSelectionListener = new ListSelectionListener() {
         @Override
         public void valueChanged(ListSelectionEvent e) {
-            boolean temp = view.getSelectedProject()!=-1;
-            for (JComponent x:enableOnSelect) {
+            boolean temp = view.selected()!=-1;
+            for (JComponent x:view.enableOnSelect()) {
                 x.setEnabled(temp);
             }
-            buttonFinish.setVisible(tabProjects.getSelectedIndex()!=1 || !temp);
-            buttonFinish.setEnabled(tabProjects.getSelectedIndex()==0 && temp);
-            buttonResume.setVisible(tabProjects.getSelectedIndex()==1 && temp);
+            view.getButtonFinish().setVisible(view.getTabProjects().getSelectedIndex()!=1 || !temp);
+            view.getButtonFinish().setEnabled(view.getTabProjects().getSelectedIndex()==0 && temp);
+            view.getButtonResume().setVisible(view.getTabProjects().getSelectedIndex()==1 && temp);
         }
     };
 
     private final ChangeListener tabChangeListener = new ChangeListener() {
         @Override
         public void stateChanged(ChangeEvent e) {
-            boolean temp = view.getSelectedProject()!=-1 && tabReports.getSelectedIndex()==0;
-            for (JComponent x:enableOnSelect) {
+            boolean temp = view.selected()!=-1 && view.getTabReports().getSelectedIndex()==0;
+            for (JComponent x:view.enableOnSelect()) {
                 x.setEnabled(temp);
             }
-            buttonFinish.setVisible(tabProjects.getSelectedIndex()!=1 || !temp);
-            buttonFinish.setEnabled(tabProjects.getSelectedIndex()==0 && temp);
-            buttonResume.setVisible(tabProjects.getSelectedIndex()==1 && temp);
-            buttonBookmarks.setEnabled(tabProjects.getSelectedIndex()!=2 && temp);
+            view.getButtonFinish().setVisible(view.getTabProjects().getSelectedIndex()!=1 || !temp);
+            view.getButtonFinish().setEnabled(view.getTabProjects().getSelectedIndex()==0 && temp);
+            view.getButtonResume().setVisible(view.getTabProjects().getSelectedIndex()==1 && temp);
+            view.getButtonBookmarks().setEnabled(view.getTabProjects().getSelectedIndex()!=2 && temp);
         }
     };
 
     private MainControl getThis(){return this;}
 
     private void viewProject(){
-        Project p = projectList.findByHash(view.getSelectedProject());
+        Project p = projectList.findByHash(view.selected());
         if(p==null) return;
         if(cache.getElapsed(CacheId.ProjectDayRows(p)) > AppConfig.getInt(AppInt.REFRESH_TIMEOUT)){
             refreshProject(p);
@@ -457,9 +457,9 @@ public class MainControl implements ActionListener {
     }
 
     private void editProject() {
-        Project p = projectList.findByHash(view.getSelectedProject());
+        Project p = projectList.findByHash(view.selected());
         if(p==null) return;
-        EditProject y = new EditProject(view.getFrame(), p, projectList, p.isUtilityTag());
+        EditProject y = new EditProject(view.frame(), p, projectList, p.isUtilityTag());
         y.setVisible(true);
         if(y.getResult()){
             refresh();
@@ -467,9 +467,9 @@ public class MainControl implements ActionListener {
     }
 
     private void deleteProject() {
-        Project px = projectList.findByHash(view.getSelectedProject());
+        Project px = projectList.findByHash(view.selected());
         if (px == null) return;
-        int jopResult = JOptionPane.showConfirmDialog(view.getFrame(),
+        int jopResult = JOptionPane.showConfirmDialog(view.frame(),
                 String.format("Do you want to permanently delete %s `%s?`", px.isUtilityTag() ? "tag" : "project",
                         px.toString()), "Confirm deletion", JOptionPane.YES_NO_OPTION);
         if (jopResult == JOptionPane.YES_OPTION) {
@@ -486,23 +486,23 @@ public class MainControl implements ActionListener {
     }
 
     private void refreshProject(Project p){
-        LoaderDialog.execute(view.getFrame(), new ProjectViewCreator(p), getThis()::projectCB);
+        LoaderDialog.execute(view.frame(), new ProjectViewCreator(p), getThis()::projectCB);
     }
 
     private void refresh(){
         tracker.flushRecordBuffer();
         Loader.execute("refresh", new OverviewCreator(projectList), this::refreshCB,
-                toShowOnRefresh, toHideOnRefresh);
+                view.getToShowOnRefresh(), view.toHideOnRefresh());
     }
 
     private void showProject(Project p, ReportRows dayRows, ReportRows monthRows){
-        SwingUtilities.invokeLater(() -> new ViewProject(view.getFrame(), p.toString(), String.join(", ",p.getTags())
+        SwingUtilities.invokeLater(() -> new ViewProject(view.frame(), p.toString(), String.join(", ",p.getTags())
                 , new DayModel(dayRows), new MonthModel(monthRows)).setVisible(true));
     }
 
     private void projectCB(ProjectViewResult result, Throwable t){
         if(t != null){
-            JOptionPane.showMessageDialog(view.getFrame(),
+            JOptionPane.showMessageDialog(view.frame(),
                     String.format("Failed to refresh the project due to an error.\nerror code:\n\t%s", t.toString()),
                     "Refresh failed", JOptionPane.ERROR_MESSAGE);
         } else if(result!=null) {
@@ -514,7 +514,7 @@ public class MainControl implements ActionListener {
 
     private void refreshCB(OverviewResult result, Throwable t){
         if(t != null){
-            JOptionPane.showMessageDialog(view.getFrame(),
+            JOptionPane.showMessageDialog(view.frame(),
                     String.format("Failed to refresh due to an error.\nerror code:\n\t%s", t.toString()),
                     "Refresh failed", JOptionPane.ERROR_MESSAGE);
         } else if(result!=null){

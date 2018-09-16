@@ -2,15 +2,19 @@ package xyz.spiralhalo.sherlock.persist.cache;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.HashMap;
+import java.util.WeakHashMap;
 
 public class CacheMgr {
     public static final Instant NEVER = Instant.EPOCH;
 
-    private final HashMap<String, CachedObj> cache = new HashMap<>();
+    private final WeakHashMap<String, CachedObj> cache = new WeakHashMap<>();
 
     public <T extends Serializable> void put(CacheId id, T object){
         put(id.v, object);
+    }
+
+    public synchronized <T extends Serializable> void put(String id, T object){
+        cache.put(id, CacheHandler.writeCache(id, object));
     }
 
     public Instant getCreated(CacheId id){
@@ -23,10 +27,6 @@ public class CacheMgr {
 
     public <T extends Serializable> T getObj(CacheId id, Class<T> clazz){
         return getObj(id.v, clazz);
-    }
-
-    public <T extends Serializable> void put(String id, T object){
-        cache.put(id, CacheHandler.writeCache(id, object));
     }
 
     public Instant getCreated(String id){
@@ -49,7 +49,12 @@ public class CacheMgr {
         } else return null;
     }
 
-    private CachedObj getInternal(String id){
-        return cache.getOrDefault(id, CacheHandler.readCache(id));
+    private synchronized CachedObj getInternal(String id){
+        CachedObj x = cache.get(id);
+        if(x==null){
+            x = CacheHandler.readCache(id);
+            if(x!=null){ cache.put(id, x); }
+        }
+        return x;
     }
 }

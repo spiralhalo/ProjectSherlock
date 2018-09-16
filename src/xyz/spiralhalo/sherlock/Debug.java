@@ -10,8 +10,6 @@ public class Debug {
 
     public static void log(Throwable e){
         if(Arg.Debug.isEnabled()){
-            e.printStackTrace();
-        }else{
             StackTraceElement[] x = e.getStackTrace();
             int i = 0;
             for (i=0;i<x.length;i++) {
