@@ -4,28 +4,37 @@ import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.util.Arrays;
 
-public class RecordData {
-    public static final int BYTES = Byte.BYTES + Long.BYTES + Integer.BYTES + Long.BYTES + Byte.BYTES;
-    public static final byte VERSION = 1;
+public class RecordEntry {
+    public static final int BYTES_UNIVERSAL = 22;
+    public static final byte CURRENT_VERSION = 1;
 
     private static final byte UTILITY = 0b01;
     private static final byte PRODUCTIVE = 0b10;
 
-    public static RecordData create(Instant time, int elapsed, long hash, boolean isUtility, boolean isProductive){
-        return new RecordData(time, elapsed, hash, isUtility, isProductive);
+    public static RecordEntry create(Instant time, int elapsed, long hash, boolean isUtility, boolean isProductive){
+        return new RecordEntry(time, elapsed, hash, isUtility, isProductive);
     }
 
-    public static RecordData deserialize(byte[] data){
-        if(data.length != BYTES)throw new IllegalArgumentException("Record data length mismatch.");
-        byte version = data[0];
-        byte[] t = Arrays.copyOfRange(data,1, Long.BYTES + 1);
-        byte[] el = Arrays.copyOfRange(data, 1 + Long.BYTES,Long.BYTES + Integer.BYTES + 1);
-        byte[] h = Arrays.copyOfRange(data, 1 + Long.BYTES + Integer.BYTES, 2 * Long.BYTES + Integer.BYTES + 1);
-        byte m = data[BYTES - 1];
+    public static RecordEntry deserialize(byte[] data){
+        byte version = data[0]; //check for different length for future versions
+        if(data.length != BYTES_UNIVERSAL)throw new IllegalArgumentException("Record data length mismatch.");
+        byte[] t = Arrays.copyOfRange(data,1, 9);
+        byte[] el = Arrays.copyOfRange(data, 9,13);
+        byte[] h = Arrays.copyOfRange(data, 13, 21);
+        byte m = data[21];
         switch (version) {
             default:
-            return new RecordData(Instant.ofEpochMilli(deserializeLong(t)), deserializeInt(el), deserializeLong(h), m);
+            return new RecordEntry(Instant.ofEpochMilli(deserializeLong(t)), deserializeInt(el), deserializeLong(h), m);
         }
+    }
+
+    public static Instant getTimestamp(byte[] data){
+        byte[] t = Arrays.copyOfRange(data,1, 9);
+        return Instant.ofEpochMilli(deserializeLong(t));
+    }
+
+    public static byte[] serialize(RecordEntry entry){
+        return serialize(entry.time, entry.elapsed, entry.hash, entry.meta);
     }
 
     public static byte[] serialize(Instant time, int elapsed, long hash, boolean isUtility, boolean isProductive) {
@@ -33,8 +42,8 @@ public class RecordData {
     }
 
     private static byte[] serialize(Instant time, int elapsed, long hash, byte meta){
-        return ByteBuffer.allocate(BYTES)
-                .put(VERSION)
+        return ByteBuffer.allocate(BYTES_UNIVERSAL)
+                .put(CURRENT_VERSION)
                 .putLong(time.toEpochMilli())
                 .putInt(elapsed)
                 .putLong(hash)
@@ -55,25 +64,20 @@ public class RecordData {
         if(ba.length != Integer.BYTES) throw new IllegalArgumentException("Byte array needs to represent a long getValue.");
         return ((ByteBuffer)ByteBuffer.allocate(Integer.BYTES).put(ba).flip()).getInt();
     }
-
     private final Instant time;
     private final int elapsed;
     private final long hash;
     private final byte meta;
 
-    private RecordData(Instant time, int elapsed, long hash, byte meta) {
+    private RecordEntry(Instant time, int elapsed, long hash, byte meta) {
         this.time = time;
         this.elapsed = elapsed;
         this.hash = hash;
         this.meta = meta;
     }
 
-    private RecordData(Instant time, int elapsed, long hash, boolean isUtility, boolean isProductive) {
+    private RecordEntry(Instant time, int elapsed, long hash, boolean isUtility, boolean isProductive) {
         this(time, elapsed, hash, meta(isUtility, isProductive));
-    }
-
-    public byte[] serialize(){
-        return serialize(time, elapsed, hash, meta);
     }
 
     public Instant getTime() {

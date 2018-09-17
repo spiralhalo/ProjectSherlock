@@ -5,7 +5,7 @@ import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt;
 
-public class RealtimeRecordWriter extends MultiFileRecordWriter {
+public class RealtimeRecordWriter extends DefaultRecordWriter {
     private static final int RECORD_CAPACITY = 100;
 
     public RealtimeRecordWriter() {
@@ -25,7 +25,4 @@ public class RealtimeRecordWriter extends MultiFileRecordWriter {
     protected int getEnforcedFlushDelayMillis() {
         return Math.min(super.getEnforcedFlushDelayMillis(), AppConfig.getInt(AppInt.REFRESH_TIMEOUT) * 1000);
     }
-
-    @Override
-    protected void onClosing() { }
 }

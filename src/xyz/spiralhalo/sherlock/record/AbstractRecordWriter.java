@@ -2,10 +2,13 @@ package xyz.spiralhalo.sherlock.record;
 
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.Debug;
+import xyz.spiralhalo.sherlock.record.io.RecordFileAppend;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 
 import java.io.*;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 /**
  * An abstract class that represents a record writer with an internal buffer.
@@ -19,7 +22,8 @@ public abstract class AbstractRecordWriter {
     private static final String DEBUG_OTHER = "(Other)";
 
     protected static class TempRecord {
-        private long timestamp = 0;
+        private int hour;
+        private Instant timestamp;
         private long lastUpdated = 0;
         private String debug_name;
         private long hash = 0;
@@ -28,13 +32,13 @@ public abstract class AbstractRecordWriter {
 
         private TempRecord() { }
 
-        private TempRecord(long timestamp, String debug_name, long hash, boolean utilityTag, boolean productive) {
+        private TempRecord(Instant timestamp, String debug_name, long hash, boolean utilityTag, boolean productive) {
             reset(timestamp, debug_name, hash, utilityTag, productive);
         }
 
-        void reset(long timestamp, String debug_name, long hash, boolean utilityTag, boolean productive){
+        void reset(Instant timestamp, String debug_name, long hash, boolean utilityTag, boolean productive){
             this.timestamp = timestamp;
-            this.lastUpdated = timestamp;
+            this.lastUpdated = timestamp.toEpochMilli();
             this.debug_name = debug_name;
             this.hash = hash;
             this.utilityTag = utilityTag;
@@ -46,32 +50,12 @@ public abstract class AbstractRecordWriter {
         }
 
         protected int getDuration(){
-            return (int)(lastUpdated - timestamp);
-        }
-
-        protected long getTimestamp() {
-            return timestamp;
-        }
-
-        protected String getDebug_name() {
-            return debug_name;
-        }
-
-        protected long getHash() {
-            return hash;
-        }
-
-        protected boolean isProductive() {
-            return productive;
-        }
-
-        protected boolean isUtilityTag() {
-            return utilityTag;
+            return (int)(lastUpdated - timestamp.toEpochMilli());
         }
     }
 
     private final TempRecord working = new TempRecord();
-    private final DiskOutputBuffer buffer;
+    private final RecordOutputBuffer buffer;
     private final int nRecordCapacity;
     private RecordFileAppend lastFile = null;
     private long lastFlushTimestamp = 0;
@@ -84,29 +68,41 @@ public abstract class AbstractRecordWriter {
     protected AbstractRecordWriter(int nRecordCapacity) {
         final int byteCapacity;
         try {
-            byteCapacity = DiskOutputBuffer.getBytesOnDisk(RecordData.BYTES) * nRecordCapacity;
+            byteCapacity = RecordEntry.BYTES_UNIVERSAL * nRecordCapacity;
         } catch (ArithmeticException e) {
             throw new IllegalArgumentException("Too big.");
         }
-        this.buffer = new DiskOutputBuffer(byteCapacity);
+        this.buffer = new RecordOutputBuffer(byteCapacity);
         this.nRecordCapacity = nRecordCapacity;
         Debug.logImportant(String.format("[Buffer] New buffer created with class: %s", this.getClass().getSimpleName()));
     }
 
     /**
      * Returns the granularity (the period of time between virtual data points) of the record.
+     * Note: it can't be more than an hour (3600000 milliseconds).
      *
      * @return the granularity of the record in milliseconds
      */
     protected abstract int getGranularityMillis();
 
+    private int getGranularityMillisInternal(){
+        int granularity = getGranularityMillis();
+        if(granularity > 3600000){
+            throw new RuntimeException("Unsupported implementation");
+        }
+        return granularity % 3600000;
+    }
+
     /**
      * Retrieves and returns the appropriate record file for a specified record entry.
      *
-     * @param forRecord the record entry to which this file would be relevant
+     * @param timestamp timestamp of the record entry
+     * @param hash hash of the record entry
+     * @param utilityTag whether the record entry is a utility tag
+     * @param productive whether the record entry is productive
      * @return the corresponding record file
      */
-    protected abstract RecordFileAppend getRecordFile(TempRecord forRecord);
+    protected abstract RecordFileAppend getRecordFile(Instant timestamp, long hash, boolean utilityTag, boolean productive);
 
     /**
      * Method to be called right before the buffer is closed.
@@ -120,7 +116,7 @@ public abstract class AbstractRecordWriter {
      * @return the granularity of the record plus a margin of error of 50%
      */
     private int getMaxDelay(){
-        return Math.round(getGranularityMillis() * 1.5f);
+        return Math.round(getGranularityMillisInternal() * 1.5f);
     }
 
     /**
@@ -148,10 +144,14 @@ public abstract class AbstractRecordWriter {
      * This rule exists to ensure that records are written to the right file.
      * In that case, the current record is written to the last file instead of the current one.
      *
+     * @param timestamp timestamp of the record entry
+     * @param hash hash of the record entry
+     * @param utilityTag whether the record entry is a utility tag
+     * @param productive whether the record entry is productive
      * @return whether the current file is different from the last
      */
-    private boolean fileChanged(TempRecord currentRecord){
-        RecordFileAppend currentFile = getRecordFile(currentRecord);
+    private boolean fileChanged(Instant timestamp, long hash, boolean utilityTag, boolean productive){
+        RecordFileAppend currentFile = getRecordFile(timestamp, hash, utilityTag, productive);
         boolean changed = !lastFile.equals(currentFile);
         if(changed){
             Debug.logImportant(String.format("[Buffer] Record file is changed. Previous RF: %s, Current RF: %s",
@@ -165,30 +165,32 @@ public abstract class AbstractRecordWriter {
      *
      * This method is synchronized due to the strict nature of its execution order.
      *
-     * @param timestamp time of the virtual data point
+     * @param timestampMilli time of the virtual data point
      * @param debug_name name of the project or tag (for debugging)
      * @param hash hash of the project or tag
      * @param utilityTag whether it is a tag
      * @param productive whether the tag is productive
      */
-    protected synchronized final void log(long timestamp, String debug_name, long hash, boolean utilityTag, boolean productive) {
-        TempRecord potential = new TempRecord(timestamp, debug_name, hash, utilityTag, productive);
+    protected synchronized final void log(long timestampMilli, String debug_name, long hash, boolean utilityTag, boolean productive) {
+        Instant timestamp = Instant.ofEpochMilli(timestampMilli);
+        int hour = LocalDateTime.ofInstant(timestamp, ZoneOffset.UTC).getHour();
 
         if (lastFile == null) {
-            lastFile = getRecordFile(potential);
+            lastFile = getRecordFile(timestamp, hash, utilityTag, productive);
         }
-        if (working.timestamp == 0) {
+        if (working.timestamp == null) {
             working.reset(timestamp, debug_name, hash, utilityTag, productive);
         }
         if (lastFlushTimestamp == 0) {
-            lastFlushTimestamp = timestamp;
+            lastFlushTimestamp = timestampMilli;
         }
 
-        boolean discontinuous = (timestamp - working.lastUpdated > getMaxDelay());
+        boolean segmented = hour != working.hour;
+        boolean discontinuous = (timestampMilli - working.lastUpdated > getMaxDelay());
         boolean differentHash = (hash != working.hash && working.hash != 0);
-        boolean fileChanged = fileChanged(potential);
+        boolean fileChanged = fileChanged(timestamp, hash, utilityTag, productive);
 
-        if (discontinuous || differentHash || fileChanged) {
+        if (segmented || discontinuous || differentHash || fileChanged) {
 
             flush( fileChanged );
 
@@ -200,24 +202,24 @@ public abstract class AbstractRecordWriter {
                 } catch (IOException e) {
                     Debug.log(e);
                 }
-                lastFile = getRecordFile(potential);
+                lastFile = getRecordFile(timestamp, hash, utilityTag, productive);
             }
         }
 
-        working.update(timestamp);
+        working.update(timestampMilli);
     }
 
     /**
      * Logs a virtual data point within a record entry.
      *
-     * @param timestamp time of the virtual data point
+     * @param timestampMilli time of the virtual data point
      * @param p the project or tag
      */
-    protected final void log(long timestamp, Project p){
+    protected final void log(long timestampMilli, Project p){
         if(p==null){
-            log(timestamp, DEBUG_OTHER, -1, false, false);
+            log(timestampMilli, DEBUG_OTHER, -1, false, false);
         } else {
-            log(timestamp, p.getName(), p.getHash(), p.isUtilityTag(), p.isProductive());
+            log(timestampMilli, p.getName(), p.getHash(), p.isUtilityTag(), p.isProductive());
         }
     }
 
@@ -227,13 +229,13 @@ public abstract class AbstractRecordWriter {
      * @param forced whether to force flushing the buffer into disk
      */
     private void flush(boolean forced){
-        final int recordElapsed = (getGranularityMillis() + working.getDuration())/1000;
-        final Instant recordTime = Instant.ofEpochMilli(working.timestamp);
+        final int recordElapsed = (getGranularityMillisInternal() + working.getDuration())/1000;
+        final Instant recordTime = working.timestamp;
 
         Debug.log(String.format("[Buffer] Writing record entry for: %s", working.debug_name));
         Debug.logVerbose(String.format("%8s %s, %s", "", FormatUtil.DTF_FULL.format(recordTime), recordElapsed));
 
-        buffer.put(RecordData.serialize(recordTime, recordElapsed, working.hash, working.utilityTag, working.productive));
+        buffer.put(RecordEntry.serialize(recordTime, recordElapsed, working.hash, working.utilityTag, working.productive));
 
         boolean enforceMaxTimesWritten = buffer.getTimesWritten() >= getEnforcedMaxTimesWritten();
         boolean enforceFlushDelay = System.currentTimeMillis() - lastFlushTimestamp >= getEnforcedFlushDelayMillis();
@@ -254,7 +256,7 @@ public abstract class AbstractRecordWriter {
         lastFlushTimestamp = System.currentTimeMillis();
         Debug.log("[Buffer] Flushing record");
         try {
-            buffer.flush(lastFile.raf());
+            buffer.flush(lastFile);
         } catch (IOException e) {
             Debug.log(e);
         }
@@ -268,7 +270,7 @@ public abstract class AbstractRecordWriter {
     public final void close() throws IOException {
         Debug.logImportant("[Buffer] Closing buffer");
         onClosing();
-        if(working.timestamp !=0) {
+        if(working.timestamp != null) {
             flush(true);
         }
         if(lastFile!=null){

@@ -1,44 +1,33 @@
 package xyz.spiralhalo.sherlock.record;
 
+import xyz.spiralhalo.sherlock.record.io.RecordFileAppend;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
 
-public class DiskOutputBuffer {
-    public static int getBytesOnDisk(int originalLength){
-        return originalLength+1;
-    }
-
-    public static byte[] read(RandomAccessFile radFile) throws IOException{
-        int meta = radFile.readUnsignedByte();
-        byte[] toRead = new byte[meta];
-        radFile.readFully(toRead);
-        return toRead;
-    }
+public class RecordOutputBuffer {
 
     private final SimpleByteBuffer byteBuffer;
     private int timesWritten = 0;
 
-    public DiskOutputBuffer(int capacityBytesOnDisk) {
+    public RecordOutputBuffer(int capacityBytesOnDisk) {
         byteBuffer = new SimpleByteBuffer(capacityBytesOnDisk);
     }
 
-    public void put(byte[] toBeWritten){
+    public void put(byte[] pureData){
         synchronized (byteBuffer) {
-            if (toBeWritten.length > 255) throw new IllegalArgumentException("Byte array is too big.");
-            byte[] toWrite = new byte[1 + toBeWritten.length];
-            toWrite[0] = (byte) toBeWritten.length;
-            System.arraycopy(toBeWritten, 0, toWrite, 1, toBeWritten.length);
-            byteBuffer.put(toWrite);
+            if (pureData.length != RecordEntry.BYTES_UNIVERSAL) throw new IllegalArgumentException("Length mismatch.");
+            byteBuffer.put(pureData);
             timesWritten++;
         }
     }
 
-    public void flush(RandomAccessFile raf) throws IOException{
+    public void flush(RecordFileAppend rfa) throws IOException{
         synchronized (byteBuffer) {
             IOException ex;
             try {
-                raf.write(byteBuffer.array());
+                rfa.writeBytes(byteBuffer.array());
                 ex = null;
             } catch (IOException e) {
                 ex = e;

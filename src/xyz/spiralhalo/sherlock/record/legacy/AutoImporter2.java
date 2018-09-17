@@ -3,7 +3,6 @@ package xyz.spiralhalo.sherlock.record.legacy;
 import xyz.spiralhalo.sherlock.Tracker;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
-import xyz.spiralhalo.sherlock.record.MultiFileRecordWriter;
 import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.Application;
 
@@ -15,7 +14,7 @@ public class AutoImporter2 {
     public static final String OLD_LOG_FILENAME = "record2.txt";
     public static void importRecord(ProjectList projectList) {
         File file = new File(Application.getSaveDir(), OLD_LOG_FILENAME);
-        File file2 = new File(Application.getSaveDir(), Application.RECDIR);
+        File file2 = new File(Application.getSaveDir(), ReconstructorWriter.RECORD_FILE);
         if (file.exists() && !file2.isDirectory()) {
             try (FileInputStream fis = new FileInputStream(file);
                  Scanner sc = new Scanner(fis)) {
@@ -52,42 +51,6 @@ public class AutoImporter2 {
             } catch (IOException e) {
                 Debug.log(e);
             }
-        }
-    }
-
-    private static class ReconstructorWriter extends MultiFileRecordWriter {
-        private long lastTimestamp = 0;
-        private int lastDelayS = 0;
-        ReconstructorWriter() {
-            super(10000);
-        }
-
-        void log(long timestamp, int delayS, String debug_name, long hash, boolean utilityTag, boolean productive){
-            if(timestamp < lastTimestamp) return; //prevent erroneous or duplicate record
-            lastTimestamp = timestamp;
-            lastDelayS = 0;
-            super.log(timestamp, debug_name, hash, utilityTag, productive);
-            lastDelayS = delayS;
-            super.log(timestamp + delayS*1000, debug_name, hash, utilityTag, productive);
-        }
-
-        void log(long timestamp, int delayS, Project p) {
-            if(timestamp < lastTimestamp) return; //prevent erroneous or duplicate record
-            lastTimestamp = timestamp;
-            lastDelayS = 0;
-            super.log(timestamp, p);
-            lastDelayS = delayS;
-            super.log(timestamp + delayS*1000, p);
-        }
-
-        @Override
-        protected int getGranularityMillis() {
-            return lastDelayS * 1000;
-        }
-
-        @Override
-        protected void onClosing() {
-            lastDelayS = 0;
         }
     }
 }
