@@ -18,6 +18,10 @@ public class RecordFile {
         this.raf = new RandomAccessFile(file, mode);
     }
 
+    public boolean eof() throws IOException {
+        return pointerPos == rafLength();
+    }
+
     protected void rafSeek(long destination) throws IOException {
         raf.seek(destination);
         pointerPos = destination;

@@ -3,7 +3,6 @@ package xyz.spiralhalo.sherlock.record;
 import xyz.spiralhalo.sherlock.record.io.RecordFileAppend;
 
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.Arrays;
 
 public class RecordOutputBuffer {
