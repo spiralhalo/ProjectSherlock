@@ -12,12 +12,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 
 public class Application {
-    public static final String RECDIR = "record";
     private static final String ORGDIR = "spiralhalo";
     private static final String SAVEDIR = "ProjectLogger2";
     private static String cachedSaveDir;
     private static String cachedCacheDir;
-    private static String cachedRecordDir;
     private static String cachedJarPath;
     private static String cachedJavawPath;
 
@@ -90,21 +88,6 @@ public class Application {
             cacheDir.mkdir();
         }
         return cachedCacheDir = cacheDir.getPath();
-    }
-
-    public static String getRecordDir()
-    {
-        File recordDir = new File(getSaveDir(), RECDIR);
-        if(recordDir.isDirectory() && cachedRecordDir != null){
-            return cachedRecordDir;
-        }
-        if(recordDir.exists() && !recordDir.isDirectory()) {
-            recordDir.delete();
-        }
-        if(!recordDir.exists()){
-            recordDir.mkdir();
-        }
-        return cachedRecordDir = recordDir.getPath();
     }
 
     public static boolean isWindows(){

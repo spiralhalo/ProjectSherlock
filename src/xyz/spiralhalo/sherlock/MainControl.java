@@ -19,6 +19,7 @@ import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppBool;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt;
 import xyz.spiralhalo.sherlock.record.legacy.AutoImporter2;
+import xyz.spiralhalo.sherlock.record.legacy.AutoImporter3;
 import xyz.spiralhalo.sherlock.report.*;
 import xyz.spiralhalo.sherlock.report.factory.*;
 import xyz.spiralhalo.sherlock.report.ops.OverviewOps;
@@ -72,6 +73,7 @@ public class MainControl implements ActionListener {
     private MainControl() {
         cache = new CacheMgr();
         projectList = ProjectListIO.load();
+        AutoImporter3.importRecords();
         AutoImporter2.importRecord(projectList);
         tracker = new Tracker(projectList);
         tracker.start();
