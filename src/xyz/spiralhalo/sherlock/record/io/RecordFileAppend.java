@@ -14,7 +14,7 @@ public class RecordFileAppend extends RecordFile{
     }
 
     public void writeBytes(byte[] bytes) throws IOException {
-        if(bytes.length != LENGTH) throw new IllegalArgumentException("Invalid data type.");
+        if(bytes.length % LENGTH != 0) throw new IllegalArgumentException("Invalid data type.");
         rafWrite(bytes);
     }
 }

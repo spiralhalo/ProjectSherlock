@@ -1,5 +1,6 @@
 package xyz.spiralhalo.sherlock.record;
 
+import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.record.io.RecordFileAppend;
@@ -37,6 +38,7 @@ public abstract class AbstractRecordWriter {
         }
 
         void reset(Instant timestamp, String debug_name, long hash, boolean utilityTag, boolean productive){
+            this.hour = LocalDateTime.ofInstant(timestamp, ZoneOffset.UTC).getHour();
             this.timestamp = timestamp;
             this.lastUpdated = timestamp.toEpochMilli();
             this.debug_name = debug_name;

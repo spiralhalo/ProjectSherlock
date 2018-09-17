@@ -10,6 +10,7 @@ import java.time.Instant;
 
 public class DefaultRecordWriter extends AbstractRecordWriter {
     public static final String RECORD_FILE = "record.sherlock";
+    private RecordFileAppend rfa;
 
     /**
      * Creates a new {@link DefaultRecordWriter}
@@ -27,12 +28,14 @@ public class DefaultRecordWriter extends AbstractRecordWriter {
 
     @Override
     protected RecordFileAppend getRecordFile(Instant timestamp, long hash, boolean utilityTag, boolean productive) {
-        try {
-            return new RecordFileAppend(new File(Application.getSaveDir(), RECORD_FILE));
-        } catch (IOException e) {
-            Debug.log(e);
-            return null;
+        if(rfa == null) {
+            try {
+                rfa = new RecordFileAppend(new File(Application.getSaveDir(), RECORD_FILE));
+            } catch (IOException e) {
+                Debug.log(e);
+            }
         }
+        return rfa;
     }
 
     @Override

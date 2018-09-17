@@ -13,10 +13,10 @@ import java.util.Scanner;
 public class AutoImporter2 {
     public static final String OLD_LOG_FILENAME = "record2.txt";
     public static void importRecord(ProjectList projectList) {
-        File file = new File(Application.getSaveDir(), OLD_LOG_FILENAME);
-        File file2 = new File(Application.getSaveDir(), ReconstructorWriter.RECORD_FILE);
-        if (file.exists() && !file2.isDirectory()) {
-            try (FileInputStream fis = new FileInputStream(file);
+        File oldRecordTxt = new File(Application.getSaveDir(), OLD_LOG_FILENAME);
+        File newRecordFile = new File(Application.getSaveDir(), ReconstructorWriter.RECORD_FILE);
+        if (oldRecordTxt.exists() && !newRecordFile.exists()) {
+            try (FileInputStream fis = new FileInputStream(oldRecordTxt);
                  Scanner sc = new Scanner(fis)) {
                 String[] temp;
                 ZonedDateTime d;

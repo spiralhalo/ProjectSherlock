@@ -20,12 +20,13 @@ public class AutoImporter3 {
         File oldRecordDir = new File(Application.getSaveDir(), OLD_RECORD_DIR);
         File newRecordFile = new File(Application.getSaveDir(), ReconstructorWriter.RECORD_FILE);
         if(oldRecordDir.isDirectory() && !newRecordFile.exists()) {
-            final ReconstructorWriter writer = new ReconstructorWriter();
             try (OldRecordScanner sc = new OldRecordScanner(oldRecordDir)) {
+                final ReconstructorWriter writer = new ReconstructorWriter();
                 while (sc.hasNext()) {
                     RecordEntry entry = sc.next();
                     writer.log(entry.getTime().toEpochMilli(), entry.getElapsed(), null, entry.getHash(), entry.isUtility(), entry.isProductive());
                 }
+                writer.close();
             } catch (Exception e) {
                 Debug.log(e);
             }

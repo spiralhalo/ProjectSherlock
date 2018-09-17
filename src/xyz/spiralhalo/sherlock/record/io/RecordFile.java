@@ -42,15 +42,6 @@ public class RecordFile {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj instanceof RecordFileSeek) {
-            return file.equals(((RecordFile) obj).file);
-        }
-        return false;
-    }
-
-    @Override
     public String toString() {
         return file.getName();
     }
