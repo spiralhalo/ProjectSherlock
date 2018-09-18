@@ -4,6 +4,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.record.RecordEntry;
+import xyz.spiralhalo.sherlock.report.factory.statistics.SummaryRow;
 import xyz.spiralhalo.sherlock.util.ColorUtil;
 
 import java.awt.*;
@@ -41,16 +42,32 @@ public class ChartBuilder<T extends Temporal> {
     }
 
     public void readEntry(RecordEntry entry){
-        ZonedDateTime zdt = entry.getTime().atZone(ZoneId.systemDefault());
-        int unit = type.unit(zdt);
-        int remainingS = type.numSPerUnit(date, zdt) - type.pointInUnit(zdt);
+        LocalDateTime ldt = entry.getTime().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        int unit = type.unit(ldt);
+        int remainingS = type.numSPerUnit(date, ldt) - type.pointInUnit(ldt);
         int seconds = entry.getElapsed();
         while (seconds > 0 && unit < type.numUnits(date)) {
             int sWithinUnit = Math.min(remainingS, seconds);
             addToUnit(unit, entry.getHash(), sWithinUnit);
             seconds -= sWithinUnit;
             unit += 1;
-            remainingS = type.numSPerUnit(date, zdt);
+            remainingS = type.numSPerUnit(date, ldt);
+        }
+        productiveMap.putIfAbsent(entry.getHash(), entry.isProductive());
+    }
+
+    public void readSummary(SummaryRow entry){
+        if(date instanceof LocalDate) throw new UnsupportedOperationException("Unsupported temporal unit");
+        LocalDateTime ldt = entry.getEarliest();
+        int unit = type.unit(ldt);
+        int remainingS = type.numSPerUnit(date, ldt) - type.pointInUnit(ldt);
+        int seconds = entry.getSeconds();
+        while (seconds > 0 && unit < type.numUnits(date)) {
+            int sWithinUnit = Math.min(remainingS, seconds);
+            addToUnit(unit, entry.getHash(), sWithinUnit);
+            seconds -= sWithinUnit;
+            unit += 1;
+            remainingS = type.numSPerUnit(date, ldt);
         }
         productiveMap.putIfAbsent(entry.getHash(), entry.isProductive());
     }

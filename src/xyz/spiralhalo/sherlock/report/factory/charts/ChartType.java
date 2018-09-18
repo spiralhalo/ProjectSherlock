@@ -1,8 +1,8 @@
 package xyz.spiralhalo.sherlock.report.factory.charts;
 
+import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.YearMonth;
-import java.time.ZonedDateTime;
 import java.time.temporal.Temporal;
 
 public enum ChartType {
@@ -10,7 +10,7 @@ public enum ChartType {
     private static int SinM = 60;
     private static int SinH = 3_600;
     private static int SinD = 86_400;
-    public int numSPerUnit(Temporal y, ZonedDateTime zdt){
+    public int numSPerUnit(Temporal y, LocalDateTime ldt){
         switch (this){
             case HOUR_IN_DAY: return SinH;
             case DAY_IN_MONTH: return SinD;
@@ -18,7 +18,7 @@ public enum ChartType {
                 if(!(y instanceof Year)){
                     throw new IllegalArgumentException("Wrong temporal type.");
                 }
-                return ((Year) y).atMonth(zdt.getMonth()).lengthOfMonth() * SinD;
+                return ((Year) y).atMonth(ldt.getMonth()).lengthOfMonth() * SinD;
         }
         return 0;
     }
@@ -40,20 +40,20 @@ public enum ChartType {
         return 0;
     }
 
-    public int pointInUnit(ZonedDateTime zdt){
+    public int pointInUnit(LocalDateTime ldt){
         switch (this){
-            case HOUR_IN_DAY: return zdt.getMinute()*SinM + zdt.getSecond();
-            case DAY_IN_MONTH: return zdt.getHour()*SinH + zdt.getMinute()*SinM + zdt.getSecond();
-            case MONTH_IN_YEAR: return (zdt.getDayOfMonth()-1)*SinD + zdt.getHour()*SinH + zdt.getMinute()*SinM + zdt.getSecond();
+            case HOUR_IN_DAY: return ldt.getMinute()*SinM + ldt.getSecond();
+            case DAY_IN_MONTH: return ldt.getHour()*SinH + ldt.getMinute()*SinM + ldt.getSecond();
+            case MONTH_IN_YEAR: return (ldt.getDayOfMonth()-1)*SinD + ldt.getHour()*SinH + ldt.getMinute()*SinM + ldt.getSecond();
         }
         return 0;
     }
 
-    public int unit(ZonedDateTime zdt) {
+    public int unit(LocalDateTime ldt) {
         switch (this){
-            case HOUR_IN_DAY: return zdt.getHour();
-            case DAY_IN_MONTH: return zdt.getDayOfMonth()-1;
-            case MONTH_IN_YEAR: return zdt.getMonthValue()-1;
+            case HOUR_IN_DAY: return ldt.getHour();
+            case DAY_IN_MONTH: return ldt.getDayOfMonth()-1;
+            case MONTH_IN_YEAR: return ldt.getMonthValue()-1;
         }
         return -1;
     }
