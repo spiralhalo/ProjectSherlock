@@ -26,17 +26,7 @@ public class MonthDetails extends ArrayList<DetailsRow> implements Serializable 
 
     @Override
     public boolean addAll(Collection<? extends DetailsRow> c) {
-        int start = size();
-        if(super.addAll(c)){
-            int end = start + c.size();
-            for (int i = start; i < end; i++) {
-                int pos = i;
-                long hash = get(i).getSummary().getHash();
-                index.putIfAbsent(hash, new ArrayList<>());
-                index.get(hash).add(pos);
-            }
-            return true;
-        } else return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override

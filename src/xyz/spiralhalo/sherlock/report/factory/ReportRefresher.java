@@ -19,13 +19,14 @@ import java.io.File;
 import java.time.*;
 import java.util.ArrayList;
 
-public class ReportRefresher extends AsyncTask<Void> {
+public class ReportRefresher extends AsyncTask<Boolean> {
 
     private final CacheMgr cache;
     private final ProjectList projectList;
     private final boolean forceReconstruct;
     private final boolean deleteUnused;
     private final ZoneId z;
+    private Boolean result = false;
 
     public ReportRefresher(CacheMgr cache, ProjectList projectList) {
         this(cache, projectList, false, false);
@@ -59,8 +60,10 @@ public class ReportRefresher extends AsyncTask<Void> {
                 maxYear = ym.getYear();
                 ym = ym.plusMonths(1);
             }
+            YearList yearList = new YearList();
             for (int year = minYear; year <= maxYear; year++) {
                 final Year y = Year.of(year);
+                yearList.add(y);
                 if(missingYearSummary(y)) {
                     final ArrayList<YearMonth> months = new ArrayList<>();
                     final ChartBuilder<Year> chartBuilder = new ChartBuilder<>(y,z,true);
@@ -77,6 +80,7 @@ public class ReportRefresher extends AsyncTask<Void> {
                     cache.put(YearSummary.cacheId(y), new YearSummary(y, chartBuilder.finish(projectList), months, y.isBefore(Year.now())));
                 }
             }
+            cache.put(YearList.CACHE_ID, yearList);
         }
 
         AllReportRows activeRows = new AllReportRows();
@@ -117,6 +121,7 @@ public class ReportRefresher extends AsyncTask<Void> {
         cache.put(CacheId.ActiveRows, activeRows);
         cache.put(CacheId.FinishedRows, finishedRows);
         cache.put(CacheId.UtilityRows, utilityRows);
+        result = true;
     }
 
     private boolean missingMonthSummary(YearMonth month){
@@ -134,7 +139,7 @@ public class ReportRefresher extends AsyncTask<Void> {
     }
 
     @Override
-    protected Void getResult() {
-        return null;
+    protected Boolean getResult() {
+        return result;
     }
 }

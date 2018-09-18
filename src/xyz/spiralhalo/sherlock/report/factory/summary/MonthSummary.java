@@ -49,16 +49,7 @@ public class MonthSummary extends ArrayList<SummaryEntry> implements ReportCache
 
     @Override
     public boolean addAll(Collection<? extends SummaryEntry> c) {
-        int start = size();
-        if(super.addAll(c)){
-            int end = start + c.size();
-            for (int i = start; i < end; i++) {
-                int pos = i;
-                long hash = get(i).getHash();
-                index.putIfAbsent(hash, i);
-            }
-            return true;
-        } else return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
