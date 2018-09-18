@@ -95,9 +95,9 @@ public class SummaryBuilder {
                 details.add(new DetailsRow(month.atDay(i+1), new SummaryEntry(l, days[i].get(l), productiveMap.get(l), dayEarliestMaps[i].get(l))));
                 monthEarliest.putIfAbsent(l, dayEarliestMaps[i].get(l));
             }
-            for (Long l : monthTotal.keySet()){
-                summary.add(new SummaryEntry(l, monthTotal.get(l), productiveMap.get(l), monthEarliest.get(l)));
-            }
+        }
+        for (Long l : monthTotal.keySet()){
+            summary.add(new SummaryEntry(l, monthTotal.get(l), productiveMap.get(l), monthEarliest.get(l)));
         }
         return summary;
     }
