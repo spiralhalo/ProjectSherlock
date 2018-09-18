@@ -1,12 +1,14 @@
-package xyz.spiralhalo.sherlock.report.factoryOld;
+package xyz.spiralhalo.sherlock.report.factory;
 
 import xyz.spiralhalo.sherlock.Application;
 import xyz.spiralhalo.sherlock.async.AsyncTask;
 import xyz.spiralhalo.sherlock.persist.project.Project;
+import xyz.spiralhalo.sherlock.record.DefaultRecordWriter;
 import xyz.spiralhalo.sherlock.record.RecordEntry;
-import xyz.spiralhalo.sherlock.record.legacy.AutoImporter3;
-import xyz.spiralhalo.sherlock.report.persist.ReportRow;
-import xyz.spiralhalo.sherlock.report.persist.ReportRows;
+import xyz.spiralhalo.sherlock.record.RecordScanner;
+import xyz.spiralhalo.sherlock.record.io.RecordFileSeek;
+import xyz.spiralhalo.sherlock.report.factory.table.ReportRow;
+import xyz.spiralhalo.sherlock.report.factory.table.ReportRows;
 import xyz.spiralhalo.sherlock.Debug;
 
 import java.io.File;
@@ -15,26 +17,21 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 
-import static xyz.spiralhalo.sherlock.report.factoryOld.Const.MINIMUM_SECOND;
-
 public class ProjectViewCreator extends AsyncTask<ProjectViewResult> {
+    private static final int MINIMUM_SECOND = 5*60;
     private ProjectViewResult result;
     private final Project p;
-    private final LocalDate from, until;
 
     public ProjectViewCreator(Project p) {
-        this(p, null, null);
-    }
-
-    public ProjectViewCreator(Project p, LocalDate from, LocalDate until) {
         this.p = p;
-        this.from = from;
-        this.until = until;
     }
 
     @Override
     public void doRun() throws Exception {
-        try (AutoImporter3.OldRecordScanner sc = new AutoImporter3.OldRecordScanner(new File(Application.getSaveDir(),"record"), from, until)) {
+        File recordFile = new File(Application.getSaveDir(), DefaultRecordWriter.RECORD_FILE);
+        RecordFileSeek seeker = new RecordFileSeek(recordFile, false);
+        seeker.seekFirstOfDay(p.getStartDate().toLocalDate(), ZoneId.systemDefault());
+        try (RecordScanner sc = new RecordScanner(seeker)) {
             RecordEntry temp;
             ZonedDateTime c2;
             LocalDate cd=null,cm=null;
@@ -46,8 +43,9 @@ public class ProjectViewCreator extends AsyncTask<ProjectViewResult> {
             while (sc.hasNext()) {
                 try {
                     temp = sc.next();
-                    if(p.getHash()!=temp.getHash()) continue;
                     c2 = temp.getTime().atZone(ZoneId.systemDefault());
+                    if(p.isFinished() && c2.isAfter(p.getFinishedDate())){break;}
+                    if(p.getHash()!=temp.getHash()) continue;
                     if(cd==null)cd=c2.toLocalDate();
                     if(cm==null)cm=c2.toLocalDate();
                     if (c2.toLocalDate().isAfter(cd)) {

@@ -1,7 +1,7 @@
-package xyz.spiralhalo.sherlock.report.factoryOld;
+package xyz.spiralhalo.sherlock.report.factory;
 
 import xyz.spiralhalo.sherlock.persist.project.Project;
-import xyz.spiralhalo.sherlock.report.persist.ReportRows;
+import xyz.spiralhalo.sherlock.report.factory.table.ReportRows;
 
 public class ProjectViewResult {
     public final Project p;

@@ -2,13 +2,18 @@ package xyz.spiralhalo.sherlock.report.factory;
 
 import xyz.spiralhalo.sherlock.Application;
 import xyz.spiralhalo.sherlock.async.AsyncTask;
+import xyz.spiralhalo.sherlock.persist.cache.CacheId;
 import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
+import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.record.DefaultRecordWriter;
 import xyz.spiralhalo.sherlock.record.RecordScanner;
 import xyz.spiralhalo.sherlock.record.io.RecordFileSeek;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartBuilder;
 import xyz.spiralhalo.sherlock.report.factory.summary.*;
+import xyz.spiralhalo.sherlock.report.factory.table.AllReportRow;
+import xyz.spiralhalo.sherlock.report.factory.table.AllReportRows;
+import xyz.spiralhalo.sherlock.util.ListUtil;
 
 import java.io.File;
 import java.time.*;
@@ -73,6 +78,45 @@ public class ReportRefresher extends AsyncTask<Void> {
                 }
             }
         }
+
+        AllReportRows activeRows = new AllReportRows();
+        AllReportRows finishedRows = new AllReportRows();
+        AllReportRows utilityRows = new AllReportRows();
+        Iterable<Project> projects = ListUtil.extensiveIterator(projectList.getActiveProjects(), projectList.getFinishedProjects(), projectList.getUtilityTags());
+        for (Project p: projects) {
+            YearMonth ym = YearMonth.from(p.getStartDate().withZoneSameInstant(z));
+            int seconds = 0;
+            int day = 0;
+            YearMonth now = YearMonth.now(z), end = null;
+            if(!p.isUtilityTag() && p.isFinished()) end = YearMonth.from(p.getFinishedDate().withZoneSameInstant(z));
+            while (!ym.isAfter(YearMonth.now(z)) && (end == null || !ym.isAfter(end))){
+                MonthSummary x = cache.getObj(MonthSummary.cacheId(ym), MonthSummary.class);
+                if(x!=null){
+                    ArrayList<Integer> indices = x.getDetails().getIndex().get(p.getHash());
+                    if(indices != null){
+                        for (int i:indices) {
+                            //TODO: add effective day filter
+                            seconds += x.getDetails().get(i).getSummary().getSeconds();
+                            day += 1;
+                        }
+                    }
+                }
+            }
+            AllReportRow x = new AllReportRow(p.getHash(), p.getColor(), p.toString(),
+                    LocalDateTime.from(p.getStartDate()),
+                    (p.isFinished()?LocalDateTime.from(p.getFinishedDate()):null),
+                    day, seconds);
+            if(p.isUtilityTag()){
+                utilityRows.add(x);
+            } else if(p.isFinished()){
+                finishedRows.add(x);
+            } else {
+                activeRows.add(x);
+            }
+        }
+        cache.put(CacheId.ActiveRows, activeRows);
+        cache.put(CacheId.FinishedRows, finishedRows);
+        cache.put(CacheId.UtilityRows, utilityRows);
     }
 
     private boolean missingMonthSummary(YearMonth month){

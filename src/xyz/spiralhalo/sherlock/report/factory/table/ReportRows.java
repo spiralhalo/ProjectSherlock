@@ -1,4 +1,4 @@
-package xyz.spiralhalo.sherlock.report.persist;
+package xyz.spiralhalo.sherlock.report.factory.table;
 
 import java.io.Serializable;
 import java.util.ArrayList;
