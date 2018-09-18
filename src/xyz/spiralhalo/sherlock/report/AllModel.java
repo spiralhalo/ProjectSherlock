@@ -1,8 +1,7 @@
 package xyz.spiralhalo.sherlock.report;
 
 import xyz.spiralhalo.sherlock.persist.project.UtilityTag;
-import xyz.spiralhalo.sherlock.report.persist.AllReportRow;
-import xyz.spiralhalo.sherlock.report.persist.AllReportRows;
+import xyz.spiralhalo.sherlock.report.factory.table.AllReportRows;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 
 import javax.swing.*;

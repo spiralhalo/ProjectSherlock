@@ -52,7 +52,7 @@ public class RecordEntry {
     }
 
     private static byte meta(boolean isUtility, boolean isProductive){
-        return (byte)((isUtility?UTILITY:0) & (isProductive?PRODUCTIVE:0));
+        return (byte)((isUtility?UTILITY:0) | (isProductive?PRODUCTIVE:0));
     }
 
     private static long deserializeLong(final byte[] ba){

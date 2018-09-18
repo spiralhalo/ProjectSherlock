@@ -4,18 +4,20 @@ import xyz.spiralhalo.sherlock.persist.cache.Cache;
 import xyz.spiralhalo.sherlock.report.factory.ReportCache;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartData;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
+import xyz.spiralhalo.sherlock.util.MurmurHash;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
 @Cache
 public class MonthSummary extends ArrayList<SummaryEntry> implements ReportCache, Serializable {
-    public static String cacheId(YearMonth month){
-        return String.format("summary_%s", FormatUtil.DTF_YM.format(month));
+    public static String cacheId(YearMonth month, ZoneId z){
+        return String.format("summary_%s_%s", FormatUtil.DTF_YM.format(month), Integer.toHexString(MurmurHash.hash32(z.getId())));
     }
 
     public static final long serialVersionUID = 1L;

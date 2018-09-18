@@ -1,7 +1,6 @@
 package xyz.spiralhalo.sherlock.report;
 
-import xyz.spiralhalo.sherlock.report.persist.ReportRow;
-import xyz.spiralhalo.sherlock.util.FormatUtil;
+import xyz.spiralhalo.sherlock.report.factory.table.ReportRow;
 
 import javax.swing.table.AbstractTableModel;
 import java.time.ZoneId;

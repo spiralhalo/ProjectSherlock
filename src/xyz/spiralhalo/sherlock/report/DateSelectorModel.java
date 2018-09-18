@@ -3,32 +3,32 @@ package xyz.spiralhalo.sherlock.report;
 import javax.swing.*;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 
-public class DateSelectorModel implements ComboBoxModel<DateSelectorEntry> {
-    private ArrayList<DateSelectorEntry> list;
-    private DateSelectorEntry selected;
+public class DateSelectorModel<T extends Temporal> implements ComboBoxModel<DateSelection<T>> {
+    private ArrayList<DateSelection<T>> list;
+    private DateSelection selected;
     private final ArrayList<ListDataListener> l = new ArrayList<>();
 
-    public DateSelectorModel(ArrayList<LocalDate> list) {
+    public DateSelectorModel(ArrayList<T> list) {
         this.list = new ArrayList<>();
-        for (LocalDate l:list) {
-            this.list.add(new DateSelectorEntry(l));
+        for (T l:list) {
+            this.list.add(new DateSelection<>(l));
         }
     }
 
-    public DateSelectorModel(ArrayList<LocalDate> list, DateTimeFormatter formatter) {
+    public DateSelectorModel(ArrayList<T> list, DateTimeFormatter formatter) {
         this.list = new ArrayList<>();
-        for (LocalDate l:list) {
-            this.list.add(new DateSelectorEntry(l, formatter));
+        for (T l:list) {
+            this.list.add(new DateSelection<>(l, formatter));
         }
     }
 
     @Override
     public void setSelectedItem(Object obj) {
-        if (obj instanceof DateSelectorEntry) {
+        if (obj instanceof DateSelection) {
             int x = list.indexOf(obj);
             if (x != -1) {
                 selected = list.get(x);
@@ -50,7 +50,7 @@ public class DateSelectorModel implements ComboBoxModel<DateSelectorEntry> {
     }
 
     @Override
-    public DateSelectorEntry getElementAt(int index) {
+    public DateSelection<T> getElementAt(int index) {
         if (index < 0 || index >= list.size()) return null;
         return list.get(index);
     }

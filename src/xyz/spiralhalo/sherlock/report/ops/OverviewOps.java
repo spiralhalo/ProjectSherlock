@@ -4,13 +4,11 @@ import xyz.spiralhalo.sherlock.persist.cache.CacheId;
 import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
-import xyz.spiralhalo.sherlock.report.persist.AllReportRow;
-import xyz.spiralhalo.sherlock.report.persist.AllReportRows;
+import xyz.spiralhalo.sherlock.report.factory.table.AllReportRow;
+import xyz.spiralhalo.sherlock.report.factory.table.AllReportRows;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class OverviewOps {
     public enum Type{

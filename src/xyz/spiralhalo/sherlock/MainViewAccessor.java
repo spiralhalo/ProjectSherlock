@@ -12,7 +12,9 @@ public interface MainViewAccessor {
     void refreshStatus(CacheMgr cache);
     void refreshOverview(CacheMgr cache);
     void refreshProjects(CacheMgr cache, int index);
-    void refreshChart(CacheMgr cache);
+    void refreshDayChart(CacheMgr cache);
+    void refreshMonthChart(CacheMgr cache);
+    void refreshYearChart(CacheMgr cache);
     long selected();
     int selectedIndex();
     void setSelected(long hash);

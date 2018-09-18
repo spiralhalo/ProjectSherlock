@@ -2,18 +2,18 @@ package xyz.spiralhalo.sherlock.report;
 
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
 
-public class DateSelectorEntry {
-    public final LocalDate date;
+public class DateSelection<T extends Temporal> {
+    public final T date;
     private final DateTimeFormatter formatter;
 
-    public DateSelectorEntry(LocalDate date) {
+    public DateSelection(T date) {
         this(date, FormatUtil.DTF_DATE_SELECTOR);
     }
 
-    public DateSelectorEntry(LocalDate date, DateTimeFormatter formatter) {
+    public DateSelection(T date, DateTimeFormatter formatter) {
         this.date = date;
         this.formatter = formatter;
     }
@@ -25,8 +25,8 @@ public class DateSelectorEntry {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof DateSelectorEntry){
-            return ((DateSelectorEntry)obj).date.isEqual(date);
+        if(obj instanceof DateSelection){
+            return ((DateSelection)obj).date.equals(date);
         }
         return false;
     }

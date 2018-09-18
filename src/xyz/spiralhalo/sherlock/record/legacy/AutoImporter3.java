@@ -2,6 +2,8 @@ package xyz.spiralhalo.sherlock.record.legacy;
 
 import xyz.spiralhalo.sherlock.Application;
 import xyz.spiralhalo.sherlock.Debug;
+import xyz.spiralhalo.sherlock.persist.project.Project;
+import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.record.RecordEntry;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 
@@ -16,7 +18,7 @@ import java.util.Iterator;
 
 public class AutoImporter3 {
     public static final String OLD_RECORD_DIR = "record";
-    public static void importRecords() {
+    public static void importRecords(ProjectList projectList) {
         File oldRecordDir = new File(Application.getSaveDir(), OLD_RECORD_DIR);
         File newRecordFile = new File(Application.getSaveDir(), ReconstructorWriter.RECORD_FILE);
         if(oldRecordDir.isDirectory() && !newRecordFile.exists()) {
@@ -24,7 +26,12 @@ public class AutoImporter3 {
                 final ReconstructorWriter writer = new ReconstructorWriter();
                 while (sc.hasNext()) {
                     RecordEntry entry = sc.next();
-                    writer.log(entry.getTime().toEpochMilli(), entry.getElapsed(), null, entry.getHash(), entry.isUtility(), entry.isProductive());
+                    Project p = projectList.findByHash(entry.getHash());
+                    if(p!=null) {
+                        writer.log(entry.getTime().toEpochMilli(), entry.getElapsed(), p);
+                    } else {
+                        writer.log(entry.getTime().toEpochMilli(), entry.getElapsed(), "unknown", entry.getHash(), entry.isUtility(), entry.isProductive());
+                    }
                 }
                 writer.close();
             } catch (Exception e) {

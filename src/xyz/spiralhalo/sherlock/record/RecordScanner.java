@@ -1,6 +1,5 @@
 package xyz.spiralhalo.sherlock.record;
 
-import xyz.spiralhalo.sherlock.Application;
 import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.record.io.RecordFileSeek;
 

@@ -90,6 +90,7 @@ public class SummaryBuilder {
         final HashMap<Long, Integer> monthTotal = new HashMap<>();
         final HashMap<Long, LocalDateTime> monthEarliest = new HashMap<>();
         for (int i = 0; i < month.lengthOfMonth(); i++) {
+            if(days[i]==null)continue;
             for (Long l : days[i].keySet()) {
                 monthTotal.put(l, monthTotal.getOrDefault(l, 0)+days[i].get(l));
                 details.add(new DetailsRow(month.atDay(i+1), new SummaryEntry(l, days[i].get(l), productiveMap.get(l), dayEarliestMaps[i].get(l))));

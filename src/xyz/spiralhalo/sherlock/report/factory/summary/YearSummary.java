@@ -1,16 +1,20 @@
 package xyz.spiralhalo.sherlock.report.factory.summary;
 
+import xyz.spiralhalo.sherlock.persist.cache.Cache;
 import xyz.spiralhalo.sherlock.report.factory.ReportCache;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartData;
+import xyz.spiralhalo.sherlock.util.MurmurHash;
 
 import java.io.Serializable;
 import java.time.Year;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.ArrayList;
 
+@Cache
 public class YearSummary implements ReportCache, Serializable {
-    public static String cacheId(Year year){
-        return String.format("year_summary_%s", year.getValue());
+    public static String cacheId(Year year, ZoneId z){
+        return String.format("year_summary_%s_%s", year.getValue(), Integer.toHexString(MurmurHash.hash32(z.getId())));
     }
 
     public static final long serialVersionUID = 1L;

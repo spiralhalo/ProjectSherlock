@@ -21,9 +21,11 @@ import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt;
 import xyz.spiralhalo.sherlock.record.legacy.AutoImporter2;
 import xyz.spiralhalo.sherlock.record.legacy.AutoImporter3;
 import xyz.spiralhalo.sherlock.report.*;
-import xyz.spiralhalo.sherlock.report.factory.*;
+import xyz.spiralhalo.sherlock.report.factory.ProjectViewCreator;
+import xyz.spiralhalo.sherlock.report.factory.ProjectViewResult;
+import xyz.spiralhalo.sherlock.report.factory.ReportRefresher;
 import xyz.spiralhalo.sherlock.report.ops.OverviewOps;
-import xyz.spiralhalo.sherlock.report.persist.ReportRows;
+import xyz.spiralhalo.sherlock.report.factory.table.ReportRows;
 import xyz.spiralhalo.sherlock.util.ImgUtil;
 
 import javax.swing.*;
@@ -33,7 +35,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
-import java.time.LocalDate;
 import java.util.Arrays;
 
 import static java.awt.Frame.ICONIFIED;
@@ -73,7 +74,7 @@ public class MainControl implements ActionListener {
     private MainControl() {
         cache = new CacheMgr();
         projectList = ProjectListIO.load();
-        AutoImporter3.importRecords();
+        AutoImporter3.importRecords(projectList);
         AutoImporter2.importRecord(projectList);
         tracker = new Tracker(projectList);
         tracker.start();
@@ -287,7 +288,7 @@ public class MainControl implements ActionListener {
         view.getTablePopUpMenu().add(edit);
         view.getTablePopUpMenu().addSeparator();
         view.getTablePopUpMenu().add(delete);
-//        view.getTabProjects().add(view.getTablePopUpMenu());
+        view.getTabProjects().add(view.getTablePopUpMenu());
         tableActive.addMouseListener(tableAdapter);
         tableFinished.addMouseListener(tableAdapter);
         tableUtilityTags.addMouseListener(tableAdapter);
@@ -299,7 +300,7 @@ public class MainControl implements ActionListener {
     public void setChart(JComboBox comboCharts, JButton prev, JButton next, JButton first, JButton last){
         comboCharts.addItemListener(e->{
             if(comboCharts.getItemCount()==0)return;
-            view.refreshChart(cache);
+            view.refreshDayChart(cache);
         });
         prev.addActionListener(e->{
             if(comboCharts.getSelectedIndex()>0){
@@ -321,7 +322,7 @@ public class MainControl implements ActionListener {
                 comboCharts.setSelectedIndex(comboCharts.getItemCount()-1);
             }
         });
-        view.refreshChart(cache);
+        view.refreshDayChart(cache);
     }
 
     @Override
@@ -493,7 +494,7 @@ public class MainControl implements ActionListener {
 
     private void refresh(){
         tracker.flushRecordBuffer();
-        Loader.execute("refresh", new OverviewCreator(projectList), this::refreshCB,
+        Loader.execute("refresh", new ReportRefresher(cache, projectList), this::refreshCB,
                 view.getToShowOnRefresh(), view.toHideOnRefresh());
     }
 
@@ -514,24 +515,12 @@ public class MainControl implements ActionListener {
         }
     }
 
-    private void refreshCB(OverviewResult result, Throwable t){
-        if(t != null){
+    private void refreshCB(Boolean result, Throwable t){
+        if(!result && t != null){
             JOptionPane.showMessageDialog(view.frame(),
                     String.format("Failed to refresh due to an error.\nerror code:\n\t%s", t.toString()),
                     "Refresh failed", JOptionPane.ERROR_MESSAGE);
-        } else if(result!=null){
-            cache.put(CacheId.ActiveRows, result.activeRows);
-            cache.put(CacheId.FinishedRows, result.finishedRows);
-            cache.put(CacheId.UtilityRows, result.utilityRows);
-            cache.put(CacheId.DayRows, result.dayRows);
-            cache.put(CacheId.MonthRows, result.monthRows);
-            DatasetArray x = result.datasetArray;
-            for (int i = 0; i < x.dateList.size(); i++) {
-                LocalDate date = x.dateList.get(i);
-                cache.put(CacheId.ChartData(date), x.datasets.get(i));
-                cache.put(CacheId.ChartMeta(date), x.datasetColors.get(i));
-            }
-            cache.put(CacheId.ChartList, x.dateList);
+        } else if(result){
             view.refreshOverview(cache);
         }
     }

@@ -20,7 +20,7 @@ import org.jfree.ui.GradientPaintTransformer;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 import xyz.spiralhalo.sherlock.Main;
-import xyz.spiralhalo.sherlock.report.persist.ChartMeta;
+import xyz.spiralhalo.sherlock.report.factory.charts.ChartMeta;
 
 import java.awt.*;
 import java.awt.geom.RectangularShape;

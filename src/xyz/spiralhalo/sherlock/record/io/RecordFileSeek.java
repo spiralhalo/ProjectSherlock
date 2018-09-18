@@ -9,9 +9,6 @@ import java.io.IOException;
 import java.time.*;
 
 public class RecordFileSeek extends RecordFileRW {
-    private static String IndexCacheId(ZoneId z) {
-        return String.format("record_index_%s", z.getId().replace(':', '_'));
-    }
 
     private Instant currentTimestamp;
     private CacheMgr cache;
@@ -69,7 +66,7 @@ public class RecordFileSeek extends RecordFileRW {
             }
             jump(min, max);
         }
-        while (day.isEqual(currentTimestamp.atZone(z).toLocalDate()) || getPointerPos() == 0){
+        while (day.isEqual(currentTimestamp.atZone(z).toLocalDate()) && getPointerPos() > 0){
             jump(- 1);
         }
         if(!day.isEqual(currentTimestamp.atZone(z).toLocalDate())){
@@ -91,7 +88,7 @@ public class RecordFileSeek extends RecordFileRW {
             }
             jump(min, max);
         }
-        while (ym.equals(YearMonth.from(currentTimestamp.atZone(z))) || getPointerPos() == 0){
+        while (ym.equals(YearMonth.from(currentTimestamp.atZone(z))) && getPointerPos() > 0){
             jump(- 1);
         }
         if(!ym.equals(YearMonth.from(currentTimestamp.atZone(z)))){
@@ -103,7 +100,7 @@ public class RecordFileSeek extends RecordFileRW {
 
     private void checkIndex(YearMonth month, ZoneId z) throws IOException {
         if (cache == null) return;
-        final MonthIndex index = cache.getObj(IndexCacheId(z), MonthIndex.class);
+        final MonthIndex index = cache.getObj(MonthIndex.cacheId(z), MonthIndex.class);
         if (index != null && index.containsKey(month)) {
             long lastPos = getPointerPos();
             jumpUnsafe(index.get(month));
@@ -115,9 +112,11 @@ public class RecordFileSeek extends RecordFileRW {
 
     private void writeIndex(YearMonth month, ZoneId z, long pos) {
         if (cache == null) return;
-        final MonthIndex index = cache.getObj(IndexCacheId(z), MonthIndex.class);
+        xyz.spiralhalo.sherlock.Debug.log(""+pos);
+        MonthIndex index = cache.getObj(MonthIndex.cacheId(z), MonthIndex.class);
+        if(index == null) index = new MonthIndex();
         index.put(month, pos);
-        cache.put(IndexCacheId(z), index);
+        cache.put(MonthIndex.cacheId(z), index);
     }
 
     private void jumpUnsafe(long destination) throws IOException {

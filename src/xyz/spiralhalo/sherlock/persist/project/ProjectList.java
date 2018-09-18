@@ -158,7 +158,7 @@ public class ProjectList implements Serializable {
 
     private void setCategories(){
         categories = new TreeSet<>();
-        for (Project p:ListUtil.extensiveIterator(activeProjects,finishedProjects,utilityTags)) {
+        for (Project p:ListUtil.extensiveIterator(activeProjects,finishedProjects,getUtilityTags())) {
             categories.add(p.getCategory());
         }
     }

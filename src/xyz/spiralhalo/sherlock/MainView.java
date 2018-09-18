@@ -10,17 +10,17 @@ import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode;
 import xyz.spiralhalo.sherlock.report.*;
 import xyz.spiralhalo.sherlock.report.Charts;
-import xyz.spiralhalo.sherlock.report.persist.AllReportRows;
-import xyz.spiralhalo.sherlock.report.persist.ChartMeta;
-import xyz.spiralhalo.sherlock.report.persist.DateList;
-import xyz.spiralhalo.sherlock.report.persist.ReportRows;
+import xyz.spiralhalo.sherlock.report.factory.charts.ChartMeta;
+import xyz.spiralhalo.sherlock.report.factory.summary.MonthSummary;
+import xyz.spiralhalo.sherlock.report.factory.summary.YearList;
+import xyz.spiralhalo.sherlock.report.factory.summary.YearSummary;
+import xyz.spiralhalo.sherlock.report.factory.table.AllReportRows;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 import xyz.spiralhalo.sherlock.util.ImgUtil;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 
@@ -33,14 +33,12 @@ public class MainView implements MainViewAccessor {
     private JProgressBar progress;
     private JTable tblActive;
     private JTable tblFinished;
-    private JTable tblDaily;
-    private JTable tblMonthly;
     private JLabel lblRefresh;
     private JPanel pnlStatus;
     private JPanel pnlRefreshing;
     private JLabel lblTracking;
-    private JPanel panelChart;
-    private JComboBox comboDayCharts;
+    private JPanel pnlDayChart;
+    private JComboBox<DateSelection<LocalDate>> comboDayCharts;
     private JButton btnPrevChart;
     private JButton btnNextChart;
     private JTabbedPane tabr;
@@ -65,6 +63,9 @@ public class MainView implements MainViewAccessor {
     private JButton btnUp;
     private JButton btnDown;
     private JComboBox comboList;
+    private JLabel lblNoData;
+    private JPanel pnlYearChart;
+    private JPanel pnlMonthChart;
 
     private final MainControl control;
     private final ArrayList<JComponent> enableOnSelect = new ArrayList<>();
@@ -132,10 +133,10 @@ public class MainView implements MainViewAccessor {
         tblFinished.setDefaultRenderer(String.class, new ProjectCell());
         tblUtilityTags.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tblUtilityTags.setDefaultRenderer(String.class, new ProjectCell());
-        tblDaily.setDefaultRenderer(String.class, new DefaultTableCellRenderer());
-        tblMonthly.setDefaultRenderer(String.class, new DefaultTableCellRenderer());
-        tblDaily.setDefaultRenderer(Integer.class, new DurationCell(true));
-        tblMonthly.setDefaultRenderer(Integer.class, new DurationCell());
+//        tblDaily.setDefaultRenderer(String.class, new DefaultTableCellRenderer());
+//        tblMonthly.setDefaultRenderer(String.class, new DefaultTableCellRenderer());
+//        tblDaily.setDefaultRenderer(Integer.class, new DurationCell(true));
+//        tblMonthly.setDefaultRenderer(Integer.class, new DurationCell());
 
         ((JLabel) comboDayCharts.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
     }
@@ -179,12 +180,32 @@ public class MainView implements MainViewAccessor {
         refreshProjects(cache, 0);
         refreshProjects(cache, 1);
         refreshProjects(cache, 2);
-        final DayModel dayModel = new DayModel(cache.getObj(CacheId.DayRows, ReportRows.class));
-        final MonthModel monthModel = new MonthModel(cache.getObj(CacheId.MonthRows, ReportRows.class));
-        tblDaily.setModel(dayModel);
-        tblMonthly.setModel(monthModel);
-        comboDayCharts.setModel(new DateSelectorModel(cache.getObj(CacheId.ChartList, DateList.class)));
-        comboDayCharts.setSelectedIndex(comboDayCharts.getModel().getSize()-1);
+//        final DayModel dayModel = new DayModel(cache.getObj(CacheId.DayRows, ReportRows.class));
+//        final MonthModel monthModel = new MonthModel(cache.getObj(CacheId.MonthRows, ReportRows.class));
+//        tblDaily.setModel(dayModel);
+//        tblMonthly.setModel(monthModel);
+        ZoneId z = ZoneId.systemDefault();
+        final YearList yl = cache.getObj(YearList.cacheId(z), YearList.class);
+        if(yl == null)return;
+        final ArrayList<LocalDate> dates = new ArrayList<>();
+        for (Year y:yl) {
+            final YearSummary ys = cache.getObj(YearSummary.cacheId(y, z), YearSummary.class);
+            if(ys != null){
+                for (YearMonth m:ys.getMonthList()) {
+                    final MonthSummary ms = cache.getObj(MonthSummary.cacheId(m, z), MonthSummary.class);
+                    if(ms != null){
+                        dates.addAll(ms.getDayList());
+                    }
+                }
+            }
+        }
+        Object selected = comboDayCharts.getSelectedItem();
+        comboDayCharts.setModel(new DateSelectorModel<>(dates));
+        if(selected instanceof LocalDate && dates.contains(selected)){
+            comboDayCharts.setSelectedItem(selected);
+        } else {
+            comboDayCharts.setSelectedIndex(comboDayCharts.getModel().getSize() - 1);
+        }
     }
 
     public void refreshProjects(CacheMgr cache, int index){
@@ -222,20 +243,82 @@ public class MainView implements MainViewAccessor {
         }
     }
 
-    public void refreshChart(CacheMgr cache) {
-        DateSelectorEntry selected = (DateSelectorEntry) comboDayCharts.getSelectedItem();
-        if (selected == null) return;
-        final DefaultCategoryDataset dataset = cache.getObj(CacheId.ChartData(selected.date), DefaultCategoryDataset.class);
-        final ChartMeta meta = cache.getObj(CacheId.ChartMeta(selected.date), ChartMeta.class);
-        panelChart.removeAll();
-        if (dataset == null || meta == null) return;
-        panelChart.setPreferredSize(new Dimension(-1, 220));
-        panelChart.add(Charts.createDayBarChart(dataset, meta, ZonedDateTime.now()));
-        panelChart.updateUI();
+    public void refreshDayChart(CacheMgr cache) {
+        DateSelection<LocalDate> selected = (DateSelection<LocalDate>) comboDayCharts.getSelectedItem();
+        pnlDayChart.removeAll();
+        if (selected == null) { pnlDayChart.add(lblNoData); return;}
+        final MonthSummary summary = cache.getObj(MonthSummary.cacheId(YearMonth.from(selected.date), ZoneId.systemDefault()), MonthSummary.class);
+        if (summary == null) { pnlDayChart.add(lblNoData); return;}
+        final DefaultCategoryDataset dataset = summary.getDayCharts().get(selected.date).getDataset();
+        final ChartMeta meta = summary.getDayCharts().get(selected.date).getMeta();
+        if (dataset == null || meta == null) { pnlDayChart.add(lblNoData); return;}
+        pnlDayChart.setPreferredSize(new Dimension(-1, 220));
+        pnlDayChart.add(Charts.createDayBarChart(dataset, meta, ZonedDateTime.now()));
+        pnlDayChart.updateUI();
         int target = UserConfig.getInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND);
-        int ratio = meta.logDur == 0 ? 0 : (meta.logDur < target ? meta.workDur * 100 / meta.logDur : meta.workDur * 100 / target);
-        lblLogged.setText(String.format("Logged: %s", FormatUtil.hms(meta.logDur)));
-        lblWorktime.setText(String.format("Project: %s", FormatUtil.hms(meta.workDur)));
+        int ratio = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < target ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / target);
+        lblLogged.setText(String.format("Logged: %s", FormatUtil.hms(meta.getLogDur())));
+        lblWorktime.setText(String.format("Project: %s", FormatUtil.hms(meta.getWorkDur())));
+        if (UserConfig.isWorkDay(selected.date.get(ChronoField.DAY_OF_WEEK))) {
+            lblRatio.setText(String.format("Rating: %d%%", ratio));
+            Color ratioFG = interpolateNicely((float) ratio / 100f, bad, neu, gut);
+            lblRatio.setForeground(AppConfig.getTheme().dark ? ratioFG : multiply(gray, ratioFG));
+        } else {
+            lblRatio.setText(String.format("Rating: %d%% (holiday)", ratio));
+            lblRatio.setForeground(AppConfig.getTheme().dark ? light_gray : gray);
+        }
+        btnPrevChart.setEnabled(comboDayCharts.getSelectedIndex() > 0);
+        btnNextChart.setEnabled(comboDayCharts.getSelectedIndex() < comboDayCharts.getItemCount() - 1);
+        btnFirstChart.setEnabled(comboDayCharts.getSelectedIndex() > 0);
+        btnLastChart.setEnabled(comboDayCharts.getSelectedIndex() < comboDayCharts.getItemCount() - 1);
+    }
+
+    public void refreshMonthChart(CacheMgr cache){
+        DateSelection<LocalDate> selected = (DateSelection<LocalDate>) comboDayCharts.getSelectedItem();
+        pnlDayChart.removeAll();
+        if (selected == null) { pnlDayChart.add(lblNoData); return;}
+        final MonthSummary summary = cache.getObj(MonthSummary.cacheId(YearMonth.from(selected.date), ZoneId.systemDefault()), MonthSummary.class);
+        if (summary == null) { pnlDayChart.add(lblNoData); return;}
+        final DefaultCategoryDataset dataset = summary.getDayCharts().get(selected.date).getDataset();
+        final ChartMeta meta = summary.getDayCharts().get(selected.date).getMeta();
+        if (dataset == null || meta == null) { pnlDayChart.add(lblNoData); return;}
+        pnlDayChart.setPreferredSize(new Dimension(-1, 220));
+        pnlDayChart.add(Charts.createDayBarChart(dataset, meta, ZonedDateTime.now()));
+        pnlDayChart.updateUI();
+        int target = UserConfig.getInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND);
+        int ratio = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < target ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / target);
+        lblLogged.setText(String.format("Logged: %s", FormatUtil.hms(meta.getLogDur())));
+        lblWorktime.setText(String.format("Project: %s", FormatUtil.hms(meta.getWorkDur())));
+        if (UserConfig.isWorkDay(selected.date.get(ChronoField.DAY_OF_WEEK))) {
+            lblRatio.setText(String.format("Rating: %d%%", ratio));
+            Color ratioFG = interpolateNicely((float) ratio / 100f, bad, neu, gut);
+            lblRatio.setForeground(AppConfig.getTheme().dark ? ratioFG : multiply(gray, ratioFG));
+        } else {
+            lblRatio.setText(String.format("Rating: %d%% (holiday)", ratio));
+            lblRatio.setForeground(AppConfig.getTheme().dark ? light_gray : gray);
+        }
+        btnPrevChart.setEnabled(comboDayCharts.getSelectedIndex() > 0);
+        btnNextChart.setEnabled(comboDayCharts.getSelectedIndex() < comboDayCharts.getItemCount() - 1);
+        btnFirstChart.setEnabled(comboDayCharts.getSelectedIndex() > 0);
+        btnLastChart.setEnabled(comboDayCharts.getSelectedIndex() < comboDayCharts.getItemCount() - 1);
+    }
+
+    public void refreshYearChart(CacheMgr cache){
+        DateSelection<LocalDate> selected = (DateSelection<LocalDate>) comboDayCharts.getSelectedItem();
+        pnlDayChart.removeAll();
+        if (selected == null) { pnlDayChart.add(lblNoData); return;}
+        final MonthSummary summary = cache.getObj(MonthSummary.cacheId(YearMonth.from(selected.date), ZoneId.systemDefault()), MonthSummary.class);
+        if (summary == null) { pnlDayChart.add(lblNoData); return;}
+        final DefaultCategoryDataset dataset = summary.getDayCharts().get(selected.date).getDataset();
+        final ChartMeta meta = summary.getDayCharts().get(selected.date).getMeta();
+        if (dataset == null || meta == null) { pnlDayChart.add(lblNoData); return;}
+        pnlDayChart.setPreferredSize(new Dimension(-1, 220));
+        pnlDayChart.add(Charts.createDayBarChart(dataset, meta, ZonedDateTime.now()));
+        pnlDayChart.updateUI();
+        int target = UserConfig.getInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND);
+        int ratio = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < target ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / target);
+        lblLogged.setText(String.format("Logged: %s", FormatUtil.hms(meta.getLogDur())));
+        lblWorktime.setText(String.format("Project: %s", FormatUtil.hms(meta.getWorkDur())));
         if (UserConfig.isWorkDay(selected.date.get(ChronoField.DAY_OF_WEEK))) {
             lblRatio.setText(String.format("Rating: %d%%", ratio));
             Color ratioFG = interpolateNicely((float) ratio / 100f, bad, neu, gut);
@@ -334,5 +417,9 @@ public class MainView implements MainViewAccessor {
     @Override
     public PopupMenu getTablePopUpMenu() {
         return tablePopUpMenu;
+    }
+
+    private void createUIComponents() {
+        comboDayCharts = new JComboBox<>();
     }
 }

@@ -1,8 +1,11 @@
 package xyz.spiralhalo.sherlock.record.test;
 
+import xyz.spiralhalo.sherlock.Application;
 import xyz.spiralhalo.sherlock.Debug;
+import xyz.spiralhalo.sherlock.record.DefaultRecordWriter;
 import xyz.spiralhalo.sherlock.record.RecordEntry;
 import xyz.spiralhalo.sherlock.record.RecordScanner;
+import xyz.spiralhalo.sherlock.record.io.RecordFileSeek;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -14,7 +17,8 @@ import java.util.HashMap;
 public class Visualizer {
     public static void visualize(File saveAs, int granularitySeconds, int width, int height){
         long origin = 0;
-        try (RecordScanner scanner = new RecordScanner()){
+        File recordFile = new File(Application.getSaveDir(), DefaultRecordWriter.RECORD_FILE);
+        try (RecordScanner scanner = new RecordScanner(new RecordFileSeek(recordFile, false))){
             int i = 0;
             int g = granularitySeconds;
             int g1000 = g*1000;

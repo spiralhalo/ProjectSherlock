@@ -11,6 +11,7 @@ public class ColorUtil {
     public static Color light_gray = new Color(225,225,225);
     public static Color med_red_gray = new Color(210,190,190);
     public static Color gray = new Color(160,160,160);
+    public static Color white = new Color(250,250,250);
 
     public static Color multiply(Color color1, Color color2){
         return new Color((color1.getRed()*color2.getRed())/255,

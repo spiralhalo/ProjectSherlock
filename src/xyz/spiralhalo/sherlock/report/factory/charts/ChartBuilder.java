@@ -102,18 +102,22 @@ public class ChartBuilder<T extends Temporal> {
                     Project p = projectList.findByHash(l);
 
                     String label;
+                    boolean productive;
                     if (p != null) {
                         meta.putIfAbsent(p.getName(), new Color(p.getColor()));
                         label = p.getName();
+                        productive = p.isProductive();
                     } else if (l == -1 || !productiveMap.getOrDefault(l, false)) {
                         label = OTHER;
+                        productive = false;
                     } else {
                         label = DELETED;
+                        productive = productiveMap.getOrDefault(l, false);
                     }
                     int s = units[i].get(l);
 
                     dataset.addValue((Number) (s / type.subunitNormalizer()), label, i);
-                    meta.addWorkDur(productiveMap.getOrDefault(l, false) ? s : 0);
+                    meta.addWorkDur(productive ? s : 0);
                     meta.addLogDur(s);
                     if (inclTotal) total += s;
                 }
