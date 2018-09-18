@@ -1,19 +1,21 @@
-package xyz.spiralhalo.sherlock.report.factory;
+package xyz.spiralhalo.sherlock.report.factoryOld;
 
+import xyz.spiralhalo.sherlock.Application;
 import xyz.spiralhalo.sherlock.async.AsyncTask;
 import xyz.spiralhalo.sherlock.persist.project.Project;
-import xyz.spiralhalo.sherlock.record.RecordData;
-import xyz.spiralhalo.sherlock.record.SequentalRecordScanner;
+import xyz.spiralhalo.sherlock.record.RecordEntry;
+import xyz.spiralhalo.sherlock.record.legacy.AutoImporter3;
 import xyz.spiralhalo.sherlock.report.persist.ReportRow;
 import xyz.spiralhalo.sherlock.report.persist.ReportRows;
 import xyz.spiralhalo.sherlock.Debug;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 
-import static xyz.spiralhalo.sherlock.report.factory.Const.MINIMUM_SECOND;
+import static xyz.spiralhalo.sherlock.report.factoryOld.Const.MINIMUM_SECOND;
 
 public class ProjectViewCreator extends AsyncTask<ProjectViewResult> {
     private ProjectViewResult result;
@@ -32,8 +34,8 @@ public class ProjectViewCreator extends AsyncTask<ProjectViewResult> {
 
     @Override
     public void doRun() throws Exception {
-        try (SequentalRecordScanner sc = new SequentalRecordScanner(from, until)) {
-            RecordData temp;
+        try (AutoImporter3.OldRecordScanner sc = new AutoImporter3.OldRecordScanner(new File(Application.getSaveDir(),"record"), from, until)) {
+            RecordEntry temp;
             ZonedDateTime c2;
             LocalDate cd=null,cm=null;
             int accuS = 0;

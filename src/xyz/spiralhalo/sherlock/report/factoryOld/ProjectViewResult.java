@@ -1,4 +1,4 @@
-package xyz.spiralhalo.sherlock.report.factory;
+package xyz.spiralhalo.sherlock.report.factoryOld;
 
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.report.persist.ReportRows;

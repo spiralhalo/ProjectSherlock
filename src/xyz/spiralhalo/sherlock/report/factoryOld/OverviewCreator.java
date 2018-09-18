@@ -1,12 +1,13 @@
-package xyz.spiralhalo.sherlock.report.factory;
+package xyz.spiralhalo.sherlock.report.factoryOld;
 
 import org.jfree.data.category.DefaultCategoryDataset;
+import xyz.spiralhalo.sherlock.Application;
 import xyz.spiralhalo.sherlock.async.AsyncTask;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.persist.project.UtilityTag;
-import xyz.spiralhalo.sherlock.record.RecordData;
-import xyz.spiralhalo.sherlock.record.SequentalRecordScanner;
+import xyz.spiralhalo.sherlock.record.RecordEntry;
+import xyz.spiralhalo.sherlock.record.legacy.AutoImporter3;
 import xyz.spiralhalo.sherlock.report.persist.ChartMeta;
 import xyz.spiralhalo.sherlock.report.persist.AllReportRow;
 import xyz.spiralhalo.sherlock.report.persist.AllReportRows;
@@ -16,6 +17,7 @@ import xyz.spiralhalo.sherlock.util.ColorUtil;
 import xyz.spiralhalo.sherlock.Debug;
 
 import java.awt.*;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -23,7 +25,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 
-import static xyz.spiralhalo.sherlock.report.factory.Const.MINIMUM_SECOND;
+import static xyz.spiralhalo.sherlock.report.factoryOld.Const.MINIMUM_SECOND;
 
 public class OverviewCreator extends AsyncTask<OverviewResult> {
     private final ProjectList projectList;
@@ -51,14 +53,14 @@ public class OverviewCreator extends AsyncTask<OverviewResult> {
     protected void doRun() throws Exception{
         final DatasetCreator dc = new DatasetCreator(projectList, productiveMap);
         final ReportCreator rc = new ReportCreator(projectList, productiveMap);
-        try(SequentalRecordScanner sc = new SequentalRecordScanner(from, until)){
+        try(AutoImporter3.OldRecordScanner sc = new AutoImporter3.OldRecordScanner(new File(Application.getSaveDir(),"record"), from, until)){
             while (sc.hasNext()) {
-                RecordData recordData = sc.next();
+                RecordEntry recordEntry = sc.next();
                 try {
-                    ZonedDateTime timestamp = recordData.getTime().atZone(ZoneId.systemDefault());
-                    int dur = recordData.getElapsed();
-                    long pHash = recordData.getHash();
-                    boolean productive = (pHash != -1) && (recordData.isProductive() || !recordData.isUtility());
+                    ZonedDateTime timestamp = recordEntry.getTime().atZone(ZoneId.systemDefault());
+                    int dur = recordEntry.getElapsed();
+                    long pHash = recordEntry.getHash();
+                    boolean productive = (pHash != -1) && (recordEntry.isProductive() || !recordEntry.isUtility());
 
                     Project p = projectList.findByHash(pHash);
                     LocalDate date = timestamp.toLocalDate();

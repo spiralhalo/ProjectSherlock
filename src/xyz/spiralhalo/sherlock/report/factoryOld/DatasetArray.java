@@ -1,4 +1,4 @@
-package xyz.spiralhalo.sherlock.report.factory;
+package xyz.spiralhalo.sherlock.report.factoryOld;
 
 import org.jfree.data.category.DefaultCategoryDataset;
 import xyz.spiralhalo.sherlock.report.persist.ChartMeta;
