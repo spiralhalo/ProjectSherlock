@@ -7,7 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class RecordFile {
+public class RecordFile implements AutoCloseable{
     protected static final int LENGTH = RecordEntry.BYTES_UNIVERSAL;
     protected final File file;
     private final RandomAccessFile raf;
@@ -50,6 +50,7 @@ public class RecordFile {
         return file.getName();
     }
 
+    @Override
     public void close() throws IOException {
         raf.close();
     }

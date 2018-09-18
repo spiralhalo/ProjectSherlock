@@ -5,28 +5,24 @@ import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.record.io.RecordFileSeek;
 
 import java.io.*;
+import java.time.Instant;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.Iterator;
 
 public class RecordScanner implements Iterator<RecordEntry>, AutoCloseable {
-    private final File recordFile;
     private final RecordFileSeek seeker;
     private final YearMonth month;
     private final ZoneId z;
     private RecordEntry internalData;
 
-    public RecordScanner() throws IOException {
-        this(null);
+    public RecordScanner(RecordFileSeek seeker) throws IOException {
+        this(seeker, null);
     }
 
-    public RecordScanner(YearMonth month) throws IOException {
+    public RecordScanner(RecordFileSeek seeker, YearMonth month) throws IOException {
         this.month = month;
-        recordFile = new File(Application.getSaveDir(), DefaultRecordWriter.RECORD_FILE);
-        if (!recordFile.exists()) {
-            throw new FileNotFoundException();
-        }
-        seeker = new RecordFileSeek(recordFile, false);
+        this.seeker = seeker;
         if (month != null) {
             seeker.seekFirstOfMonth(month, z = ZoneId.systemDefault());
         } else { z = null; }
@@ -36,9 +32,13 @@ public class RecordScanner implements Iterator<RecordEntry>, AutoCloseable {
         if(internalData == null && seeker != null) {
             try {
                 if(!seeker.eof()) {
-                    internalData = seeker.read();
-                    if (month != null && !month.equals(YearMonth.from(internalData.getTime().atZone(z)))) {
-                        internalData = null;
+                    if(month == null){
+                        internalData = seeker.read();
+                    } else {
+                        Instant currentTimestamp = seeker.getCurrentTimestamp();
+                        if (month.equals(YearMonth.from(currentTimestamp.atZone(z)))) {
+                            internalData = seeker.read();
+                        }
                     }
                 }
             } catch (IOException e) {
@@ -66,7 +66,7 @@ public class RecordScanner implements Iterator<RecordEntry>, AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
         seeker.close();
     }
 }

@@ -34,7 +34,7 @@ public class RecordFileRW extends RecordFile {
 
     public void writeBytes(byte[] bytes) throws IOException {
         if(!writeable) throw new UnsupportedOperationException("Not writeable.");
-        if(bytes.length != LENGTH) throw new IllegalArgumentException("Invalid data type.");
+        if(bytes.length % LENGTH != 0) throw new IllegalArgumentException("Invalid data type.");
         rafWrite(bytes);
     }
 }
