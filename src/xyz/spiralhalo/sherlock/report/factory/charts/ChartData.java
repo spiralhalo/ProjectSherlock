@@ -1,22 +1,24 @@
 package xyz.spiralhalo.sherlock.report.factory.charts;
 
 import org.jfree.data.category.DefaultCategoryDataset;
-import xyz.spiralhalo.sherlock.persist.cache.Cache;
-import xyz.spiralhalo.sherlock.report.factory.ReportCache;
+import xyz.spiralhalo.sherlock.util.FormatUtil;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
-@Cache
-public class ChartData implements ReportCache, Serializable {
+public class ChartData implements Serializable {
     public static final long serialVersionUID = 1L;
+
+    public static String dayId(LocalDate date) {
+        return String.format("dayChart_%s", FormatUtil.DTF_YMD.format(date));
+    }
+
     private final ChartMeta meta;
     private final DefaultCategoryDataset dataset;
-    private final boolean complete;
 
-    public ChartData(ChartMeta meta, DefaultCategoryDataset dataset, boolean complete) {
+    public ChartData(ChartMeta meta, DefaultCategoryDataset dataset) {
         this.meta = meta;
         this.dataset = dataset;
-        this.complete = complete;
     }
 
     public ChartMeta getMeta() {
@@ -25,10 +27,5 @@ public class ChartData implements ReportCache, Serializable {
 
     public DefaultCategoryDataset getDataset() {
         return dataset;
-    }
-
-    @Override
-    public boolean isComplete() {
-        return complete;
     }
 }

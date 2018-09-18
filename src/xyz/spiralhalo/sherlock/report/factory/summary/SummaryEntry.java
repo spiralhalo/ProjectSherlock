@@ -3,7 +3,7 @@ package xyz.spiralhalo.sherlock.report.factory.summary;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class SummaryRow implements Serializable {
+public class SummaryEntry implements Serializable {
 
     public static final long serialVersionUID = 1L;
     private final long hash;
@@ -11,7 +11,7 @@ public class SummaryRow implements Serializable {
     private final boolean productive;
     private final LocalDateTime earliest;
 
-    public SummaryRow(long hash, int seconds, boolean productive, LocalDateTime earliest) {
+    public SummaryEntry(long hash, int seconds, boolean productive, LocalDateTime earliest) {
         this.hash = hash;
         this.seconds = seconds;
         this.productive = productive;

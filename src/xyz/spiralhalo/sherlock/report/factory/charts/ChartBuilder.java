@@ -4,7 +4,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.record.RecordEntry;
-import xyz.spiralhalo.sherlock.report.factory.summary.SummaryRow;
+import xyz.spiralhalo.sherlock.report.factory.summary.SummaryEntry;
 import xyz.spiralhalo.sherlock.util.ColorUtil;
 
 import java.awt.*;
@@ -43,7 +43,7 @@ public class ChartBuilder<T extends Temporal> {
         this.z = z;
     }
 
-    public void readEntry(RecordEntry entry){
+    public void readRecord(RecordEntry entry){
         LocalDateTime ldt = entry.getTime().atZone(z).toLocalDateTime();
         int unit = type.unit(ldt);
         int remainingS = type.numSPerUnit(date, ldt) - type.pointInUnit(ldt);
@@ -58,7 +58,7 @@ public class ChartBuilder<T extends Temporal> {
         productiveMap.putIfAbsent(entry.getHash(), entry.isProductive());
     }
 
-    public void readSummary(SummaryRow entry){
+    public void readSummary(SummaryEntry entry){
         if(date instanceof LocalDate) throw new UnsupportedOperationException("Unsupported temporal unit");
         LocalDateTime ldt = entry.getEarliest();
         int unit = type.unit(ldt);
@@ -87,7 +87,7 @@ public class ChartBuilder<T extends Temporal> {
         return units[unit];
     }
 
-    public ChartData finish(ProjectList projectList, boolean complete){
+    public ChartData finish(ProjectList projectList){
         final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         final ChartMeta meta = new ChartMeta();
         if(inclTotal) meta.put(TOTAL, ColorUtil.white);
@@ -120,6 +120,6 @@ public class ChartBuilder<T extends Temporal> {
             }
             if(inclTotal) dataset.addValue((Number) (total / type.subunitNormalizer()), TOTAL, i);
         }
-        return new ChartData(meta, dataset, complete);
+        return new ChartData(meta, dataset);
     }
 }

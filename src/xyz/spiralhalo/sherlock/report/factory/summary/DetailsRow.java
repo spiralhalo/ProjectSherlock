@@ -6,9 +6,9 @@ import java.time.LocalDate;
 public class DetailsRow implements Serializable {
     public static final long serialVersionUID = 1L;
     private final LocalDate date;
-    private final SummaryRow summary;
+    private final SummaryEntry summary;
 
-    public DetailsRow(LocalDate date, SummaryRow summary) {
+    public DetailsRow(LocalDate date, SummaryEntry summary) {
         this.date = date;
         this.summary = summary;
     }
@@ -17,7 +17,7 @@ public class DetailsRow implements Serializable {
         return date;
     }
 
-    public SummaryRow getSummary() {
+    public SummaryEntry getSummary() {
         return summary;
     }
 }
