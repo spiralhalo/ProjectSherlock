@@ -4,7 +4,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.record.RecordEntry;
-import xyz.spiralhalo.sherlock.report.factory.statistics.SummaryRow;
+import xyz.spiralhalo.sherlock.report.factory.summary.SummaryRow;
 import xyz.spiralhalo.sherlock.util.ColorUtil;
 
 import java.awt.*;
@@ -24,8 +24,9 @@ public class ChartBuilder<T extends Temporal> {
     private final HashMap<Long,Boolean> productiveMap;
     private final ChartType type;
     private final boolean inclTotal;
+    private final ZoneId z;
 
-    public ChartBuilder(T date, boolean inclTotal) {
+    public ChartBuilder(T date, ZoneId z, boolean inclTotal) {
         if(date instanceof LocalDate){
             type = ChartType.HOUR_IN_DAY;
         } else if(date instanceof YearMonth){
@@ -39,10 +40,11 @@ public class ChartBuilder<T extends Temporal> {
         this.productiveMap = new HashMap<>();
         this.units = new UnitMap[type.numUnits(date)];
         this.inclTotal = inclTotal;
+        this.z = z;
     }
 
     public void readEntry(RecordEntry entry){
-        LocalDateTime ldt = entry.getTime().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime ldt = entry.getTime().atZone(z).toLocalDateTime();
         int unit = type.unit(ldt);
         int remainingS = type.numSPerUnit(date, ldt) - type.pointInUnit(ldt);
         int seconds = entry.getElapsed();
