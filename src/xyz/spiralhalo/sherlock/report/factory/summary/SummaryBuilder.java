@@ -60,9 +60,9 @@ public class SummaryBuilder {
         return dayEarliestMaps[day];
     }
 
-    public SummaryResult finish(){
-        final MonthSummary summary = new MonthSummary(month);
-        final MonthDetails details = new MonthDetails(month);
+    public SummaryResult finish(boolean complete){
+        final MonthSummary summary = new MonthSummary(month, complete);
+        final MonthDetails details = new MonthDetails(month, complete);
         final HashMap<Long, Integer> monthTotal = new HashMap<>();
         final HashMap<Long, LocalDateTime> monthEarliest = new HashMap<>();
         for (int i = 0; i < month.lengthOfMonth(); i++) {

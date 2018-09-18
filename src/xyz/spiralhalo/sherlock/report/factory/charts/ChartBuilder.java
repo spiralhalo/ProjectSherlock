@@ -87,7 +87,7 @@ public class ChartBuilder<T extends Temporal> {
         return units[unit];
     }
 
-    public  ChartData finish(ProjectList projectList){
+    public ChartData finish(ProjectList projectList, boolean complete){
         final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         final ChartMeta meta = new ChartMeta();
         if(inclTotal) meta.put(TOTAL, ColorUtil.white);
@@ -120,6 +120,6 @@ public class ChartBuilder<T extends Temporal> {
             }
             if(inclTotal) dataset.addValue((Number) (total / type.subunitNormalizer()), TOTAL, i);
         }
-        return new ChartData(meta, dataset);
+        return new ChartData(meta, dataset, complete);
     }
 }
