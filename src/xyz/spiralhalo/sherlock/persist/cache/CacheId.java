@@ -5,16 +5,7 @@ import xyz.spiralhalo.sherlock.util.FormatUtil;
 
 import java.time.LocalDate;
 
-public enum CacheId{
-    ActiveRows("active_table"),
-    FinishedRows("finished_table"),
-    UtilityRows("utility_table"),
-    DayRows("day_table"),
-    MonthRows("month_table"),
-    ChartList("chart_dates")
-    ;
-    public final String v;
-    CacheId(String v){ this.v = v; }
+public class CacheId{
     public static String ProjectDayRows(Project project){return Long.toHexString(project.getHash())+"_day_table";}
     public static String ProjectMonthRows(Project project){return Long.toHexString(project.getHash())+"_month_table";}
     public static String ChartData(String date){return date+"_chart_data";}

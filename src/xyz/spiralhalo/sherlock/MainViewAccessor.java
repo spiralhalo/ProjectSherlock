@@ -4,6 +4,7 @@ import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 
 public interface MainViewAccessor {
@@ -12,9 +13,9 @@ public interface MainViewAccessor {
     void refreshStatus(CacheMgr cache);
     void refreshOverview(CacheMgr cache);
     void refreshProjects(CacheMgr cache, int index);
-    void refreshDayChart(CacheMgr cache);
-    void refreshMonthChart(CacheMgr cache);
-    void refreshYearChart(CacheMgr cache);
+    void refreshDayChart(CacheMgr cache, ItemEvent event);
+    void refreshMonthChart(CacheMgr cache, ItemEvent event);
+    void refreshYearChart(CacheMgr cache, ItemEvent event);
     long selected();
     int selectedIndex();
     void setSelected(long hash);

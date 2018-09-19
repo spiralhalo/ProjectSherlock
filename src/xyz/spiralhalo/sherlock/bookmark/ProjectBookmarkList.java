@@ -33,7 +33,6 @@ public class ProjectBookmarkList extends JFrame {
     private JButton btnMoveUp;
     private JButton btnMoveDown;
     private JButton btnEdit;
-    private JLabel lblWarning;
 
     private final Project p;
     private final ProjectBookmarks bookmarks;
@@ -60,9 +59,6 @@ public class ProjectBookmarkList extends JFrame {
         tblBookmarks.getColumnModel().getColumn(0).setMaxWidth(50);
         tblBookmarks.getColumnModel().getColumn(1).setMaxWidth(50);
         Main.applyButtonTheme(btnLaunch, btnAdd, btnRemove, btnMoveUp, btnMoveDown, btnEdit);
-        if(Main.currentTheme.foreground!=0){
-            lblWarning.setIcon(ImgUtil.createTintedIcon(((ImageIcon)lblWarning.getIcon()).getImage(), Main.currentTheme.foreground));
-        }
         btnLaunch.addActionListener(e->launch());
         btnAdd.addActionListener(e->add());
         btnRemove.addActionListener(e->remove());
@@ -127,7 +123,6 @@ public class ProjectBookmarkList extends JFrame {
     }
 
     public void close() {
-        manager.save();
         dispose();
     }
 
@@ -152,6 +147,7 @@ public class ProjectBookmarkList extends JFrame {
         if(x!=null){
             bookmarks.addOrReplace(x);
         }
+        manager.save();
     }
 
     private void edit(){
@@ -160,6 +156,7 @@ public class ProjectBookmarkList extends JFrame {
         if(x!=null){
             bookmarks.editBookmark(getSelectedIndex(), x);
         }
+        manager.save();
     }
 
     private void remove(){
@@ -168,6 +165,7 @@ public class ProjectBookmarkList extends JFrame {
                 "Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
             bookmarks.remove(getSelectedIndex());
         }
+        manager.save();
     }
 
     private void moveUp(){
@@ -175,6 +173,7 @@ public class ProjectBookmarkList extends JFrame {
         bookmarks.moveUp(selected);
         int newSelected = Math.max(0, selected-1);
         tblBookmarks.setRowSelectionInterval(newSelected, newSelected);
+        manager.save();
     }
 
     private void moveDown(){
@@ -182,6 +181,7 @@ public class ProjectBookmarkList extends JFrame {
         bookmarks.moveDown(selected);
         int newSelected = Math.min(tblBookmarks.getRowCount()-1, selected+1);
         tblBookmarks.setRowSelectionInterval(newSelected, newSelected);
+        manager.save();
     }
 
     @Override

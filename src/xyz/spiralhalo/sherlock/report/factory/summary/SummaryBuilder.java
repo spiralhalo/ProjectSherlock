@@ -38,7 +38,7 @@ public class SummaryBuilder {
         this.productiveMap = new HashMap<>();
         this.z = z;
         this.complete = complete;
-        this.monthChartBuilder = new ChartBuilder<>(month, z, true);
+        this.monthChartBuilder = new ChartBuilder<>(month, z, false);
         this.dayChartBuilders = new DayChartBuilder[month.lengthOfMonth()];
     }
 

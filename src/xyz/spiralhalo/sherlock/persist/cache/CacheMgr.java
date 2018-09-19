@@ -9,24 +9,8 @@ public class CacheMgr {
 
     private final WeakHashMap<String, CachedObj> cache = new WeakHashMap<>();
 
-    public <T extends Serializable> void put(CacheId id, T object){
-        put(id.v, object);
-    }
-
     public synchronized <T extends Serializable> void put(String id, T object){
         cache.put(id, CacheHandler.writeCache(id, object));
-    }
-
-    public Instant getCreated(CacheId id){
-        return getCreated(id.v);
-    }
-
-    public long getElapsed(CacheId id){
-        return getElapsed(id.v);
-    }
-
-    public <T extends Serializable> T getObj(CacheId id, Class<T> clazz){
-        return getObj(id.v, clazz);
     }
 
     public Instant getCreated(String id){

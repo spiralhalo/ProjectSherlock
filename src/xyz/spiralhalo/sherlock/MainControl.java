@@ -24,6 +24,7 @@ import xyz.spiralhalo.sherlock.report.*;
 import xyz.spiralhalo.sherlock.report.factory.ProjectViewCreator;
 import xyz.spiralhalo.sherlock.report.factory.ProjectViewResult;
 import xyz.spiralhalo.sherlock.report.factory.ReportRefresher;
+import xyz.spiralhalo.sherlock.report.factory.table.AllReportRows;
 import xyz.spiralhalo.sherlock.report.ops.OverviewOps;
 import xyz.spiralhalo.sherlock.report.factory.table.ReportRows;
 import xyz.spiralhalo.sherlock.util.ImgUtil;
@@ -35,7 +36,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.function.BiConsumer;
 
 import static java.awt.Frame.ICONIFIED;
 import static java.awt.Frame.NORMAL;
@@ -70,6 +73,7 @@ public class MainControl implements ActionListener {
     private final TrayIcon trayIcon;
     private final boolean trayIconUsed;
     private final BookmarkMgr bookmark;
+    private final ZoneId z = ZoneId.systemDefault();
 
     private MainControl() {
         cache = new CacheMgr();
@@ -214,11 +218,13 @@ public class MainControl implements ActionListener {
     public void setExtras(JButton btnBookmarks) {
         btnBookmarks.setName(Action.A_EXTRA_BOOKMARKS.name());
         btnBookmarks.addActionListener(this);
+        addEnableOnSelect(btnBookmarks);
     }
 
     public void setExtras(JCommandButton btnBookmarks) {
         btnBookmarks.setName(Action.A_EXTRA_BOOKMARKS.name());
         btnBookmarks.addActionListener(this);
+        addEnableOnSelect(btnBookmarks);
     }
 
     public void addEnableOnSelect(JComponent... components) {
@@ -297,10 +303,10 @@ public class MainControl implements ActionListener {
         tableUtilityTags.getSelectionModel().addListSelectionListener(tableSelectionListener);
     }
 
-    public void setChart(JComboBox comboCharts, JButton prev, JButton next, JButton first, JButton last){
+    public void setChart(JComboBox comboCharts, JButton prev, JButton next, JButton first, JButton last, BiConsumer<CacheMgr, ItemEvent> refreshMethod){
         comboCharts.addItemListener(e->{
             if(comboCharts.getItemCount()==0)return;
-            view.refreshDayChart(cache);
+            refreshMethod.accept(cache, e);
         });
         prev.addActionListener(e->{
             if(comboCharts.getSelectedIndex()>0){
@@ -322,7 +328,6 @@ public class MainControl implements ActionListener {
                 comboCharts.setSelectedIndex(comboCharts.getItemCount()-1);
             }
         });
-        view.refreshDayChart(cache);
     }
 
     @Override
@@ -365,7 +370,7 @@ public class MainControl implements ActionListener {
                         hash = projectList.moveDown(view.getTabProjects().getSelectedIndex(), selected);
                     }
                     if(hash!=-1){
-                        OverviewOps.refreshOrdering(cache, projectList, OverviewOps.Type.index(view.getTabProjects().getSelectedIndex()));
+                        OverviewOps.refreshOrdering(cache, projectList, OverviewOps.Type.index(view.getTabProjects().getSelectedIndex()), z);
                         view.refreshProjects(cache, view.getTabProjects().getSelectedIndex());
                         view.setSelected(hash);
                     }
@@ -434,14 +439,14 @@ public class MainControl implements ActionListener {
     private final ChangeListener tabChangeListener = new ChangeListener() {
         @Override
         public void stateChanged(ChangeEvent e) {
-            boolean temp = view.selected()!=-1 && view.getTabReports().getSelectedIndex()==0;
+            boolean temp = view.selected()!=-1;
             for (JComponent x:view.enableOnSelect()) {
                 x.setEnabled(temp);
             }
-            view.getButtonFinish().setVisible(view.getTabProjects().getSelectedIndex()!=1 || !temp);
+            view.getButtonFinish().setVisible(view.getTabProjects().getSelectedIndex()==0);
             view.getButtonFinish().setEnabled(view.getTabProjects().getSelectedIndex()==0 && temp);
-            view.getButtonResume().setVisible(view.getTabProjects().getSelectedIndex()==1 && temp);
-            view.getButtonBookmarks().setEnabled(view.getTabProjects().getSelectedIndex()!=2 && temp);
+            view.getButtonResume().setVisible(view.getTabProjects().getSelectedIndex()==1);
+            view.getButtonBookmarks().setVisible(view.getTabProjects().getSelectedIndex()!=2);
         }
     };
 
@@ -483,7 +488,7 @@ public class MainControl implements ActionListener {
     }
 
     private void decideRefresh(){
-        if(cache.getElapsed(CacheId.ActiveRows) > AppConfig.getInt(AppInt.REFRESH_TIMEOUT)){
+        if(cache.getElapsed(AllReportRows.activeCacheId(z)) > AppConfig.getInt(AppInt.REFRESH_TIMEOUT)){
             refresh();
         } else view.refreshStatus(cache);
     }

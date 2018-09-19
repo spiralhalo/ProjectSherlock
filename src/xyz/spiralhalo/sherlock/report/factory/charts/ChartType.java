@@ -31,11 +31,7 @@ public enum ChartType {
                     throw new IllegalArgumentException("Wrong temporal type.");
                 }
                 return ((YearMonth) y).lengthOfMonth();
-            case MONTH_IN_YEAR:
-                if(!(y instanceof Year)){
-                    throw new IllegalArgumentException("Wrong temporal type.");
-                }
-                return ((Year) y).length();
+            case MONTH_IN_YEAR: return 12;
         }
         return 0;
     }
@@ -62,8 +58,28 @@ public enum ChartType {
         switch (this){
             case HOUR_IN_DAY: return SinM;
             case DAY_IN_MONTH: return SinH;
-            case MONTH_IN_YEAR: return SinD;
+            case MONTH_IN_YEAR: return SinH;
         }
         return 1f;
+    }
+
+    public FlexibleLocale unitLabel(Temporal y, int i){
+        switch (this){
+            case DAY_IN_MONTH:
+                if(!(y instanceof YearMonth)){
+                    throw new IllegalArgumentException("Wrong temporal type.");
+                } else if(i < 0 || i >= ((YearMonth) y).lengthOfMonth()){
+                    throw new IllegalArgumentException("Date out of range.");
+                }
+                return new FlexibleLocale(((YearMonth) y).atDay(i+1));
+            case MONTH_IN_YEAR:
+                if(!(y instanceof Year)){
+                    throw new IllegalArgumentException("Wrong temporal type.");
+                } else if(i < 0 || i >= 12){
+                    throw new IllegalArgumentException("Month out of range.");
+                }
+                return new FlexibleLocale(((Year) y).atMonth(i+1));
+        }
+        return new FlexibleLocale(i);
     }
 }

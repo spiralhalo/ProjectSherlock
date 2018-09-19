@@ -67,7 +67,7 @@ public class ReportRefresher extends AsyncTask<Boolean> {
                 yearList.add(y);
                 if(missingYearSummary(y)) {
                     final ArrayList<YearMonth> months = new ArrayList<>();
-                    final ChartBuilder<Year> chartBuilder = new ChartBuilder<>(y,z,true);
+                    final ChartBuilder<Year> chartBuilder = new ChartBuilder<>(y,z,false);
                     for (int month = 1; month <= 12; month++) {
                         ym = YearMonth.of(year, month);
                         MonthSummary x = cache.getObj(MonthSummary.cacheId(ym, z), MonthSummary.class);
@@ -128,9 +128,9 @@ public class ReportRefresher extends AsyncTask<Boolean> {
                 activeRows.add(x);
             }
         }
-        cache.put(CacheId.ActiveRows, activeRows);
-        cache.put(CacheId.FinishedRows, finishedRows);
-        cache.put(CacheId.UtilityRows, utilityRows);
+        cache.put(AllReportRows.activeCacheId(z), activeRows);
+        cache.put(AllReportRows.finishedCacheId(z), finishedRows);
+        cache.put(AllReportRows.utilityCacheId(z), utilityRows);
         result = true;
     }
 

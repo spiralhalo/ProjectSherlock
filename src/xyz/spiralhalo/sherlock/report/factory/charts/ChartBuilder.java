@@ -11,6 +11,7 @@ import java.awt.*;
 import java.time.*;
 import java.time.temporal.Temporal;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class ChartBuilder<T extends Temporal> {
     private static final String TOTAL = "Total";
@@ -90,39 +91,46 @@ public class ChartBuilder<T extends Temporal> {
     public ChartData finish(ProjectList projectList){
         final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         final ChartMeta meta = new ChartMeta();
+        final Locale locale = Locale.getDefault();
         if(inclTotal) meta.put(TOTAL, ColorUtil.white);
         meta.put(OTHER, ColorUtil.gray);
         meta.put(DELETED, ColorUtil.med_red_gray);
+        int[] deleted = new int[type.numUnits(date)];
+        int[] other = new int[type.numUnits(date)];
         for (int i = 0; i < type.numUnits(date); i++) {
             int total = 0;
-            if(units[i]==null) {
-                dataset.addValue((Number)0,"Other",i);
-            } else {
+            FlexibleLocale unitLabel = type.unitLabel(date, i);
+            dataset.addValue((Number)0,"",unitLabel);
+            if (units[i] != null) {
                 for (Long l : units[i].keySet()) {
                     Project p = projectList.findByHash(l);
 
-                    String label;
                     boolean productive;
+                    int s = units[i].get(l);
                     if (p != null) {
                         meta.putIfAbsent(p.getName(), new Color(p.getColor()));
-                        label = p.getName();
+                        dataset.addValue((Number) (s / type.subunitNormalizer()), p.getName(), unitLabel);
                         productive = p.isProductive();
                     } else if (l == -1 || !productiveMap.getOrDefault(l, false)) {
-                        label = OTHER;
                         productive = false;
+                        other[i] += s;
                     } else {
-                        label = DELETED;
                         productive = productiveMap.getOrDefault(l, false);
+                        deleted[i] += s;
                     }
-                    int s = units[i].get(l);
 
-                    dataset.addValue((Number) (s / type.subunitNormalizer()), label, i);
                     meta.addWorkDur(productive ? s : 0);
                     meta.addLogDur(s);
                     if (inclTotal) total += s;
                 }
             }
-            if(inclTotal) dataset.addValue((Number) (total / type.subunitNormalizer()), TOTAL, i);
+            if(inclTotal) dataset.addValue((Number) (total / type.subunitNormalizer()), TOTAL, unitLabel);
+        }
+        for (int i = 0; i < type.numUnits(date); i++) {
+            FlexibleLocale unitLabel = type.unitLabel(date, i);
+            System.out.println(dataset.getColumnIndex(unitLabel));
+            if(deleted[i] > 0) dataset.setValue((Number) (deleted[i] / type.subunitNormalizer()), DELETED, unitLabel);
+            if(other[i] > 0) dataset.setValue((Number) (other[i] / type.subunitNormalizer()), OTHER, unitLabel);
         }
         return new ChartData(meta, dataset);
     }

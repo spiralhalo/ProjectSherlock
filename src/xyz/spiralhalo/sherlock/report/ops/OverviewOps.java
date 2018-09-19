@@ -1,34 +1,37 @@
 package xyz.spiralhalo.sherlock.report.ops;
 
-import xyz.spiralhalo.sherlock.persist.cache.CacheId;
 import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.report.factory.table.AllReportRow;
 import xyz.spiralhalo.sherlock.report.factory.table.AllReportRows;
 
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 
 public class OverviewOps {
     public enum Type{
-        ACTIVE(CacheId.ActiveRows), FINISHED(CacheId.FinishedRows), UTILITY(CacheId.UtilityRows);
-        CacheId id; Type(CacheId x){id=x;}
+        ACTIVE, FINISHED, UTILITY;
         public static Type index(int i){switch(i){case 0:return ACTIVE;case 1:return FINISHED;case 2:return UTILITY;default:return null;}}
     }
 
-    public static void refreshOrdering(CacheMgr cache, ProjectList projectList, Type type){
+    public static void refreshOrdering(CacheMgr cache, ProjectList projectList, Type type, ZoneId z){
         List<? extends Project> projects;
+        String id;
         if(type==Type.ACTIVE){
             projects = projectList.getActiveProjects();
+            id = AllReportRows.activeCacheId(z);
         } else if(type==Type.FINISHED){
             projects = projectList.getFinishedProjects();
+            id = AllReportRows.finishedCacheId(z);
         } else if(type==Type.UTILITY){
             projects = projectList.getUtilityTags();
+            id = AllReportRows.utilityCacheId(z);
         } else {
             throw new UnsupportedOperationException("Unknown type.");
         }
-        AllReportRows arr = cache.getObj(type.id, AllReportRows.class);
+        AllReportRows arr = cache.getObj(id, AllReportRows.class);
         HashMap<Long, Integer> indices = new HashMap<>();
         int i = 0;
         for (Project x:projects) {
@@ -42,6 +45,6 @@ public class OverviewOps {
                 arr.add(indices.get(r.getProjectHash()), r);
             }
         }
-        cache.put(type.id, arr);
+        cache.put(id, arr);
     }
 }

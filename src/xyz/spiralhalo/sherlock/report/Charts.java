@@ -2,35 +2,115 @@ package xyz.spiralhalo.sherlock.report;
 
 import org.jfree.chart.*;
 import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.block.LineBorder;
 import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.renderer.category.BarPainter;
 import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.chart.renderer.category.StackedBarRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.urls.StandardCategoryURLGenerator;
 import org.jfree.chart.util.ParamChecks;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.ui.GradientPaintTransformer;
-import org.jfree.ui.RectangleEdge;
-import org.jfree.ui.RectangleInsets;
+import org.jfree.ui.*;
 import xyz.spiralhalo.sherlock.Main;
+import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
+import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
+import xyz.spiralhalo.sherlock.report.factory.charts.ChartData;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartMeta;
+import xyz.spiralhalo.sherlock.report.factory.charts.ChartType;
+import xyz.spiralhalo.sherlock.report.factory.charts.FlexibleLocale;
+import xyz.spiralhalo.sherlock.report.factory.summary.MonthSummary;
+import xyz.spiralhalo.sherlock.report.factory.summary.YearSummary;
 
 import java.awt.*;
 import java.awt.geom.RectangularShape;
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.temporal.ChronoField;
 
-import static xyz.spiralhalo.sherlock.util.ColorUtil.interpolateNicely;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.DAILY_TARGET_SECOND;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.TRACKING;
+import static xyz.spiralhalo.sherlock.util.ColorUtil.*;
+import static xyz.spiralhalo.sherlock.util.ColorUtil.gray;
 
 public class Charts {
-    public static ChartPanel createDayBarChart(DefaultCategoryDataset dataset, ChartMeta colors, ZonedDateTime chartDate){
-        JFreeChart chart = createStackedBarChart("", "Hour of day", "Time spent (minute)",
+    public static ChartPanel createMonthBarChart(MonthSummary monthSummary){
+        final ChartPanel x = createStackedBarChart("Day of month", "Time spent (hours)",
+                monthSummary.getMonthChart().getDataset(),
+                monthSummary.getMonthChart().getMeta());
+        final Color fg = new Color(Main.currentTheme.foreground);
+        final int target = UserConfig.getInt(TRACKING, DAILY_TARGET_SECOND);
+        final ValueMarker marker = new ValueMarker(target/3600f, fg, new BasicStroke(
+                1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
+                1.0f, new float[] {6.0f, 6.0f}, 0.0f));
+
+        marker.setLabel("Target");
+        marker.setLabelPaint(new Color(Main.currentTheme.background));
+        marker.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT);
+        marker.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT);
+        marker.setLabelOffset(new RectangleInsets(0, 0, 13, 4));
+        marker.setLabelFont(new Font("Tahoma", 0, 11));
+        marker.setLabelBackgroundColor(fg);
+
+        final CategoryPlot plot = x.getChart().getCategoryPlot();
+
+        plot.addRangeMarker(marker);
+
+        final CategoryAxis axis = x.getChart().getCategoryPlot().getDomainAxis();
+        final YearMonth ym = monthSummary.getMonth();
+        final DefaultCategoryDataset ratingSet = new DefaultCategoryDataset();
+
+        axis.setCategoryLabelPositions(
+                CategoryLabelPositions.createUpRotationLabelPositions(Math.PI / 3d));
+
+        for (int i = 0; i < ym.lengthOfMonth(); i++) {
+            LocalDate date = ym.atDay(i+1);
+            ChartData dayChart = monthSummary.getDayCharts().get(date);
+            FlexibleLocale unitLabel = ChartType.DAY_IN_MONTH.unitLabel(ym, i);
+            if(dayChart != null){
+                ChartMeta meta = dayChart.getMeta();
+                int ratio = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < target ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / target);
+                if (UserConfig.isWorkDay(date.get(ChronoField.DAY_OF_WEEK))) {
+                    Color ratioFG = interpolateNicely((float) ratio / 100f, bad, neu, gut);
+                    axis.setTickLabelPaint(unitLabel,AppConfig.getTheme().dark ? ratioFG : multiply(gray, ratioFG));
+                } else {
+                    axis.setTickLabelPaint(unitLabel,AppConfig.getTheme().dark ? light_gray : gray);
+                }
+                ratingSet.addValue((Number) ((target/3600f) * (ratio / 100f)), "Rating", unitLabel);
+            } else {
+                ratingSet.addValue((Number)0, "Rating", unitLabel);
+            }
+        }
+
+        plot.setDataset(1, plot.getDataset(0));
+        plot.setRenderer(1, plot.getRenderer(0));
+
+        plot.setDataset(0, ratingSet);
+        plot.setRenderer(0, new LineAndShapeRenderer());
+
+        return x;
+    }
+
+    public static ChartPanel createYearBarChart(YearSummary ys){
+        return createStackedBarChart("Month of year", "Time spent (hours)",
+                ys.getYearChart().getDataset(), ys.getYearChart().getMeta());
+    }
+
+    public static ChartPanel createDayBarChart(ChartData dayChart){
+        return createStackedBarChart("Hour of day", "Time spent (minute)",
+                dayChart.getDataset(), dayChart.getMeta());
+    }
+
+    public static ChartPanel createStackedBarChart(String domainAxisLabel, String rangeAxisLabel, DefaultCategoryDataset dataset, ChartMeta colors){
+        JFreeChart chart = createStackedBarChart("", domainAxisLabel, rangeAxisLabel,
                 dataset, colors, PlotOrientation.VERTICAL, true, true, false);
         ChartPanel panel = new ChartPanel(chart);
         panel.setMaximumDrawHeight(270);
@@ -50,12 +130,17 @@ public class Charts {
         CategoryPlot plot = new CategoryPlot(dataset, categoryAxis, valueAxis, renderer);
         plot.setOrientation(orientation);
         JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, showLegend);
-
         renderer.setBarPainter(new SherlockBarPainter());
         renderer.setShadowVisible(true);
+        int i =0;
         for (Object x:dataset.getRowKeys()) {
-            int y = dataset.getRowIndex((Comparable)x);
-            renderer.setSeriesPaint(y, colors.get(x));
+            if(x.equals("")){
+                renderer.setSeriesVisibleInLegend(i,false);
+            }else {
+                int y = dataset.getRowIndex((Comparable) x);
+                renderer.setSeriesPaint(y, colors.get(x));
+            }
+            i++;
         }
 
         Color fg = new Color(Main.currentTheme.foreground);
@@ -73,11 +158,12 @@ public class Charts {
         }
 
         Font regularFont = new Font("Tahoma", 0, 12);
+        Font smallFont = new Font("Tahoma", 0, 11);
 
         categoryAxis.setTickLabelPaint(fg);
         categoryAxis.setLabelPaint(fg);
         categoryAxis.setLabelFont(regularFont);
-        categoryAxis.setTickLabelFont(regularFont);
+        categoryAxis.setTickLabelFont(smallFont);
 
         valueAxis.setTickLabelPaint(fg);
         valueAxis.setLabelPaint(fg);
