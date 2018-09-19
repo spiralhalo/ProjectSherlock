@@ -283,10 +283,10 @@ public class MainControl implements ActionListener {
     }
 
     public void setTables(JTable tableActive, JTable tableFinished, JTable tableUtilityTags){
-        view.setTablePopUpMenu(new PopupMenu());
-        MenuItem viewMenu = new MenuItem("View");
-        MenuItem edit = new MenuItem("Edit");
-        MenuItem delete = new MenuItem("Delete");
+        view.setTablePopUpMenu(new JPopupMenu());
+        JMenuItem viewMenu = new JMenuItem("View");
+        JMenuItem edit = new JMenuItem("Edit");
+        JMenuItem delete = new JMenuItem("Delete");
         viewMenu.addActionListener(e->viewProject());
         edit.addActionListener(e->editProject());
         delete.addActionListener(e->deleteProject());
@@ -294,7 +294,7 @@ public class MainControl implements ActionListener {
         view.getTablePopUpMenu().add(edit);
         view.getTablePopUpMenu().addSeparator();
         view.getTablePopUpMenu().add(delete);
-        view.getTabProjects().add(view.getTablePopUpMenu());
+//        tableActive.add(view.getTablePopUpMenu());
         tableActive.addMouseListener(tableAdapter);
         tableFinished.addMouseListener(tableAdapter);
         tableUtilityTags.addMouseListener(tableAdapter);

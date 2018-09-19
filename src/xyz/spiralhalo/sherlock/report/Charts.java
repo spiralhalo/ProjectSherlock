@@ -1,13 +1,12 @@
 package xyz.spiralhalo.sherlock.report;
 
 import org.jfree.chart.*;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.CategoryLabelPositions;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.annotations.*;
+import org.jfree.chart.axis.*;
 import org.jfree.chart.block.LineBorder;
 import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.renderer.category.BarPainter;
@@ -21,7 +20,6 @@ import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.ui.*;
 import xyz.spiralhalo.sherlock.Main;
-import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartData;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartMeta;
@@ -31,6 +29,8 @@ import xyz.spiralhalo.sherlock.report.factory.summary.MonthSummary;
 import xyz.spiralhalo.sherlock.report.factory.summary.YearSummary;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -42,8 +42,15 @@ import static xyz.spiralhalo.sherlock.util.ColorUtil.*;
 import static xyz.spiralhalo.sherlock.util.ColorUtil.gray;
 
 public class Charts {
-    public static ChartPanel createMonthBarChart(MonthSummary monthSummary){
-        final ChartPanel x = createStackedBarChart("Day of month", "Time spent (hours)",
+    public static ChartPanel emptyPanel(){
+        ChartPanel panel = new ChartPanel(null, false, true, true,false,true);
+        panel.setMaximumDrawHeight(270);
+        panel.setMaximumDrawWidth(1920);
+        return panel;
+    }
+
+    public static JFreeChart createMonthBarChart(MonthSummary monthSummary){
+        final JFreeChart x = createStackedBarChart("Day of month", "Time spent (hours)",
                 monthSummary.getMonthChart().getDataset(),
                 monthSummary.getMonthChart().getMeta());
         final Color fg = new Color(Main.currentTheme.foreground);
@@ -60,16 +67,17 @@ public class Charts {
         marker.setLabelFont(new Font("Tahoma", 0, 11));
         marker.setLabelBackgroundColor(fg);
 
-        final CategoryPlot plot = x.getChart().getCategoryPlot();
+        final CategoryPlot plot = x.getCategoryPlot();
 
         plot.addRangeMarker(marker);
 
-        final CategoryAxis axis = x.getChart().getCategoryPlot().getDomainAxis();
+        final CategoryAxis axis = x.getCategoryPlot().getDomainAxis();
         final YearMonth ym = monthSummary.getMonth();
         final DefaultCategoryDataset ratingSet = new DefaultCategoryDataset();
 
         axis.setCategoryLabelPositions(
                 CategoryLabelPositions.createUpRotationLabelPositions(Math.PI / 3d));
+        axis.setTickLabelFont(new Font("Tahoma", Font.BOLD, 10));
 
         for (int i = 0; i < ym.lengthOfMonth(); i++) {
             LocalDate date = ym.atDay(i+1);
@@ -80,9 +88,9 @@ public class Charts {
                 int ratio = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < target ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / target);
                 if (UserConfig.isWorkDay(date.get(ChronoField.DAY_OF_WEEK))) {
                     Color ratioFG = interpolateNicely((float) ratio / 100f, bad, neu, gut);
-                    axis.setTickLabelPaint(unitLabel,AppConfig.getTheme().dark ? ratioFG : multiply(gray, ratioFG));
+                    axis.setTickLabelPaint(unitLabel,Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
                 } else {
-                    axis.setTickLabelPaint(unitLabel,AppConfig.getTheme().dark ? light_gray : gray);
+                    axis.setTickLabelPaint(unitLabel,Main.currentTheme.dark ? gray : light_gray);
                 }
                 ratingSet.addValue((Number) ((target/3600f) * (ratio / 100f)), "Rating", unitLabel);
             } else {
@@ -95,27 +103,29 @@ public class Charts {
 
         plot.setDataset(0, ratingSet);
         plot.setRenderer(0, new LineAndShapeRenderer());
+        plot.getRenderer(0).setBaseToolTipGenerator(new StandardCategoryToolTipGenerator());
 
+//        try {
+//            plot.addAnnotation(new CategoryImageAnnotation(ChartType.DAY_IN_MONTH.unitLabel(ym, 5), 12, ImgUtil.colorImage(ImgUtil.loadImage("sm_note.png"), Main.currentTheme.foreground)));
+//        } catch (IOException e) {
+//            Debug.log(e);
+//        }
         return x;
     }
 
-    public static ChartPanel createYearBarChart(YearSummary ys){
+    public static JFreeChart createYearBarChart(YearSummary ys){
         return createStackedBarChart("Month of year", "Time spent (hours)",
                 ys.getYearChart().getDataset(), ys.getYearChart().getMeta());
     }
 
-    public static ChartPanel createDayBarChart(ChartData dayChart){
+    public static JFreeChart createDayBarChart(ChartData dayChart){
         return createStackedBarChart("Hour of day", "Time spent (minute)",
                 dayChart.getDataset(), dayChart.getMeta());
     }
 
-    public static ChartPanel createStackedBarChart(String domainAxisLabel, String rangeAxisLabel, DefaultCategoryDataset dataset, ChartMeta colors){
-        JFreeChart chart = createStackedBarChart("", domainAxisLabel, rangeAxisLabel,
+    public static JFreeChart createStackedBarChart(String domainAxisLabel, String rangeAxisLabel, DefaultCategoryDataset dataset, ChartMeta colors){
+        return createStackedBarChart("", domainAxisLabel, rangeAxisLabel,
                 dataset, colors, PlotOrientation.VERTICAL, true, true, false);
-        ChartPanel panel = new ChartPanel(chart);
-        panel.setMaximumDrawHeight(270);
-        panel.setMaximumDrawWidth(1920);
-        return panel;
     }
 
     private static JFreeChart createStackedBarChart(String title, String domainAxisLabel, String rangeAxisLabel,
@@ -182,6 +192,60 @@ public class Charts {
         chart.setBackgroundPaint(bg);
 
         return chart;
+    }
+
+    public static class CategoryImageAnnotation extends AbstractAnnotation implements CategoryAnnotation {
+        private final Image image;
+        private final Comparable category;
+        private final CategoryAnchor categoryAnchor;
+        private final double value;
+        private final RectangleAnchor anchor;
+
+        public CategoryImageAnnotation(Comparable category, double value, Image image) {
+            this(category, value, image, RectangleAnchor.CENTER);
+        }
+
+        public CategoryImageAnnotation(Comparable category, double value, Image image,  RectangleAnchor anchor) {
+            this.image = image;
+            this.category = category;
+            this.categoryAnchor = CategoryAnchor.MIDDLE;
+            this.value = value;
+            this.anchor = anchor;
+        }
+
+        @Override
+        public void draw(Graphics2D g2, CategoryPlot plot, Rectangle2D dataArea, CategoryAxis categoryAxis, ValueAxis valueAxis) {
+            CategoryDataset dataset = plot.getDataset();
+            int catIndex = dataset.getColumnIndex(this.category);
+            int catCount = dataset.getColumnCount();
+            PlotOrientation orientation = plot.getOrientation();
+            AxisLocation domainAxisLocation = plot.getDomainAxisLocation();
+            AxisLocation rangeAxisLocation = plot.getRangeAxisLocation();
+            RectangleEdge domainEdge = Plot.resolveDomainAxisLocation(domainAxisLocation, orientation);
+            RectangleEdge rangeEdge = Plot.resolveRangeAxisLocation(rangeAxisLocation, orientation);
+            float j2DX = (float)categoryAxis.getCategoryJava2DCoordinate(this.categoryAnchor, catIndex, catCount, dataArea, domainEdge);
+            float j2DY = (float)valueAxis.valueToJava2D(this.value, dataArea, rangeEdge);
+            float xx = 0.0F;
+            float yy = 0.0F;
+            if (orientation == PlotOrientation.HORIZONTAL) {
+                xx = j2DY;
+                yy = j2DX;
+            } else if (orientation == PlotOrientation.VERTICAL) {
+                xx = j2DX;
+                yy = j2DY;
+            }
+
+            int w = this.image.getWidth(null);
+            int h = this.image.getHeight(null);
+            Rectangle2D imageRect = new Rectangle2D.Double(0.0D, 0.0D, (double)w, (double)h);
+            Point2D anchorPoint = RectangleAnchor.coordinates(imageRect, this.anchor);
+            xx -= (float)anchorPoint.getX();
+            yy -= (float)anchorPoint.getY();
+            g2.drawImage(this.image, (int)xx, (int)yy, null);
+//            if (toolTip != null || url != null) {
+//                this.addEntity(info, new Rectangle2D.Float(xx, yy, (float)w, (float)h), rendererIndex, toolTip, url);
+//            }
+        }
     }
 
     public static class SherlockBarPainter implements BarPainter {

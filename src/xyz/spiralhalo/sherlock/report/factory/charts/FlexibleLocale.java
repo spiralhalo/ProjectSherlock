@@ -40,4 +40,8 @@ public class FlexibleLocale implements Comparable, Serializable {
         }
         return String.valueOf(toCompare);
     }
+
+    public Comparable getToCompare() {
+        return toCompare;
+    }
 }

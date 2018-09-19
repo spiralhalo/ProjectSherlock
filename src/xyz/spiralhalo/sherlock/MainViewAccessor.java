@@ -27,6 +27,6 @@ public interface MainViewAccessor {
     JComponent getButtonFinish();
     JComponent getButtonResume();
     JComponent getButtonBookmarks();
-    void setTablePopUpMenu(PopupMenu popupMenu);
-    PopupMenu getTablePopUpMenu();
+    void setTablePopUpMenu(JPopupMenu popupMenu);
+    JPopupMenu getTablePopUpMenu();
 }

@@ -1,5 +1,10 @@
 package xyz.spiralhalo.sherlock;
 
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.entity.CategoryItemEntity;
+import org.jfree.chart.entity.ChartEntity;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
 import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
@@ -10,6 +15,7 @@ import xyz.spiralhalo.sherlock.report.*;
 import xyz.spiralhalo.sherlock.report.Charts;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartData;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartMeta;
+import xyz.spiralhalo.sherlock.report.factory.charts.FlexibleLocale;
 import xyz.spiralhalo.sherlock.report.factory.summary.MonthSummary;
 import xyz.spiralhalo.sherlock.report.factory.summary.YearList;
 import xyz.spiralhalo.sherlock.report.factory.summary.YearSummary;
@@ -19,7 +25,7 @@ import xyz.spiralhalo.sherlock.util.ImgUtil;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ItemEvent;
+import java.awt.event.*;
 import java.time.*;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
@@ -89,11 +95,14 @@ public class MainView implements MainViewAccessor {
     private JCommandButton cmdInbox;
     private JCommandButton cmdSettings;
     private JCommandButton cmdRefresh;
+    private ChartPanel dayPanel;
+    private ChartPanel monthPanel;
+    private ChartPanel yearPanel;
 
     private final ZoneId z = ZoneId.systemDefault();
     private final MainControl control;
     private final ArrayList<JComponent> enableOnSelect = new ArrayList<>();
-    private PopupMenu tablePopUpMenu;
+    private JPopupMenu tablePopUpMenu;
 
     private final JFrame frame = new JFrame(Main.APP_TITLE);
 
@@ -167,6 +176,61 @@ public class MainView implements MainViewAccessor {
         ((JLabel) comboDayCharts.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
         ((JLabel) comboMonthCharts.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
         ((JLabel) comboYearCharts.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
+    }
+
+    private ChartPanel getDayPanel() {
+        if(dayPanel==null){
+            dayPanel = Charts.emptyPanel();
+        }
+        return dayPanel;
+    }
+
+    private ChartPanel getMonthPanel() {
+        if(monthPanel==null){
+            monthPanel = Charts.emptyPanel();
+//            JPopupMenu.Separator s = new JPopupMenu.Separator();
+//            monthPanel.getPopupMenu().add(s);
+//            JMenuItem addNote = new JMenuItem("Add note");
+//            monthPanel.getPopupMenu().add(addNote);
+//            monthPanel.add(monthPanel.getPopupMenu());
+//            monthPanel.addChartMouseListener(new ChartMouseListener() {
+//                @Override
+//                public void chartMouseClicked(ChartMouseEvent e) {
+//                    if(e.getTrigger().getButton() == 3) {
+//                        ChartEntity x = e.getEntity();
+//                        if (x instanceof CategoryItemEntity) {
+//                            Comparable y = ((CategoryItemEntity) x).getColumnKey();
+//                            Comparable x1 = ((FlexibleLocale) y).getToCompare();
+//                            addNote.setText(String.format("Add note: %s", ((LocalDate) x1).format(FormatUtil.DTF_MONTH_CHART)));
+//                            s.setVisible(true);
+//                            addNote.setVisible(true);
+//                        } else {
+//                            s.setVisible(false);
+//                            addNote.setVisible(false);
+//                        }
+//                    }
+//                }
+//                @Override
+//                public void chartMouseMoved(ChartMouseEvent e) {
+//                }
+//            });
+//            monthPanel.addMouseListener(new MouseAdapter() {
+//                @Override
+//                public void mousePressed(MouseEvent e) {
+//                    if(e.getButton()==3){
+//                        monthPanel.mouseClicked(e);
+//                    }
+//                }
+//            });
+        }
+        return monthPanel;
+    }
+
+    private ChartPanel getYearPanel() {
+        if(yearPanel==null){
+            yearPanel = Charts.emptyPanel();
+        }
+        return yearPanel;
     }
 
     public JFrame frame() {
@@ -290,7 +354,6 @@ public class MainView implements MainViewAccessor {
 
     public void refreshDayChart(CacheMgr cache, ItemEvent event) {
         if(event.getStateChange() != ItemEvent.SELECTED) return;
-        System.out.println("abc");
         DateSelection<LocalDate> selected = (DateSelection<LocalDate>) comboDayCharts.getSelectedItem();
         pnlDayChart.removeAll();
         if (selected == null) { pnlDayChart.add(lblNoData); return;}
@@ -299,8 +362,9 @@ public class MainView implements MainViewAccessor {
         final ChartData dayChart = summary.getDayCharts().get(selected.date);
         if (dayChart == null) { pnlDayChart.add(lblNoData); return;}
         final ChartMeta meta = dayChart.getMeta();
+        getDayPanel().setChart(Charts.createDayBarChart(dayChart));
         pnlDayChart.setPreferredSize(new Dimension(-1, 220));
-        pnlDayChart.add(Charts.createDayBarChart(dayChart));
+        pnlDayChart.add(getDayPanel());
         pnlDayChart.updateUI();
         int target = UserConfig.getInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND);
         int ratio = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < target ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / target);
@@ -312,7 +376,7 @@ public class MainView implements MainViewAccessor {
             lblRatio.setForeground(AppConfig.getTheme().dark ? ratioFG : multiply(gray, ratioFG));
         } else {
             lblRatio.setText(String.format("Rating: %d%% (holiday)", ratio));
-            lblRatio.setForeground(AppConfig.getTheme().dark ? light_gray : gray);
+            lblRatio.setForeground(AppConfig.getTheme().dark ? gray : light_gray);
         }
         btnPrevChart.setEnabled(comboDayCharts.getSelectedIndex() > 0);
         btnNextChart.setEnabled(comboDayCharts.getSelectedIndex() < comboDayCharts.getItemCount() - 1);
@@ -322,14 +386,14 @@ public class MainView implements MainViewAccessor {
 
     public void refreshMonthChart(CacheMgr cache, ItemEvent event){
         if(event.getStateChange() != ItemEvent.SELECTED) return;
-        System.out.println("asd");
         DateSelection<YearMonth> selected = (DateSelection<YearMonth>) comboMonthCharts.getSelectedItem();
         pnlMonthChart.removeAll();
         if (selected == null) { pnlMonthChart.add(lblMonthNoData); return;}
         final MonthSummary summary = cache.getObj(MonthSummary.cacheId(selected.date, z), MonthSummary.class);
         if (summary == null) { pnlMonthChart.add(lblMonthNoData); return;}
+        getMonthPanel().setChart(Charts.createMonthBarChart(summary));
         pnlMonthChart.setPreferredSize(new Dimension(-1, 220));
-        pnlMonthChart.add(Charts.createMonthBarChart(summary));
+        pnlMonthChart.add(getMonthPanel());
         pnlMonthChart.updateUI();
         btnMonthPrevChart.setEnabled(comboMonthCharts.getSelectedIndex() > 0);
         btnMonthNextChart.setEnabled(comboMonthCharts.getSelectedIndex() < comboMonthCharts.getItemCount() - 1);
@@ -339,14 +403,14 @@ public class MainView implements MainViewAccessor {
 
     public void refreshYearChart(CacheMgr cache, ItemEvent event){
         if(event.getStateChange() != ItemEvent.SELECTED) return;
-        System.out.println("xyz");
         DateSelection<Year> selected = (DateSelection<Year>) comboYearCharts.getSelectedItem();
         pnlYearChart.removeAll();
         if (selected == null) { pnlYearChart.add(lblYearNoData); return;}
         final YearSummary summary = cache.getObj(YearSummary.cacheId(selected.date, z), YearSummary.class);
         if (summary == null) { pnlYearChart.add(lblYearNoData); return;}
+        getYearPanel().setChart(Charts.createYearBarChart(summary));
         pnlYearChart.setPreferredSize(new Dimension(-1, 270));
-        pnlYearChart.add(Charts.createYearBarChart(summary));
+        pnlYearChart.add(getYearPanel());
         pnlYearChart.updateUI();
         btnYearPrevChart.setEnabled(comboYearCharts.getSelectedIndex() > 0);
         btnYearNextChart.setEnabled(comboYearCharts.getSelectedIndex() < comboYearCharts.getItemCount() - 1);
@@ -434,12 +498,12 @@ public class MainView implements MainViewAccessor {
     }
 
     @Override
-    public void setTablePopUpMenu(PopupMenu popUpMenu) {
+    public void setTablePopUpMenu(JPopupMenu popUpMenu) {
         tablePopUpMenu = popUpMenu;
     }
 
     @Override
-    public PopupMenu getTablePopUpMenu() {
+    public JPopupMenu getTablePopUpMenu() {
         return tablePopUpMenu;
     }
 

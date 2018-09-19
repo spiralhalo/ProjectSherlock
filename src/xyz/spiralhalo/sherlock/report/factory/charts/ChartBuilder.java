@@ -128,7 +128,6 @@ public class ChartBuilder<T extends Temporal> {
         }
         for (int i = 0; i < type.numUnits(date); i++) {
             FlexibleLocale unitLabel = type.unitLabel(date, i);
-            System.out.println(dataset.getColumnIndex(unitLabel));
             if(deleted[i] > 0) dataset.setValue((Number) (deleted[i] / type.subunitNormalizer()), DELETED, unitLabel);
             if(other[i] > 0) dataset.setValue((Number) (other[i] / type.subunitNormalizer()), OTHER, unitLabel);
         }
