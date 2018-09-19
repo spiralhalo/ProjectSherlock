@@ -9,10 +9,6 @@ import java.time.LocalDate;
 public class ChartData implements Serializable {
     public static final long serialVersionUID = 1L;
 
-    public static String dayId(LocalDate date) {
-        return String.format("dayChart_%s", FormatUtil.DTF_YMD.format(date));
-    }
-
     private final ChartMeta meta;
     private final DefaultCategoryDataset dataset;
 

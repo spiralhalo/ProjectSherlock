@@ -94,7 +94,6 @@ public class ImgUtil {
 
     public static BufferedImage loadImage(String path) throws IOException {
         URL imageURL = Res.class.getResource(path);
-        BufferedImage img = ImageIO.read(imageURL);
-        return img;
+        return ImageIO.read(imageURL);
     }
 }

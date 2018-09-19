@@ -1,5 +1,11 @@
 package xyz.spiralhalo.sherlock;
 
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.Plot;
+import org.jfree.ui.RectangleEdge;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
 import org.pushingpixels.flamingo.api.common.JCommandMenuButton;
 import org.pushingpixels.flamingo.api.common.popup.JCommandPopupMenu;
@@ -10,6 +16,8 @@ import xyz.spiralhalo.sherlock.dialog.EditProject;
 import xyz.spiralhalo.sherlock.dialog.Quit;
 import xyz.spiralhalo.sherlock.dialog.Settings;
 import xyz.spiralhalo.sherlock.dialog.ViewProject;
+import xyz.spiralhalo.sherlock.notes.EditNote;
+import xyz.spiralhalo.sherlock.notes.YearNotes;
 import xyz.spiralhalo.sherlock.persist.cache.CacheId;
 import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
 import xyz.spiralhalo.sherlock.persist.project.ProjectListIO;
@@ -27,6 +35,7 @@ import xyz.spiralhalo.sherlock.report.factory.ReportRefresher;
 import xyz.spiralhalo.sherlock.report.factory.table.AllReportRows;
 import xyz.spiralhalo.sherlock.report.ops.OverviewOps;
 import xyz.spiralhalo.sherlock.report.factory.table.ReportRows;
+import xyz.spiralhalo.sherlock.util.FormatUtil;
 import xyz.spiralhalo.sherlock.util.ImgUtil;
 
 import javax.swing.*;
@@ -36,6 +45,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.time.LocalDate;
+import java.time.Year;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.function.BiConsumer;
@@ -74,6 +86,7 @@ public class MainControl implements ActionListener {
     private final boolean trayIconUsed;
     private final BookmarkMgr bookmark;
     private final ZoneId z = ZoneId.systemDefault();
+    private LocalDate monthNoteEditing;
 
     private MainControl() {
         cache = new CacheMgr();
@@ -177,7 +190,7 @@ public class MainControl implements ActionListener {
         btnUp.setName(Action.A_UP.name());
         btnDown.setName(Action.A_DOWN.name());
         btnSettings.setName(Action.A_SETTINGS.name());
-        addEnableOnSelect(btnView, btnEdit, btnDelete, btnUp, btnDown);
+        addEnableOnSelect(btnView, btnEdit, btnDelete, btnUp, btnDown, btnFinish, btnResume);
         btnFinish.setEnabled(false);
         setTabs(btnResume, tabs, tabr);
     }
@@ -238,6 +251,85 @@ public class MainControl implements ActionListener {
         tabs.addChangeListener(tabChangeListener);
         tabr.addChangeListener(tabChangeListener);
         btnResume.setVisible(false);
+    }
+
+    public void setMonthChart(ChartPanel monthPanel) {
+        JPopupMenu.Separator s = new JPopupMenu.Separator();
+        monthPanel.getPopupMenu().add(s);
+        JMenuItem editNote = new JMenuItem("Add note");
+        JMenuItem removeNote = new JMenuItem("Remove note");
+        monthPanel.getPopupMenu().add(editNote);
+        monthPanel.getPopupMenu().add(removeNote);
+        monthPanel.addChartMouseListener(new ChartMouseListener() {
+            @Override
+            public void chartMouseClicked(ChartMouseEvent e) {
+                if(view.getMonthChartInfo() != null && e.getTrigger().getButton() == 3) {
+                    final YearMonth month = view.getMonthChartInfo().month;
+                    if(month == null)return;
+                    final CategoryPlot plot = e.getChart().getCategoryPlot();
+                    final RectangleEdge domainEdge = Plot.resolveDomainAxisLocation(plot.getDomainAxisLocation(), plot.getOrientation());
+                    final int count = plot.getDataset(1).getColumnCount();
+                    final int xStart = (int) plot.getDomainAxis().getCategoryStart(0, count, monthPanel.getScreenDataArea(), domainEdge);
+                    final int xLen = (int) plot.getDomainAxis().getCategoryEnd(count - 1, count, monthPanel.getScreenDataArea(), domainEdge) - xStart;
+                    final int x = e.getTrigger().getX();
+                    if (x > xStart && x < xStart + xLen) {
+                        monthNoteEditing = month.atDay((x - xStart) / (xLen / month.lengthOfMonth()) + 1);
+                        if(view.getMonthChartInfo().annotations.containsKey(monthNoteEditing)) {
+                            editNote.setText(String.format("View note: %s", monthNoteEditing.format(FormatUtil.DTF_MONTH_CHART)));
+                            removeNote.setVisible(true);
+                        } else {
+                            editNote.setText(String.format("Add note: %s", monthNoteEditing.format(FormatUtil.DTF_MONTH_CHART)));
+                        }
+                        s.setVisible(true);
+                        editNote.setVisible(true);
+                    } else {
+                        s.setVisible(false);
+                        editNote.setVisible(false);
+                        removeNote.setVisible(false);
+                    }
+                }
+            }
+            @Override
+            public void chartMouseMoved(ChartMouseEvent e) {
+            }
+        });
+        monthPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if(e.getButton()==3){
+                    monthPanel.mouseClicked(e);
+                }
+            }
+        });
+        editNote.addActionListener(e->{
+            if(monthNoteEditing != null) {
+                String oldNote = YearNotes.getNote(z, monthNoteEditing);
+                String note = EditNote.getNote(view.frame(), monthNoteEditing, oldNote);
+                if (note != null) {
+                    if (!view.getMonthChartInfo().annotations.containsKey(monthNoteEditing)) {
+                        Charts.CategoryImageAnnotation annotation = Charts.monthAnnotation(
+                                view.getMonthChartInfo().month,
+                                monthNoteEditing.getDayOfMonth(),
+                                view.getMonthChartInfo().max);
+                        view.getMonthChartInfo().chart.getCategoryPlot().addAnnotation(annotation);
+                        view.getMonthChartInfo().annotations.put(monthNoteEditing, annotation);
+                    }
+                    YearNotes.setNote(z, monthNoteEditing, note);
+                    monthNoteEditing = null;
+                }
+            }
+        });
+        removeNote.addActionListener(e->{
+            if(monthNoteEditing != null) {
+                if (view.getMonthChartInfo().annotations.containsKey(monthNoteEditing)) {
+                    view.getMonthChartInfo().chart.getCategoryPlot().removeAnnotation(
+                            view.getMonthChartInfo().annotations.get(monthNoteEditing));
+                    view.getMonthChartInfo().annotations.remove(monthNoteEditing);
+                    YearNotes.removeNote(z, monthNoteEditing);
+                    monthNoteEditing = null;
+                }
+            }
+        });
     }
 
     private void createPopupNew(JCommandButton cmdNew){
@@ -430,9 +522,6 @@ public class MainControl implements ActionListener {
             for (JComponent x:view.enableOnSelect()) {
                 x.setEnabled(temp);
             }
-            view.getButtonFinish().setVisible(view.getTabProjects().getSelectedIndex()!=1 || !temp);
-            view.getButtonFinish().setEnabled(view.getTabProjects().getSelectedIndex()==0 && temp);
-            view.getButtonResume().setVisible(view.getTabProjects().getSelectedIndex()==1 && temp);
         }
     };
 
@@ -444,7 +533,6 @@ public class MainControl implements ActionListener {
                 x.setEnabled(temp);
             }
             view.getButtonFinish().setVisible(view.getTabProjects().getSelectedIndex()==0);
-            view.getButtonFinish().setEnabled(view.getTabProjects().getSelectedIndex()==0 && temp);
             view.getButtonResume().setVisible(view.getTabProjects().getSelectedIndex()==1);
             view.getButtonBookmarks().setVisible(view.getTabProjects().getSelectedIndex()!=2);
         }

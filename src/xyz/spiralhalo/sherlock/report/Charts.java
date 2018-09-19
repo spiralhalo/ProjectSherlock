@@ -20,6 +20,7 @@ import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.ui.*;
 import xyz.spiralhalo.sherlock.Main;
+import xyz.spiralhalo.sherlock.notes.YearNotes;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartData;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartMeta;
@@ -27,14 +28,19 @@ import xyz.spiralhalo.sherlock.report.factory.charts.ChartType;
 import xyz.spiralhalo.sherlock.report.factory.charts.FlexibleLocale;
 import xyz.spiralhalo.sherlock.report.factory.summary.MonthSummary;
 import xyz.spiralhalo.sherlock.report.factory.summary.YearSummary;
+import xyz.spiralhalo.sherlock.util.ImgUtil;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
+import java.io.IOException;
 import java.time.LocalDate;
+import java.time.Year;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.time.temporal.ChronoField;
+import java.util.HashMap;
 
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.DAILY_TARGET_SECOND;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.TRACKING;
@@ -42,6 +48,19 @@ import static xyz.spiralhalo.sherlock.util.ColorUtil.*;
 import static xyz.spiralhalo.sherlock.util.ColorUtil.gray;
 
 public class Charts {
+    private static Image noteImg = null;
+    static {
+        try {
+            noteImg = ImgUtil.loadImage("sm_note.png");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static CategoryImageAnnotation monthAnnotation(YearMonth ym, int dayOfMonth, double max){
+        return new CategoryImageAnnotation(ChartType.DAY_IN_MONTH.unitLabel(ym, dayOfMonth-1), max*0.8, noteImg);
+    }
+
     public static ChartPanel emptyPanel(){
         ChartPanel panel = new ChartPanel(null, false, true, true,false,true);
         panel.setMaximumDrawHeight(270);
@@ -49,7 +68,21 @@ public class Charts {
         return panel;
     }
 
-    public static JFreeChart createMonthBarChart(MonthSummary monthSummary){
+    public static class MonthChartInfo {
+        public final JFreeChart chart;
+        public final HashMap<LocalDate, CategoryImageAnnotation> annotations;
+        public final YearMonth month;
+        public final double max;
+
+        public MonthChartInfo(JFreeChart chart, HashMap<LocalDate, CategoryImageAnnotation> annotations, YearMonth month, double max) {
+            this.chart = chart;
+            this.annotations = annotations;
+            this.month = month;
+            this.max = max;
+        }
+    }
+
+    public static MonthChartInfo createMonthBarChart(MonthSummary monthSummary){
         final JFreeChart x = createStackedBarChart("Day of month", "Time spent (hours)",
                 monthSummary.getMonthChart().getDataset(),
                 monthSummary.getMonthChart().getMeta());
@@ -79,6 +112,12 @@ public class Charts {
                 CategoryLabelPositions.createUpRotationLabelPositions(Math.PI / 3d));
         axis.setTickLabelFont(new Font("Tahoma", Font.BOLD, 10));
 
+        ZoneId z = ZoneId.systemDefault();
+        HashMap<LocalDate, CategoryImageAnnotation> annotations = new HashMap<>();
+        double max = 0;
+
+        CategoryDataset originalDataset = plot.getDataset(0);
+
         for (int i = 0; i < ym.lengthOfMonth(); i++) {
             LocalDate date = ym.atDay(i+1);
             ChartData dayChart = monthSummary.getDayCharts().get(date);
@@ -96,6 +135,22 @@ public class Charts {
             } else {
                 ratingSet.addValue((Number)0, "Rating", unitLabel);
             }
+            double total = 0;
+            for (int j = 0; j < originalDataset.getRowCount(); j++) {
+                final Number value = originalDataset.getValue(j, i);
+                if(value==null)continue;
+                total = total + value.doubleValue();
+            }
+            if(total>max)max=total;
+        }
+
+        for (int i = 0; i < ym.lengthOfMonth(); i++) {
+            LocalDate date = ym.atDay(i+1);
+            if(YearNotes.getNote(z, date) != null) {
+                CategoryImageAnnotation ann = monthAnnotation(ym, i+1,max);
+                annotations.put(date, ann);
+                plot.addAnnotation(ann);
+            }
         }
 
         plot.setDataset(1, plot.getDataset(0));
@@ -105,12 +160,7 @@ public class Charts {
         plot.setRenderer(0, new LineAndShapeRenderer());
         plot.getRenderer(0).setBaseToolTipGenerator(new StandardCategoryToolTipGenerator());
 
-//        try {
-//            plot.addAnnotation(new CategoryImageAnnotation(ChartType.DAY_IN_MONTH.unitLabel(ym, 5), 12, ImgUtil.colorImage(ImgUtil.loadImage("sm_note.png"), Main.currentTheme.foreground)));
-//        } catch (IOException e) {
-//            Debug.log(e);
-//        }
-        return x;
+        return new MonthChartInfo(x, annotations, ym, max);
     }
 
     public static JFreeChart createYearBarChart(YearSummary ys){

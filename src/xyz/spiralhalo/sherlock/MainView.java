@@ -1,10 +1,6 @@
 package xyz.spiralhalo.sherlock;
 
-import org.jfree.chart.ChartMouseEvent;
-import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.entity.CategoryItemEntity;
-import org.jfree.chart.entity.ChartEntity;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
 import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
@@ -15,7 +11,6 @@ import xyz.spiralhalo.sherlock.report.*;
 import xyz.spiralhalo.sherlock.report.Charts;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartData;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartMeta;
-import xyz.spiralhalo.sherlock.report.factory.charts.FlexibleLocale;
 import xyz.spiralhalo.sherlock.report.factory.summary.MonthSummary;
 import xyz.spiralhalo.sherlock.report.factory.summary.YearList;
 import xyz.spiralhalo.sherlock.report.factory.summary.YearSummary;
@@ -98,6 +93,7 @@ public class MainView implements MainViewAccessor {
     private ChartPanel dayPanel;
     private ChartPanel monthPanel;
     private ChartPanel yearPanel;
+    private Charts.MonthChartInfo monthChartInfo;
 
     private final ZoneId z = ZoneId.systemDefault();
     private final MainControl control;
@@ -188,40 +184,7 @@ public class MainView implements MainViewAccessor {
     private ChartPanel getMonthPanel() {
         if(monthPanel==null){
             monthPanel = Charts.emptyPanel();
-//            JPopupMenu.Separator s = new JPopupMenu.Separator();
-//            monthPanel.getPopupMenu().add(s);
-//            JMenuItem addNote = new JMenuItem("Add note");
-//            monthPanel.getPopupMenu().add(addNote);
-//            monthPanel.add(monthPanel.getPopupMenu());
-//            monthPanel.addChartMouseListener(new ChartMouseListener() {
-//                @Override
-//                public void chartMouseClicked(ChartMouseEvent e) {
-//                    if(e.getTrigger().getButton() == 3) {
-//                        ChartEntity x = e.getEntity();
-//                        if (x instanceof CategoryItemEntity) {
-//                            Comparable y = ((CategoryItemEntity) x).getColumnKey();
-//                            Comparable x1 = ((FlexibleLocale) y).getToCompare();
-//                            addNote.setText(String.format("Add note: %s", ((LocalDate) x1).format(FormatUtil.DTF_MONTH_CHART)));
-//                            s.setVisible(true);
-//                            addNote.setVisible(true);
-//                        } else {
-//                            s.setVisible(false);
-//                            addNote.setVisible(false);
-//                        }
-//                    }
-//                }
-//                @Override
-//                public void chartMouseMoved(ChartMouseEvent e) {
-//                }
-//            });
-//            monthPanel.addMouseListener(new MouseAdapter() {
-//                @Override
-//                public void mousePressed(MouseEvent e) {
-//                    if(e.getButton()==3){
-//                        monthPanel.mouseClicked(e);
-//                    }
-//                }
-//            });
+            control.setMonthChart(monthPanel);
         }
         return monthPanel;
     }
@@ -391,7 +354,9 @@ public class MainView implements MainViewAccessor {
         if (selected == null) { pnlMonthChart.add(lblMonthNoData); return;}
         final MonthSummary summary = cache.getObj(MonthSummary.cacheId(selected.date, z), MonthSummary.class);
         if (summary == null) { pnlMonthChart.add(lblMonthNoData); return;}
-        getMonthPanel().setChart(Charts.createMonthBarChart(summary));
+        Charts.MonthChartInfo chartInfo = Charts.createMonthBarChart(summary);
+        monthChartInfo = chartInfo;
+        getMonthPanel().setChart(chartInfo.chart);
         pnlMonthChart.setPreferredSize(new Dimension(-1, 220));
         pnlMonthChart.add(getMonthPanel());
         pnlMonthChart.updateUI();
@@ -505,6 +470,11 @@ public class MainView implements MainViewAccessor {
     @Override
     public JPopupMenu getTablePopUpMenu() {
         return tablePopUpMenu;
+    }
+
+    @Override
+    public Charts.MonthChartInfo getMonthChartInfo() {
+        return monthChartInfo;
     }
 
     private void createUIComponents() {
