@@ -1,12 +1,7 @@
 package projectlogger;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
-
-import static java.time.ZoneOffset.UTC;
 
 @Deprecated
 public class Project implements Serializable {

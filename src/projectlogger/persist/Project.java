@@ -1,14 +1,7 @@
 package projectlogger.persist;
 
-import java.awt.*;
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.Random;
-
-import static java.time.ZoneOffset.UTC;
 
 public class Project implements Serializable {
     public static final long serialVersionUID = 2L;

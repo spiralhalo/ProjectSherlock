@@ -3,7 +3,6 @@ package xyz.spiralhalo.sherlock.report.factory;
 import xyz.spiralhalo.sherlock.Application;
 import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.async.AsyncTask;
-import xyz.spiralhalo.sherlock.persist.cache.CacheId;
 import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;

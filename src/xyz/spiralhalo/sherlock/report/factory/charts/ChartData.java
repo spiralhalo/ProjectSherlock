@@ -1,10 +1,8 @@
 package xyz.spiralhalo.sherlock.report.factory.charts;
 
 import org.jfree.data.category.DefaultCategoryDataset;
-import xyz.spiralhalo.sherlock.util.FormatUtil;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 
 public class ChartData implements Serializable {
     public static final long serialVersionUID = 1L;

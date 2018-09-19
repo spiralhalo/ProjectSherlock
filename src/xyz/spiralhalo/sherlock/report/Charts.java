@@ -36,7 +36,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.Year;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.temporal.ChronoField;
