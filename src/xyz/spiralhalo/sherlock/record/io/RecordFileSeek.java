@@ -112,7 +112,6 @@ public class RecordFileSeek extends RecordFileRW {
 
     private void writeIndex(YearMonth month, ZoneId z, long pos) {
         if (cache == null) return;
-        xyz.spiralhalo.sherlock.Debug.log(""+pos);
         MonthIndex index = cache.getObj(MonthIndex.cacheId(z), MonthIndex.class);
         if(index == null) index = new MonthIndex();
         index.put(month, pos);

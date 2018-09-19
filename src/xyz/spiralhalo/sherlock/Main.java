@@ -9,14 +9,28 @@ import javax.swing.*;
 
 public class Main {
 
-    public static final String APP_TITLE = "Project Sherlock 2 beta version 5 preview";
+    public static final String APP_TITLE = "Project Sherlock 2 version 5 RC1";
     public static final String APP_NAME = "Project Sherlock 2";
     public static final String APP_NAME_NOSPACE = APP_NAME.replace(" ", "");
     public static Theme currentTheme;
     private static final Theme FALL_BACK_THEME = Theme.SYSTEM;
 
     public static void main(String[] args) {
+        if(!Application.isWindows()) {
+            JOptionPane.showMessageDialog(null, "This operating system is not supported.",
+                    "Project Sherlock 2", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         Arg.setArgs(args);
+
+        if(Application.isJar()){
+            Debug.log("Running from a .jar file");
+        } else if(Application.isExe()){
+            Debug.log("Running from a .exe wrapper");
+        } else {
+            Debug.log("Running from compiled class files");
+        }
 
         if(Arg.Sandbox.isEnabled()) {
             Debug.log("Sandbox mode is enabled.");

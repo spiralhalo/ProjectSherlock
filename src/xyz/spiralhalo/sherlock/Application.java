@@ -98,6 +98,10 @@ public class Application {
         return getJarPath().toUpperCase().endsWith(".JAR");
     }
 
+    public static boolean isExe(){
+        return getJarPath().toUpperCase().endsWith(".EXE");
+    }
+
     public static boolean supportsTrayIcon(){
         return SystemTray.isSupported();
     }
@@ -138,14 +142,21 @@ public class Application {
 
     public static void createOrDeleteStartupRegistry() {
         if (Application.getJavawPath() == null) return;
-        if (!Application.isWindows() || !Application.isJar()) return;
+        if (!Application.isWindows() || (!Application.isJar() && !Application.isExe())) return;
         try {
             String key = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
             String valueName = Main.APP_NAME_NOSPACE;
-            String value = String.format("%s -jar \"%s\"%s",
-                    Application.getJavawPath(),
-                    Application.getJarPath(),
-                    AppConfig.getBool(AppConfig.AppBool.RUN_MINIMIZED)?" "+ Main.Arg.Minimized :"");
+            String value;
+            if(Application.isJar()) {
+                value = String.format("%s -jar \"%s\"%s",
+                        Application.getJavawPath(),
+                        Application.getJarPath(),
+                        AppConfig.getBool(AppConfig.AppBool.RUN_MINIMIZED) ? " " + Main.Arg.Minimized : "");
+            } else {
+                value = String.format("%s %s",
+                        Application.getJarPath(),
+                        AppConfig.getBool(AppConfig.AppBool.RUN_MINIMIZED) ? " " + Main.Arg.Minimized : "");
+            }
             if(AppConfig.getBool(AppConfig.AppBool.RUN_ON_STARTUP)) {
                 WinRegistry.writeStringValue(WinRegistry.HKEY_CURRENT_USER, key, valueName, value);
             } else {
@@ -157,10 +168,17 @@ public class Application {
     }
 
     public static void restartApp(){
-        String command = String.format("%s -jar \"%s\" %s",
-                Application.getJavawPath(),
-                Application.getJarPath(),
-                Main.Arg.Delayed);
+        String command;
+        if(Application.isJar()) {
+            command = String.format("%s -jar \"%s\" %s",
+                    Application.getJavawPath(),
+                    Application.getJarPath(),
+                    Main.Arg.Delayed);
+        } else if(Application.isExe()) {
+            command = String.format("%s %s", Application.getJarPath(), Main.Arg.Delayed);
+        } else {
+            return;
+        }
         try {
             Runtime.getRuntime().exec(command);
             System.exit(0);

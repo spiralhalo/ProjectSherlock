@@ -78,7 +78,9 @@ public class EditProject extends JDialog {
             fieldName.setText(p.getName());
             comboCat.setSelectedItem(p.getCategory());
             fieldTag.setText(String.join(", ",p.getTags()));
-            comboTagType.setSelectedIndex(p.isProductive()?0:1);
+            if(p.isUtilityTag()) {
+                comboTagType.setSelectedIndex(p.isProductive() ? 0 : 1);
+            }
         }
 
         CaretListener validator = e -> validateInput();

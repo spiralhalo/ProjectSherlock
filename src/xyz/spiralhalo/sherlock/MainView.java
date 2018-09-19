@@ -339,7 +339,7 @@ public class MainView implements MainViewAccessor {
             lblRatio.setForeground(AppConfig.getTheme().dark ? ratioFG : multiply(gray, ratioFG));
         } else {
             lblRatio.setText(String.format("Rating: %d%% (holiday)", ratio));
-            lblRatio.setForeground(AppConfig.getTheme().dark ? gray : light_gray);
+            lblRatio.setForeground(gray);
         }
         btnPrevChart.setEnabled(comboDayCharts.getSelectedIndex() > 0);
         btnNextChart.setEnabled(comboDayCharts.getSelectedIndex() < comboDayCharts.getItemCount() - 1);
