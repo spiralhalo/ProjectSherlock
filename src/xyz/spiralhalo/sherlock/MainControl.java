@@ -278,6 +278,7 @@ public class MainControl implements ActionListener {
                             removeNote.setVisible(true);
                         } else {
                             editNote.setText(String.format("Add note: %s", monthNoteEditing.format(FormatUtil.DTF_MONTH_CHART)));
+                            removeNote.setVisible(false);
                         }
                         s.setVisible(true);
                         editNote.setVisible(true);
