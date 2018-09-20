@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
 Main-Class: xyz.spiralhalo.sherlock.Main
-
+Class-Path: jcommon-1.0.23.jar jfreechart-1.0.19.jar

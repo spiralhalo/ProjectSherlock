@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="Distribution">
+    <output-path>$PROJECT_DIR$/out/artifacts/Distribution</output-path>
+    <root id="root">
+      <element id="artifact" artifact-name="ProjectSherlock2:jar" />
+      <element id="library" level="project" name="jfreechart-1.0.19" />
+      <element id="file-copy" path="$PROJECT_DIR$/out/THIRD_PARTY_LICENSE" />
+    </root>
+  </artifact>
+</component>
