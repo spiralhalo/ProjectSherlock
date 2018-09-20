@@ -16,6 +16,7 @@ public class Application {
     private static final String SAVEDIR = "ProjectLogger2";
     private static String cachedSaveDir;
     private static String cachedCacheDir;
+    private static String cachedLogDir;
     private static String cachedJarPath;
     private static String cachedJavawPath;
 
@@ -37,7 +38,7 @@ public class Application {
             try {
                 cachedJarPath = new File(MainView.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
             } catch (URISyntaxException e) {
-                e.printStackTrace();
+                Debug.log(e);
                 return null;
             }
         }
@@ -88,6 +89,21 @@ public class Application {
             cacheDir.mkdir();
         }
         return cachedCacheDir = cacheDir.getPath();
+    }
+
+    public static String getLogDir()
+    {
+        File logDir = new File(getSaveDir(), "logs");
+        if(logDir.isDirectory() && cachedLogDir != null){
+            return cachedLogDir;
+        }
+        if(logDir.exists() && !logDir.isDirectory()) {
+            logDir.delete();
+        }
+        if(!logDir.exists()){
+            logDir.mkdir();
+        }
+        return cachedLogDir = logDir.getPath();
     }
 
     public static boolean isWindows(){

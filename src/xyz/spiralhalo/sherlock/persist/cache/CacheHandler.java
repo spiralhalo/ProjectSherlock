@@ -25,7 +25,7 @@ class CacheHandler {
             try (FileInputStream fis = new FileInputStream(cacheFile);
                  ObjectInputStream ois = new ObjectInputStream(fis)) {
                 return (CachedObj) ois.readObject();
-            } catch (ClassNotFoundException | IOException e) {
+            } catch (ClassCastException | ClassNotFoundException | IOException e) {
                 Debug.log(e);
             }
         }

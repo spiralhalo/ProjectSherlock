@@ -95,6 +95,7 @@ public class Main {
         Delayed("-delayed"),
         Debug("-debug"),
         Verbose("-verbose"),
+        Console("-console"),
         Sandbox("-sandbox");
         private final String v;
         private boolean enabled = false;
