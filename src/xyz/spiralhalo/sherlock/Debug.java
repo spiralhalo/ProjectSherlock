@@ -45,7 +45,7 @@ public class Debug {
     private static String errorVerbose(Throwable e){
         StringBuilder builder = new StringBuilder();
         StackTraceElement[] x = e.getStackTrace();
-        for (StackTraceElement y:x) builder.append(y.toString());
+        for (StackTraceElement y:x) builder.append(y.toString()).append('\n');
         return String.format("%s at %s", e.toString(), builder.toString());
     }
 
