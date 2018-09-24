@@ -38,11 +38,15 @@ public class Loader<T> implements BiConsumer<T,Throwable> {
     @Override
     public void accept(T e, Throwable t) {
         if(t!=null) Debug.log(t);
-        callback.accept(e,t);
-        if(toShow != null) {
-            toShow.setVisible(false);
-            toHide.setVisible(true);
+        try {
+            callback.accept(e, t);
+        } catch (Throwable ignored){}
+        finally {
+            if(toShow != null) {
+                toShow.setVisible(false);
+                toHide.setVisible(true);
+            }
+            runningIds.remove(id);
         }
-        runningIds.remove(id);
     }
 }

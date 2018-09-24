@@ -27,11 +27,11 @@ public class DurationCell extends DefaultTableCellRenderer {
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         if(target){
             Color baseColor;
-            if(table.getModel() instanceof DayModel && !UserConfig.isWorkDay(((DayModel) table.getModel()).getDay(row))){
+            if(table.getModel() instanceof DayModel && !UserConfig.userGWDay(((DayModel) table.getModel()).getDay(row))){
                 baseColor = light_gray;
             } else {
                 baseColor = interpolateNicely(((float) (int) value) /
-                        UserConfig.getInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND), bad, neu, gut);
+                        UserConfig.userGInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND), bad, neu, gut);
             }
             if(isSelected) {
                 super.setBackground(multiply(super.getBackground(),baseColor));

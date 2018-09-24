@@ -50,11 +50,11 @@ public class AppConfig {
 
     public static HMSMode defaultHMSMode() {return HMSMode.COLON;}
 
-    public static HMSMode getHMSMode(){
+    public static HMSMode appHMS(){
         return HMSMode.valueOf(IniHandler.getInstance().get(NODE, KEY_HMS_MODE, defaultHMSMode().name()));
     }
 
-    public static void setHMSMode(HMSMode mode){
+    public static void appHMS(HMSMode mode){
         IniHandler.getInstance().put(NODE, KEY_HMS_MODE, mode.name());
     }
 
@@ -73,7 +73,7 @@ public class AppConfig {
         IniHandler.getInstance().put(NODE, KEY_THEME, Theme.values()[theme].name());
     }
 
-    public static boolean defaultBoolean(AppBool key){
+    public static boolean appDBool(AppBool key){
         switch (key){
             case ASK_BEFORE_QUIT: return true;
             case MINIMIZE_TO_TRAY: return true;
@@ -83,26 +83,26 @@ public class AppConfig {
         }
     }
 
-    public static boolean getBool(AppBool key){
-        return IniHandler.getInstance().getBoolean(NODE, key.name(), defaultBoolean(key));
+    public static boolean appGBool(AppBool key){
+        return IniHandler.getInstance().getBoolean(NODE, key.name(), appDBool(key));
     }
 
-    public static void setBoolean(AppBool key, boolean value) {
+    public static void appSBool(AppBool key, boolean value) {
         IniHandler.getInstance().putBoolean(NODE, key.name(), value);
     }
 
-    public static int defaultInt(AppInt key){
+    public static int appDInt(AppInt key){
         switch (key){
             case REFRESH_TIMEOUT: return 10 * 60;
             default: return 0;
         }
     }
 
-    public static int getInt(AppInt key){
-        return IniHandler.getInstance().getInt(NODE, key.name(), defaultInt(key));
+    public static int appGInt(AppInt key){
+        return IniHandler.getInstance().getInt(NODE, key.name(), appDInt(key));
     }
 
-    public static void setInt(AppInt key, int value){
+    public static void appSInt(AppInt key, int value){
         IniHandler.getInstance().putInt(NODE, key.name(), value);
     }
 }

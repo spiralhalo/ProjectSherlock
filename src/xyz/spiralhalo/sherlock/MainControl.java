@@ -5,7 +5,7 @@ import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.Plot;
-import org.jfree.ui.RectangleEdge;
+import org.jfree.chart.ui.RectangleEdge;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
 import org.pushingpixels.flamingo.api.common.JCommandMenuButton;
 import org.pushingpixels.flamingo.api.common.popup.JCommandPopupMenu;
@@ -138,7 +138,7 @@ public class MainControl implements ActionListener {
     private WindowAdapter windowAdapter = new WindowAdapter() {
         @Override
         public void windowClosing(WindowEvent e) {
-            if(AppConfig.getBool(AppBool.ASK_BEFORE_QUIT)) {
+            if(AppConfig.appGBool(AppBool.ASK_BEFORE_QUIT)) {
                 Quit quit = new Quit(view.frame());
                 quit.setVisible(true);
                 switch (quit.getSelection()) {
@@ -164,7 +164,7 @@ public class MainControl implements ActionListener {
 
         @Override
         public void windowStateChanged(WindowEvent e) {
-            if(trayIconUsed && AppConfig.getBool(AppBool.MINIMIZE_TO_TRAY) && (view.frame().getState() == ICONIFIED)){
+            if(trayIconUsed && AppConfig.appGBool(AppBool.MINIMIZE_TO_TRAY) && (view.frame().getState() == ICONIFIED)){
                 minimizeToTray();
             }
         }
@@ -543,7 +543,7 @@ public class MainControl implements ActionListener {
     private void viewProject(){
         Project p = projectList.findByHash(view.selected());
         if(p==null) return;
-        if(cache.getElapsed(CacheId.ProjectDayRows(p)) > AppConfig.getInt(AppInt.REFRESH_TIMEOUT)){
+        if(cache.getElapsed(CacheId.ProjectDayRows(p)) > AppConfig.appGInt(AppInt.REFRESH_TIMEOUT)){
             refreshProject(p);
         } else {
             ReportRows dayRows = cache.getObj(CacheId.ProjectDayRows(p), ReportRows.class);
@@ -576,7 +576,7 @@ public class MainControl implements ActionListener {
     }
 
     private void decideRefresh(){
-        if(cache.getElapsed(AllReportRows.activeCacheId(z)) > AppConfig.getInt(AppInt.REFRESH_TIMEOUT)){
+        if(cache.getElapsed(AllReportRows.activeCacheId(z)) > AppConfig.appGInt(AppInt.REFRESH_TIMEOUT)){
             refresh();
         } else view.refreshStatus(cache);
     }
@@ -609,10 +609,10 @@ public class MainControl implements ActionListener {
     }
 
     private void refreshCB(Boolean result, Throwable t){
-        if(!result && t != null){
-            JOptionPane.showMessageDialog(view.frame(),
-                    String.format("Failed to refresh due to an error.\nerror code:\n\t%s", t.toString()),
-                    "Refresh failed", JOptionPane.ERROR_MESSAGE);
+        if(result == null){
+            if(t != null){
+                Debug.log(t);
+            }
         } else if(result){
             view.refreshOverview(cache);
         }

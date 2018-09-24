@@ -75,7 +75,7 @@ public class Quit extends JDialog {
 
     private void onOK() {
         selection = QuitSelection.EXIT;
-        AppConfig.setBoolean(AppConfig.AppBool.ASK_BEFORE_QUIT, !checkDoNotAsk.isSelected());
+        AppConfig.appSBool(AppConfig.AppBool.ASK_BEFORE_QUIT, !checkDoNotAsk.isSelected());
         dispose();
     }
 

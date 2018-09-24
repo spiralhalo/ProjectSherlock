@@ -217,8 +217,8 @@ public class MainView implements MainViewAccessor {
 
     public void refreshStatus(CacheMgr cache) {
         if (cache.getCreated(AllReportRows.activeCacheId(z)).equals(CacheMgr.NEVER)) {
-            lblRefresh.setText("Last refresh: never");
-            lblTracking.setText("Refresh required.");
+            lblRefresh.setText("Last refresh: n/a");
+            lblTracking.setText("No data.");
         } else {
             int seconds = (int)cache.getElapsed(AllReportRows.activeCacheId(z));
             if (seconds == 0) {
@@ -329,11 +329,11 @@ public class MainView implements MainViewAccessor {
         pnlDayChart.setPreferredSize(new Dimension(-1, 220));
         pnlDayChart.add(getDayPanel());
         pnlDayChart.updateUI();
-        int target = UserConfig.getInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND);
+        int target = UserConfig.userGInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND);
         int ratio = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < target ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / target);
         lblLogged.setText(String.format("Logged: %s", FormatUtil.hms(meta.getLogDur())));
         lblWorktime.setText(String.format("Project: %s", FormatUtil.hms(meta.getWorkDur())));
-        if (UserConfig.isWorkDay(selected.date.get(ChronoField.DAY_OF_WEEK))) {
+        if (UserConfig.userGWDay(selected.date.get(ChronoField.DAY_OF_WEEK))) {
             lblRatio.setText(String.format("Rating: %d%%", ratio));
             Color ratioFG = interpolateNicely((float) ratio / 100f, bad, neu, gut);
             lblRatio.setForeground(AppConfig.getTheme().dark ? ratioFG : multiply(gray, ratioFG));

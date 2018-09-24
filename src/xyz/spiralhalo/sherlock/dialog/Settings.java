@@ -2,18 +2,11 @@ package xyz.spiralhalo.sherlock.dialog;
 
 import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.Application;
-import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig;
-import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkBool;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkInt;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkMgr;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
-import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppBool;
-import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.HMSMode;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.Theme;
-import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
-import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt;
-import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode;
 import xyz.spiralhalo.sherlock.persist.settings.VkSelection;
 import xyz.spiralhalo.sherlock.persist.settings.VkSelectorModel;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
@@ -22,7 +15,17 @@ import javax.swing.*;
 import java.awt.Component;
 import java.awt.event.*;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import static xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.*;
+import static xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkBool.*;
+import static xyz.spiralhalo.sherlock.persist.settings.AppConfig.*;
+import static xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppBool.*;
+import static xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt.*;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.*;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.*;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.*;
 
 public class Settings extends JDialog {
     private JPanel contentPane;
@@ -38,7 +41,7 @@ public class Settings extends JDialog {
     private JCheckBox day4;
     private JCheckBox day5;
     private JCheckBox day6;
-    private JComboBox comboHMSMode;
+    private JComboBox<String> comboHMSMode;
     private JCheckBox checkAMinimize;
     private JTabbedPane tabbedPane1;
     private JLabel lblTarget;
@@ -50,13 +53,14 @@ public class Settings extends JDialog {
     private JCheckBox checkARunMinimized;
     private JLabel lblAutoRefresh;
     private JSlider sliderAutoRefresh;
-    private JComboBox comboTheme;
-    private JComboBox comboBkmkHotkey;
+    private JComboBox<String> comboTheme;
+    private JComboBox<VkSelection> comboBkmkHotkey;
     private JCheckBox checkBookmarks;
     private JCheckBox checkBkmkCtrl;
     private JCheckBox checkBkmkShift;
     private JButton btnDefBookmarks;
     private JLabel lblHotkey;
+    private JCheckBox checkBkmkCloseWindow;
     private boolean result = false;
 
     private VkSelectorModel vkSelectorModel;
@@ -66,63 +70,44 @@ public class Settings extends JDialog {
 
     private static class ApplyButtonEnabler{
         private boolean adjusting = false;
-        private final HashMap<JSlider, Supplier<Integer>> sliders = new HashMap<>();
-        private final HashMap<JComboBox, Supplier<Integer>> comboBoxes = new HashMap<>();
-        private final HashMap<JCheckBox, Supplier<Boolean>> checkBoxes = new HashMap<>();
+        private final HashMap<Supplier, Supplier> sups = new HashMap<>();
         private final JButton buttonApply;
 
         ApplyButtonEnabler(JButton buttonApply) {
             this.buttonApply = buttonApply;
         }
 
-        void changed(EventObject e) { if(!adjusting){ futureAdjust(); } }
+        void changed() { if(!adjusting){ futureAdjust(); } }
 
-        void addSlider(JSlider slider, Supplier<Integer> valueSupplier){
-            sliders.put(slider, valueSupplier);
-            slider.addChangeListener(this::changed);
+        void add(JSlider x, Supplier<Integer> confGetter){
+            sups.put(x::getValue, confGetter);
+            x.addChangeListener(e -> changed());
         }
 
-        void addCheckBox(JCheckBox checkBox, Supplier<Boolean> valueSupplier){
-            checkBoxes.put(checkBox, valueSupplier);
-            checkBox.addItemListener(this::changed);
+        void add(JComboBox x, Supplier<Integer> confGetter){
+            sups.put(x::getSelectedIndex, confGetter);
+            x.addItemListener(e -> changed());
         }
 
-        void addComboBox(JComboBox checkBox, Supplier<Integer> valueSupplier){
-            comboBoxes.put(checkBox, valueSupplier);
-            checkBox.addItemListener(this::changed);
+        void add(JCheckBox x, Supplier<Boolean> confGetter){
+            sups.put(x::isSelected, confGetter);
+            x.addItemListener(e -> changed());
         }
 
         private void futureAdjust(){
             adjusting = true;
-            new java.util.Timer().schedule(new TimerTask() {
-                @Override public void run() { adjust(); }
-            }, 100);
+            adjusting = adjust();
         }
 
-        private void adjust(){
-            for (Map.Entry<JSlider, Supplier<Integer>> x:sliders.entrySet()) {
-                if(x.getKey().getValue() != x.getValue().get()){
+        private boolean adjust(){
+            for (Map.Entry<Supplier, Supplier> x:sups.entrySet()) {
+                if(!x.getKey().get().equals(x.getValue().get())){
                     buttonApply.setEnabled(true);
-                    adjusting = false;
-                    return;
-                }
-            }
-            for (Map.Entry<JComboBox, Supplier<Integer>> x:comboBoxes.entrySet()) {
-                if(x.getKey().getSelectedIndex() != x.getValue().get()){
-                    buttonApply.setEnabled(true);
-                    adjusting = false;
-                    return;
-                }
-            }
-            for (Map.Entry<JCheckBox, Supplier<Boolean>> x:checkBoxes.entrySet()) {
-                if(x.getKey().isSelected() != x.getValue().get()){
-                    buttonApply.setEnabled(true);
-                    adjusting = false;
-                    return;
+                    return false;
                 }
             }
             buttonApply.setEnabled(false);
-            adjusting = false;
+            return false;
         }
     }
 
@@ -133,9 +118,7 @@ public class Settings extends JDialog {
 
         @Override
         public void itemStateChanged(ItemEvent e) {
-            for (Component x1:x) {
-                x1.setEnabled(y.isSelected());
-            }
+            for (Component x1:x) { x1.setEnabled(y.isSelected()); }
         }
 
         private Component[] x;
@@ -144,6 +127,56 @@ public class Settings extends JDialog {
         private Dependency(Component[] x, JCheckBox y) {
             this.x = x;
             this.y = y;
+        }
+    }
+
+    private static class ConfigBinding<T> {
+        private final Supplier<T> guiGetter;
+        private final Consumer<T> configSetter;
+        private final T defaultValue;
+        private final Consumer<T> guiSetter;
+
+        private ConfigBinding(Supplier<T> guiGetter, Consumer<T> configSetter, T defaultValue, Consumer<T> guiSetter) {
+            this.guiGetter = guiGetter;
+            this.configSetter = configSetter;
+            this.defaultValue = defaultValue;
+            this.guiSetter = guiSetter;
+        }
+
+        private void resetDef(){
+            guiSetter.accept(defaultValue);
+        }
+
+        private void apply() {
+            configSetter.accept(guiGetter.get());
+        }
+    }
+
+    private final HashMap<String, HashSet<ConfigBinding>> bindings = new HashMap<>();
+
+    private <T> void register(String defaultNode, Supplier<T> guiGetter, Consumer<T> configSetter,
+                              T defVal, Consumer<T> guiSetter){
+        bindings.putIfAbsent(defaultNode, new HashSet<>());
+        bindings.get(defaultNode).add(new ConfigBinding<>(guiGetter, configSetter, defVal, guiSetter));
+    }
+
+    private void registerDefaultButton(JButton x, String node){
+        x.addActionListener(e-> resetDefault(node));
+    }
+
+    private void resetDefault(String node){
+        if(bindings.containsKey(node)) {
+            for (ConfigBinding y : bindings.get(node)) {
+                y.resetDef();
+            }
+        }
+    }
+
+    private void applyAll(){
+        for (String y: bindings.keySet()) {
+            for(ConfigBinding x: bindings.get(y)){
+                x.apply();
+            }
         }
     }
 
@@ -157,19 +190,19 @@ public class Settings extends JDialog {
         setLocationRelativeTo(owner);
         buttonApply.setEnabled(false);
 
-        comboHMSMode.setModel(new DefaultComboBoxModel(new String[]{HMSMode.COLON.text, HMSMode.STRICT.text}));
+        comboHMSMode.setModel(new DefaultComboBoxModel<>(new String[]{HMSMode.COLON.text, HMSMode.STRICT.text}));
         String[] themes = new String[Theme.values().length];
         for (Theme x:Theme.values()) { themes[x.x] = x.label; }
-        comboTheme.setModel(new DefaultComboBoxModel(themes));
+        comboTheme.setModel(new DefaultComboBoxModel<>(themes));
         vkSelectorModel = new VkSelectorModel(BookmarkMgr.ALLOWED_VK_NAME, BookmarkMgr.ALLOWED_VK);
         comboBkmkHotkey.setModel(vkSelectorModel);
 
-        buttonOK.addActionListener(e -> onOK());
-        buttonApply.addActionListener(e -> onApply());
-        buttonCancel.addActionListener(e -> onCancel());
-        btnDefTracking.addActionListener(e -> defaultTracking());
-        btnDefApp.addActionListener(e -> defaultApp());
-        btnDefBookmarks.addActionListener(e -> defaultBookmarks());
+        buttonOK.addActionListener(e->onOK());
+        buttonApply.addActionListener(e->onApply());
+        buttonCancel.addActionListener(e->onCancel());
+        registerDefaultButton(btnDefTracking, "tracking");
+        registerDefaultButton(btnDefApp, "app");
+        registerDefaultButton(btnDefBookmarks, "bookmarks");
         resetSlider(sliderTarget, 4, 5*4, 12*4, 15*60);
         resetSlider(sliderTimeout, 1, 5, 30, 60);
         resetSlider(sliderAutoRefresh, 1, 10, 30, 60);
@@ -177,7 +210,7 @@ public class Settings extends JDialog {
         bindTimeSlider(sliderTimeout, lblTimeout);
         bindTimeSlider(sliderAutoRefresh, lblAutoRefresh);
 
-        contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+        contentPane.registerKeyboardAction(e->onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         Dependency.setChildren(checkAStartup, checkARunMinimized);
@@ -194,67 +227,40 @@ public class Settings extends JDialog {
     }
 
     private void init() {
-        bind(checkAAskBeforeQuit, ()->AppConfig.getBool(AppBool.ASK_BEFORE_QUIT));
-        bind(checkAMinimize, ()->AppConfig.getBool(AppBool.MINIMIZE_TO_TRAY));
-        bind(checkAStartup, ()->AppConfig.getBool(AppBool.RUN_ON_STARTUP));
-        bind(checkARunMinimized, ()->AppConfig.getBool(AppBool.RUN_MINIMIZED));
-        bind(comboHMSMode, ()->AppConfig.getHMSMode()==HMSMode.COLON?0:1);
-        bind(comboTheme, ()->AppConfig.getTheme().x);
-        bind(sliderAutoRefresh, ()->AppConfig.getInt(AppInt.REFRESH_TIMEOUT));
-        bind(sliderTimeout, ()->UserConfig.getInt(UserNode.TRACKING, UserInt.AFK_TIMEOUT_SECOND));
-        bind(sliderTarget, ()->UserConfig.getInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND));
+        String app = "app";
+        bind(checkAAskBeforeQuit, app, ()->appGBool(ASK_BEFORE_QUIT), i->appSBool(ASK_BEFORE_QUIT, i), appDBool(ASK_BEFORE_QUIT));
+        bind(checkAMinimize, app, ()->appGBool(MINIMIZE_TO_TRAY), i->appSBool(MINIMIZE_TO_TRAY, i), appDBool(MINIMIZE_TO_TRAY));
+        bind(checkAStartup, app, ()->appGBool(RUN_ON_STARTUP), i->appSBool(RUN_ON_STARTUP, i), appDBool(RUN_ON_STARTUP));
+        bind(checkARunMinimized, app, ()->appGBool(RUN_MINIMIZED), i->appSBool(RUN_MINIMIZED, i), appDBool(RUN_MINIMIZED));
+        bind(sliderAutoRefresh, app, ()->appGInt(REFRESH_TIMEOUT), i->appSInt(REFRESH_TIMEOUT, i), appDInt(REFRESH_TIMEOUT));
+        bind(comboHMSMode, app, ()->appHMS()==HMSMode.COLON?0:1, i->appHMS(i==0?HMSMode.COLON:HMSMode.STRICT), defaultHMSMode()==HMSMode.COLON?0:1);
+        bind(comboTheme, app, ()->getTheme().x, AppConfig::setTheme, defaultTheme().x);
+        String tracking = "tracking";
+        bind(sliderTimeout, tracking, ()->userGInt(TRACKING, AFK_TIMEOUT_SECOND),
+                i->userSInt(TRACKING, AFK_TIMEOUT_SECOND, i), userDInt(TRACKING, AFK_TIMEOUT_SECOND));
+        bind(sliderTarget, tracking, ()->userGInt(TRACKING, DAILY_TARGET_SECOND),
+                i->userSInt(TRACKING, DAILY_TARGET_SECOND, i), userDInt(TRACKING, DAILY_TARGET_SECOND));
         for (int i = 0; i < days.length; i++) {
             final int z = i;
-            bind(days[z], ()->UserConfig.isWorkDay(z));
+            bind(days[z], tracking, ()->userGWDay(z), b->userSWDay(z,b), userDWDay(i));
         }
-        bind(checkBookmarks, ()->BookmarkConfig.getBool(BookmarkBool.ENABLED));
-        bind(checkBkmkCtrl, ()->BookmarkConfig.getBool(BookmarkBool.CTRL));
-        bind(checkBkmkShift, ()->BookmarkConfig.getBool(BookmarkBool.SHIFT));
-        bind(comboBkmkHotkey, ()->vkSelectorModel.getIndexFor(BookmarkConfig.getInt(BookmarkInt.HOTKEY)));
-    }
-
-    private void defaultApp() {
-        checkAAskBeforeQuit.setSelected(AppConfig.defaultBoolean(AppBool.ASK_BEFORE_QUIT));
-        checkAMinimize.setSelected(AppConfig.defaultBoolean(AppBool.MINIMIZE_TO_TRAY));
-        checkAStartup.setSelected(AppConfig.defaultBoolean(AppBool.RUN_ON_STARTUP));
-        checkARunMinimized.setSelected(AppConfig.defaultBoolean(AppBool.RUN_MINIMIZED));
-        sliderAutoRefresh.setValue(AppConfig.defaultInt(AppInt.REFRESH_TIMEOUT));
-        comboHMSMode.setSelectedIndex(AppConfig.defaultHMSMode()==HMSMode.COLON?0:1);
-        comboTheme.setSelectedIndex(AppConfig.getTheme().x);
-    }
-
-    private void defaultTracking() {
-        sliderTimeout.setValue(UserConfig.defaultInt(UserNode.TRACKING, UserInt.AFK_TIMEOUT_SECOND));
-        sliderTarget.setValue(UserConfig.defaultInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND));
-        for (int i = 0; i < days.length; i++) { days[i].setSelected(UserConfig.defaultWorkDay(i)); }
-    }
-
-    private void defaultBookmarks() {
-        checkBookmarks.setSelected(BookmarkConfig.defaultBool(BookmarkBool.ENABLED));
-        checkBkmkCtrl.setSelected(BookmarkConfig.defaultBool(BookmarkBool.CTRL));
-        checkBkmkShift.setSelected(BookmarkConfig.defaultBool(BookmarkBool.SHIFT));
-        comboBkmkHotkey.setSelectedIndex(vkSelectorModel.getIndexFor(BookmarkConfig.defaultInt(BookmarkInt.HOTKEY)));
+        String bkmk = "bookmarks";
+        bind(checkBookmarks, bkmk, ()->bkmkGBool(ENABLED), b->bkmkSBool(ENABLED, b), bkmkDBool(ENABLED));
+        bind(checkBkmkCtrl, bkmk, ()->bkmkGBool(CTRL), b->bkmkSBool(CTRL, b), bkmkDBool(CTRL));
+        bind(checkBkmkShift, bkmk, ()->bkmkGBool(SHIFT), b->bkmkSBool(SHIFT, b), bkmkDBool(SHIFT));
+        bind(checkBkmkCloseWindow, bkmk, ()->bkmkGBool(CLOSE_WINDOW), b->bkmkSBool(CLOSE_WINDOW, b),
+                bkmkDBool(CLOSE_WINDOW));
+        bind(comboBkmkHotkey, bkmk, ()->vkSelectorModel.getIndexFor(bkmkGInt(BookmarkInt.HOTKEY)),
+                i->bkmkSInt(BookmarkInt.HOTKEY, vkSelectorModel.getElementAt(i).getValue()),
+                vkSelectorModel.getIndexFor(bkmkDInt(BookmarkInt.HOTKEY)));
     }
 
     private void onApply() {
         result = true;
-        AppConfig.setBoolean(AppBool.ASK_BEFORE_QUIT, checkAAskBeforeQuit.isSelected());
-        AppConfig.setBoolean(AppBool.MINIMIZE_TO_TRAY, checkAMinimize.isSelected());
-        AppConfig.setBoolean(AppBool.RUN_ON_STARTUP, checkAStartup.isSelected());
-        AppConfig.setBoolean(AppBool.RUN_MINIMIZED, checkARunMinimized.isSelected());
-        AppConfig.setHMSMode(comboHMSMode.getSelectedIndex()==0?HMSMode.COLON:HMSMode.STRICT);
-        AppConfig.setTheme(comboTheme.getSelectedIndex());
-        AppConfig.setInt(AppInt.REFRESH_TIMEOUT, sliderAutoRefresh.getValue());
-        UserConfig.setInt(UserNode.TRACKING, UserInt.AFK_TIMEOUT_SECOND, sliderTimeout.getValue());
-        UserConfig.setInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND, sliderTarget.getValue());
-        for (int i = 0; i < days.length; i++) { UserConfig.setWorkDay(i, days[i].isSelected()); }
-        BookmarkConfig.setBool(BookmarkBool.ENABLED, checkBookmarks.isSelected());
-        BookmarkConfig.setBool(BookmarkBool.CTRL, checkBkmkCtrl.isSelected());
-        BookmarkConfig.setBool(BookmarkBool.SHIFT, checkBkmkShift.isSelected());
-        BookmarkConfig.setInt(BookmarkInt.HOTKEY, ((VkSelection)comboBkmkHotkey.getSelectedItem()).getValue());
+        applyAll();
         buttonApply.setEnabled(false);
         Application.createOrDeleteStartupRegistry();
-        if(Main.currentTheme != AppConfig.getTheme()){
+        if(Main.currentTheme != getTheme()){
             if(JOptionPane.showConfirmDialog(this, "Theme has been changed. Restart the app?",
             "Confirm restart", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
                 Application.restartApp();
@@ -262,19 +268,22 @@ public class Settings extends JDialog {
         }
     }
 
-    private void bind(JComboBox x, Supplier<Integer> y){
-        enabler.addComboBox(x, y);
-        x.setSelectedIndex(y.get());
+    private void bind(JComboBox x, String defNode, Supplier<Integer> confG, Consumer<Integer> confS, Integer defVal){
+        enabler.add(x, confG);
+        x.setSelectedIndex(confG.get());
+        register(defNode, x::getSelectedIndex, confS, defVal, x::setSelectedIndex);
     }
 
-    private void bind(JCheckBox x, Supplier<Boolean> y){
-        enabler.addCheckBox(x, y);
-        x.setSelected(y.get());
+    private void bind(JCheckBox x, String defNode, Supplier<Boolean> confG, Consumer<Boolean> confS, Boolean defVal){
+        enabler.add(x, confG);
+        x.setSelected(confG.get());
+        register(defNode, x::isSelected, confS, defVal, x::setSelected);
     }
 
-    private void bind(JSlider x, Supplier<Integer> y){
-        enabler.addSlider(x, y);
-        x.setValue(y.get());
+    private void bind(JSlider x, String defNode, Supplier<Integer> confG, Consumer<Integer> confS, Integer defVal){
+        enabler.add(x, confG);
+        x.setValue(confG.get());
+        register(defNode, x::getValue, confS, defVal, x::setValue);
     }
 
     private void resetSlider(JSlider slider, int min, int value, int max, int multiplier){

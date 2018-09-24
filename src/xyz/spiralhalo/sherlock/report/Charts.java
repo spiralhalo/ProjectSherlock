@@ -14,11 +14,10 @@ import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.chart.renderer.category.StackedBarRenderer;
 import org.jfree.chart.title.LegendTitle;
+import org.jfree.chart.ui.*;
 import org.jfree.chart.urls.StandardCategoryURLGenerator;
-import org.jfree.chart.util.ParamChecks;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.ui.*;
 import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.notes.YearNotes;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
@@ -86,7 +85,7 @@ public class Charts {
                 monthSummary.getMonthChart().getDataset(),
                 monthSummary.getMonthChart().getMeta());
         final Color fg = new Color(Main.currentTheme.foreground);
-        final int target = UserConfig.getInt(TRACKING, DAILY_TARGET_SECOND);
+        final int target = UserConfig.userGInt(TRACKING, DAILY_TARGET_SECOND);
         final ValueMarker marker = new ValueMarker(target/3600f, fg, new BasicStroke(
                 1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
                 1.0f, new float[] {6.0f, 6.0f}, 0.0f));
@@ -124,7 +123,7 @@ public class Charts {
             if(dayChart != null){
                 ChartMeta meta = dayChart.getMeta();
                 int ratio = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < target ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / target);
-                if (UserConfig.isWorkDay(date.get(ChronoField.DAY_OF_WEEK))) {
+                if (UserConfig.userGWDay(date.get(ChronoField.DAY_OF_WEEK))) {
                     Color ratioFG = interpolateNicely((float) ratio / 100f, bad, neu, gut);
                     axis.setTickLabelPaint(unitLabel,Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
                 } else {
@@ -157,7 +156,7 @@ public class Charts {
 
         plot.setDataset(0, ratingSet);
         plot.setRenderer(0, new LineAndShapeRenderer());
-        plot.getRenderer(0).setBaseToolTipGenerator(new StandardCategoryToolTipGenerator());
+        plot.getRenderer(0).setDefaultToolTipGenerator(new StandardCategoryToolTipGenerator());
 
         return new MonthChartInfo(x, annotations, ym, max);
     }
@@ -180,12 +179,12 @@ public class Charts {
     private static JFreeChart createStackedBarChart(String title, String domainAxisLabel, String rangeAxisLabel,
                                                    CategoryDataset dataset, ChartMeta colors, PlotOrientation orientation,
                                                    boolean showLegend, boolean tooltips, boolean urls) {
-        ParamChecks.nullNotPermitted(orientation, "orientation");
+
         CategoryAxis categoryAxis = new CategoryAxis(domainAxisLabel);
         ValueAxis valueAxis = new NumberAxis(rangeAxisLabel);
         StackedBarRenderer renderer = new StackedBarRenderer();
-        if (tooltips) renderer.setBaseToolTipGenerator(new StandardCategoryToolTipGenerator());
-        if (urls) renderer.setBaseItemURLGenerator(new StandardCategoryURLGenerator());
+        if (tooltips) renderer.setDefaultToolTipGenerator(new StandardCategoryToolTipGenerator());
+        if (urls) renderer.setDefaultItemURLGenerator(new StandardCategoryURLGenerator());
         CategoryPlot plot = new CategoryPlot(dataset, categoryAxis, valueAxis, renderer);
         plot.setOrientation(orientation);
         JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, showLegend);
@@ -287,7 +286,7 @@ public class Charts {
             int w = this.image.getWidth(null);
             int h = this.image.getHeight(null);
             Rectangle2D imageRect = new Rectangle2D.Double(0.0D, 0.0D, (double)w, (double)h);
-            Point2D anchorPoint = RectangleAnchor.coordinates(imageRect, this.anchor);
+            Point2D anchorPoint = this.anchor.getAnchorPoint(imageRect);
             xx -= (float)anchorPoint.getX();
             yy -= (float)anchorPoint.getY();
             g2.drawImage(this.image, (int)xx, (int)yy, null);

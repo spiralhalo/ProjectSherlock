@@ -18,7 +18,7 @@ public class FormatUtil {
     public static final DateTimeFormatter DTF_HMA = DateTimeFormatter.ofPattern("hh:mm a").withZone(ZoneId.systemDefault());
 
     public static String hms(int seconds) {
-        switch (AppConfig.getHMSMode()){
+        switch (AppConfig.appHMS()){
             case COLON:
                 return hmsColon(seconds);
             case STRICT:

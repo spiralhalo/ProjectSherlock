@@ -72,19 +72,19 @@ public class BookmarkMgr {
         private boolean hotkeyPressed;
 
         private int getHotkey(){
-            int hotkey_vk = BookmarkConfig.getInt(BookmarkInt.HOTKEY);
+            int hotkey_vk = BookmarkConfig.bkmkGInt(BookmarkInt.HOTKEY);
             if(Arrays.binarySearch(ALLOWED_VK, hotkey_vk)==-1){
-                hotkey_vk = BookmarkConfig.defaultInt(BookmarkInt.HOTKEY);
+                hotkey_vk = BookmarkConfig.bkmkDInt(BookmarkInt.HOTKEY);
             }
             return hotkey_vk;
         }
 
         @Override public void keyPressed(GlobalKeyEvent event) {
             int hotkey = getHotkey();
-            if (BookmarkConfig.getBool(BookmarkBool.ENABLED)
+            if (BookmarkConfig.bkmkGBool(BookmarkBool.ENABLED)
                     && event.getVirtualKeyCode() == hotkey
-                    && (!BookmarkConfig.getBool(BookmarkBool.CTRL) || event.isControlPressed())
-                    && (!BookmarkConfig.getBool(BookmarkBool.SHIFT) || event.isShiftPressed())){
+                    && (!BookmarkConfig.bkmkGBool(BookmarkBool.CTRL) || event.isControlPressed())
+                    && (!BookmarkConfig.bkmkGBool(BookmarkBool.SHIFT) || event.isShiftPressed())){
                 if(!hotkeyPressed && tracker.lastTracked() != null && !tracker.lastTracked().isUtilityTag()) {
                     hotkeyPressed = true;
                     getThis().invoke(tracker.lastTracked());

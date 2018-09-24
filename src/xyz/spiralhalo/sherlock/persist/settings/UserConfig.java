@@ -22,21 +22,21 @@ public class UserConfig {
         UserNode(String value){this.value=value;}
     }
 
-    public static boolean defaultWorkDay(int day){
+    public static boolean userDWDay(int day){
         return DEFAULT_WORK_DAYS[day];
     }
 
-    public static boolean isWorkDay(int day) {
+    public static boolean userGWDay(int day) {
         if(day<0 || day>7) return false;
         return IniHandler.getInstance().getBoolean(NODE_TRACKING.v, String.format("%s%s", KEY_WORK_DAY,DAY_NAMES[day]),
-                defaultWorkDay(day));
+                userDWDay(day));
     }
 
-    public static void setWorkDay(int day, boolean isWorkDay){
+    public static void userSWDay(int day, boolean isWorkDay){
         IniHandler.getInstance().putBoolean(NODE_TRACKING.v, String.format("%s%s", KEY_WORK_DAY,DAY_NAMES[day]), isWorkDay);
     }
 
-    public static int defaultInt(UserNode node, UserInt key){
+    public static int userDInt(UserNode node, UserInt key){
         switch (node){
             case TRACKING:
                 switch (key){
@@ -47,11 +47,11 @@ public class UserConfig {
         }
     }
 
-    public static int getInt(UserNode node, UserInt key){
-        return IniHandler.getInstance().getInt(node.value, key.name(), defaultInt(node, key));
+    public static int userGInt(UserNode node, UserInt key){
+        return IniHandler.getInstance().getInt(node.value, key.name(), userDInt(node, key));
     }
 
-    public static void setInt(UserNode node, UserInt key, int value){
+    public static void userSInt(UserNode node, UserInt key, int value){
         IniHandler.getInstance().putInt(node.value, key.name(), value);
     }
 }

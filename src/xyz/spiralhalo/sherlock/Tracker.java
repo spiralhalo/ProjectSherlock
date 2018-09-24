@@ -78,7 +78,7 @@ public class Tracker implements TrackerAccessor{
     }
 
     private void log(long time){
-        if(afkMonitor.isNotAFK() && projectList.getActiveSize()>0) {
+        if(afkMonitor.isNotAFK()) {
             final ZonedDateTime now = ZonedDateTime.now();
             temps = EnumerateWindows.getActiveWindowTitle();
             lastTracked = projectList.getActiveProjectOf(temps, now);
@@ -134,7 +134,7 @@ public class Tracker implements TrackerAccessor{
 
         boolean isNotAFK() {
             return keyPressed || mousePressed || (System.currentTimeMillis() - lastInput <
-                    UserConfig.getInt(UserConfig.UserNode.TRACKING, UserConfig.UserInt.AFK_TIMEOUT_SECOND) * 1000);
+                    UserConfig.userGInt(UserConfig.UserNode.TRACKING, UserConfig.UserInt.AFK_TIMEOUT_SECOND) * 1000);
         }
     }
 }

@@ -23,6 +23,6 @@ public class RealtimeRecordWriter extends DefaultRecordWriter {
 
     @Override
     protected int getEnforcedFlushDelayMillis() {
-        return Math.min(super.getEnforcedFlushDelayMillis(), AppConfig.getInt(AppInt.REFRESH_TIMEOUT) * 1000);
+        return Math.min(super.getEnforcedFlushDelayMillis(), AppConfig.appGInt(AppInt.REFRESH_TIMEOUT) * 1000);
     }
 }

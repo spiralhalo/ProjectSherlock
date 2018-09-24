@@ -167,13 +167,13 @@ public class Application {
                 value = String.format("%s -jar \"%s\"%s",
                         Application.getJavawPath(),
                         Application.getJarPath(),
-                        AppConfig.getBool(AppConfig.AppBool.RUN_MINIMIZED) ? " " + Main.Arg.Minimized : "");
+                        AppConfig.appGBool(AppConfig.AppBool.RUN_MINIMIZED) ? " " + Main.Arg.Minimized : "");
             } else {
                 value = String.format("%s %s",
                         Application.getJarPath(),
-                        AppConfig.getBool(AppConfig.AppBool.RUN_MINIMIZED) ? " " + Main.Arg.Minimized : "");
+                        AppConfig.appGBool(AppConfig.AppBool.RUN_MINIMIZED) ? " " + Main.Arg.Minimized : "");
             }
-            if(AppConfig.getBool(AppConfig.AppBool.RUN_ON_STARTUP)) {
+            if(AppConfig.appGBool(AppConfig.AppBool.RUN_ON_STARTUP)) {
                 WinRegistry.writeStringValue(WinRegistry.HKEY_CURRENT_USER, key, valueName, value);
             } else {
                 WinRegistry.deleteValue(WinRegistry.HKEY_CURRENT_USER, key, valueName);

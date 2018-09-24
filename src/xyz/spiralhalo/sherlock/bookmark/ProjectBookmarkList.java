@@ -71,25 +71,12 @@ public class ProjectBookmarkList extends JFrame {
                 close();
             }
         });
-        contentPane.registerKeyboardAction(e -> onKeyPress(0), KeyStroke.getKeyStroke(KeyEvent.VK_1, 0),
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        contentPane.registerKeyboardAction(e -> onKeyPress(1), KeyStroke.getKeyStroke(KeyEvent.VK_2, 0),
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        contentPane.registerKeyboardAction(e -> onKeyPress(2), KeyStroke.getKeyStroke(KeyEvent.VK_3, 0),
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        contentPane.registerKeyboardAction(e -> onKeyPress(3), KeyStroke.getKeyStroke(KeyEvent.VK_4, 0),
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        contentPane.registerKeyboardAction(e -> onKeyPress(4), KeyStroke.getKeyStroke(KeyEvent.VK_5, 0),
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        contentPane.registerKeyboardAction(e -> onKeyPress(5), KeyStroke.getKeyStroke(KeyEvent.VK_6, 0),
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        contentPane.registerKeyboardAction(e -> onKeyPress(6), KeyStroke.getKeyStroke(KeyEvent.VK_7, 0),
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        contentPane.registerKeyboardAction(e -> onKeyPress(7), KeyStroke.getKeyStroke(KeyEvent.VK_8, 0),
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        contentPane.registerKeyboardAction(e -> onKeyPress(8), KeyStroke.getKeyStroke(KeyEvent.VK_9, 0),
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        contentPane.registerKeyboardAction(e -> onKeyPress(9), KeyStroke.getKeyStroke(KeyEvent.VK_0, 0),
+        for (int i = 0; i < 10; i++) {
+            final int z = i;
+            contentPane.registerKeyboardAction(e -> onKeyPress(z), KeyStroke.getKeyStroke(KeyEvent.VK_1+z, 0),
+                    JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        }
+        contentPane.registerKeyboardAction(e -> close(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         pack();
         setLocationRelativeTo(null);
@@ -97,7 +84,7 @@ public class ProjectBookmarkList extends JFrame {
 
     private void onKeyPress(int i) {
         if(i>=0 && i<tblBookmarks.getRowCount()){
-            bookmarks.get(i).launch(this);
+            launchInternal(bookmarks.get(i));
         }
     }
 
@@ -138,7 +125,14 @@ public class ProjectBookmarkList extends JFrame {
 
     private void launch(){
         if(getSelected()!=null){
-            getSelected().launch(this);
+            launchInternal(getSelected());
+        }
+    }
+
+    private void launchInternal(Bookmark toLaunch){
+        toLaunch.launch(this);
+        if(BookmarkConfig.bkmkGBool(BookmarkConfig.BookmarkBool.CLOSE_WINDOW)){
+            close();
         }
     }
 

@@ -29,8 +29,16 @@ public class DefaultRecordWriter extends AbstractRecordWriter {
     @Override
     protected RecordFileAppend getRecordFile(Instant timestamp, long hash, boolean utilityTag, boolean productive) {
         if(rfa == null) {
+            File recordFile = new File(Application.getSaveDir(), RECORD_FILE);
+            if(!recordFile.exists()){
+                try {
+                    recordFile.createNewFile();
+                } catch (IOException e) {
+                    Debug.log(e);
+                }
+            }
             try {
-                rfa = new RecordFileAppend(new File(Application.getSaveDir(), RECORD_FILE));
+                rfa = new RecordFileAppend(recordFile);
             } catch (IOException e) {
                 Debug.log(e);
             }
