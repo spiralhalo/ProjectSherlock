@@ -81,6 +81,7 @@ public class ProjectList implements Serializable {
                 }
             }
             getCategories().remove(oldCategory);
+            categories.add(newCategory);
         }
     }
 

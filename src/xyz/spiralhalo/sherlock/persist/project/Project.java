@@ -44,7 +44,7 @@ public class Project implements Serializable {
     }
 
     void edit(String name, String category, String tags){
-        edit(name, category, tags, false);
+        edit(name, category, tags, true);
     }
 
     protected void edit(String name, String category, String tags, boolean productive){
@@ -87,6 +87,7 @@ public class Project implements Serializable {
         float r1 = MathUtil.normalize(new Random(MurmurHash.hash64(name)).nextFloat(), 2f);
         float r2 = MathUtil.normalize(new Random(hash).nextFloat(), 3f);
         float m = productive?1f:0.5f;
+        System.out.println(productive);
         putAppendix("color", Color.HSBtoRGB((r0-0.1f+r1),(1f-r2*2.6f)*m,1f*m));
 //        putAppendix("color", Color.HSBtoRGB((r0-0.1f+r1),0.8f/d,(1f-r2*2)/d));
 //        putAppendix("color", Color.HSBtoRGB((r0-0.1f+r1),(1f-r2)/d,(0.7f+r2)/d));
