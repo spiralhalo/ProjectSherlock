@@ -4,8 +4,8 @@ import java.awt.*;
 import java.io.Serializable;
 import java.util.HashMap;
 
-public class ChartMeta extends HashMap<String, Color> implements Serializable {
-    public static final long serialVersionUID = 1L;
+public class ChartMeta extends HashMap<String, Paint> implements Serializable {
+    public static final long serialVersionUID = 2L;
     private int logDur = 0;
     private int workDur = 0;
 

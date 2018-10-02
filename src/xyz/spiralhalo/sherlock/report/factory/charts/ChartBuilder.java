@@ -95,8 +95,9 @@ public class ChartBuilder<T extends Temporal> {
         if(inclTotal) meta.put(TOTAL, ColorUtil.white);
         meta.put(OTHER, ColorUtil.gray);
         meta.put(DELETED, ColorUtil.med_red_gray);
-        int[] deleted = new int[type.numUnits(date)];
-        int[] other = new int[type.numUnits(date)];
+        final int[] deleted = new int[type.numUnits(date)];
+        final int[] other = new int[type.numUnits(date)];
+        final HashMap<Long,Integer>[] nonProds = new HashMap[type.numUnits(date)];
         for (int i = 0; i < type.numUnits(date); i++) {
             int total = 0;
             FlexibleLocale unitLabel = type.unitLabel(date, i);
@@ -108,9 +109,17 @@ public class ChartBuilder<T extends Temporal> {
                     boolean productive;
                     int s = units[i].get(l);
                     if (p != null) {
-                        meta.putIfAbsent(p.getName(), new Color(p.getColor()));
-                        dataset.addValue((Number) (s / type.subunitNormalizer()), p.getName(), unitLabel);
                         productive = p.isProductive();
+                        if(productive) {
+                            meta.putIfAbsent(p.getName(), new Color(p.getColor()));
+                            dataset.setValue((Number) (s / type.subunitNormalizer()), p.getName(), unitLabel);
+                        } else {
+                            meta.putIfAbsent(p.getName(), new StripedPaint(new Color(p.getColor()), ColorUtil.gray));
+                            if(nonProds[i] == null){
+                                nonProds[i] = new HashMap<>();
+                            }
+                            nonProds[i].put(p.getHash(), s + nonProds[i].getOrDefault(p.getHash(), 0));
+                        }
                     } else if (l == -1 || !productiveMap.getOrDefault(l, false)) {
                         productive = false;
                         other[i] += s;
@@ -128,8 +137,17 @@ public class ChartBuilder<T extends Temporal> {
         }
         for (int i = 0; i < type.numUnits(date); i++) {
             FlexibleLocale unitLabel = type.unitLabel(date, i);
-            if(deleted[i] > 0) dataset.setValue((Number) (deleted[i] / type.subunitNormalizer()), DELETED, unitLabel);
+            if(nonProds[i] != null) {
+                for (Long l : nonProds[i].keySet()) {
+                    Project p = projectList.findByHash(l);
+                    dataset.setValue((Number) (nonProds[i].get(l) / type.subunitNormalizer()), p.getName(), unitLabel);
+                }
+            }
+        }
+        for (int i = 0; i < type.numUnits(date); i++) {
+            FlexibleLocale unitLabel = type.unitLabel(date, i);
             if(other[i] > 0) dataset.setValue((Number) (other[i] / type.subunitNormalizer()), OTHER, unitLabel);
+            if(deleted[i] > 0) dataset.setValue((Number) (deleted[i] / type.subunitNormalizer()), DELETED, unitLabel);
         }
         return new ChartData(meta, dataset);
     }

@@ -1,7 +1,9 @@
 package xyz.spiralhalo.sherlock.report;
 
-import org.jfree.chart.*;
-import org.jfree.chart.annotations.*;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.AbstractAnnotation;
+import org.jfree.chart.annotations.CategoryAnnotation;
 import org.jfree.chart.axis.*;
 import org.jfree.chart.block.LineBorder;
 import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
@@ -43,7 +45,6 @@ import java.util.HashMap;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.DAILY_TARGET_SECOND;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.TRACKING;
 import static xyz.spiralhalo.sherlock.util.ColorUtil.*;
-import static xyz.spiralhalo.sherlock.util.ColorUtil.gray;
 
 public class Charts {
     private static Image noteImg = null;
