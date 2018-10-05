@@ -80,13 +80,16 @@ public class Debug {
     private static class SimplerFormatter extends Formatter{
         @Override
         public String format(LogRecord r) {
-            StackTraceElement f = a.getStackTraceElement(new Throwable(), 8);
-            String n = f.getClassName();
-            return String.format("%7s %s: %s %s: %s\n", r.getLevel().getName(),
-                    DTF_FULL.format(Instant.ofEpochMilli(r.getMillis())),
-                    n.substring(n.lastIndexOf('.')+1), f.getMethodName(), r.getMessage());
+            if(r.getLevel().equals(Level.FINE)){
+                return String.format("%7s %s: %s\n", r.getLevel().getName(),
+                        DTF_FULL.format(Instant.ofEpochMilli(r.getMillis())), r.getMessage());
+            } else {
+                StackTraceElement f = new Throwable().getStackTrace()[8];
+                String n = f.getClassName();
+                return String.format("%7s %s: %s %s: %s\n", r.getLevel().getName(),
+                        DTF_FULL.format(Instant.ofEpochMilli(r.getMillis())),
+                        n.substring(n.lastIndexOf('.') + 1), f.getMethodName(), r.getMessage());
+            }
         }
     }
-
-    private static sun.misc.JavaLangAccess a = sun.misc.SharedSecrets.getJavaLangAccess();
 }
