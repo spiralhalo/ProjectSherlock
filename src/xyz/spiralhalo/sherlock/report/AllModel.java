@@ -42,12 +42,6 @@ public class AllModel extends AbstractTableModel {
         return new Color(data.get(rowIndex).getProjectColor());
     }
 
-    public boolean isDark(int rowIndex){
-        int c = data.get(rowIndex).getProjectColor();
-        float[] hsb = Color.RGBtoHSB((c>>16) & 0xff, (c>>8) & 0xff, c & 0xff, null);
-        return hsb[2] < 0.6f || ((hsb[0]<0.1f || hsb[0]>0.5f) && hsb[1] > 0.8f);
-    }
-
     @Override
     public String getColumnName(int column) {
         return utility?columnNameUtility[column]:columnName[column];
