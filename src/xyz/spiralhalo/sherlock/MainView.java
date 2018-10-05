@@ -32,25 +32,25 @@ public class MainView implements MainViewAccessor {
     private JPanel rootPane;
     private JTabbedPane tabs;
     private JProgressBar progress;
-    private JTable tblActive;
-    private JTable tblFinished;
+    private JTable tActive;
+    private JTable tFinished;
     private JLabel lblRefresh;
     private JPanel pnlStatus;
     private JPanel pnlRefreshing;
     private JLabel lblTracking;
-    private JPanel pnlDayChart;
-    private JComboBox<DateSelection<LocalDate>> comboDayCharts;
-    private JComboBox<DateSelection<YearMonth>> comboMonthCharts;
-    private JComboBox<DateSelection<Year>> comboYearCharts;
-    private JButton btnPrevChart;
-    private JButton btnNextChart;
+    private JPanel pnlDChart;
+    private JComboBox<DateSelection<LocalDate>> comboD;
+    private JComboBox<DateSelection<YearMonth>> comboM;
+    private JComboBox<DateSelection<Year>> comboY;
+    private JButton btnPrevD;
+    private JButton btnNextD;
     private JTabbedPane tabr;
-    private JLabel lblLogged;
-    private JLabel lblWorktime;
-    private JLabel lblRatio;
-    private JTable tblUtilityTags;
-    private JButton btnFirstChart;
-    private JButton btnLastChart;
+    private JLabel lDLogged;
+    private JLabel lDWorktime;
+    private JLabel lDRating;
+    private JTable tUtility;
+    private JButton btnFirstD;
+    private JButton btnLastD;
     private JToolBar toolbarMain;
     private JButton btnNew;
     private JButton btnNewTag;
@@ -65,19 +65,19 @@ public class MainView implements MainViewAccessor {
     private JButton btnBookmarks;
     private JButton btnUp;
     private JButton btnDown;
-    private JLabel lblNoData;
-    private JPanel pnlYearChart;
-    private JPanel pnlMonthChart;
-    private JLabel lblMonthNoData;
-    private JLabel lblYearNoData;
-    private JButton btnMonthFirstChart;
-    private JButton btnMonthPrevChart;
-    private JButton btnMonthNextChart;
-    private JButton btnMonthLastChart;
-    private JButton btnYearFirstChart;
-    private JButton btnYearPrevChart;
-    private JButton btnYearNextChart;
-    private JButton btnYearLastChart;
+    private JLabel lDNoData;
+    private JPanel pnlYChart;
+    private JPanel pnlMChart;
+    private JLabel lMNoData;
+    private JLabel lYNoData;
+    private JButton btnFirstM;
+    private JButton btnPrevM;
+    private JButton btnNextM;
+    private JButton btnLastM;
+    private JButton btnFirstY;
+    private JButton btnPrevY;
+    private JButton btnNextY;
+    private JButton btnLastY;
     private JCommandButton cmdNew;
     private JCommandButton cmdEdit;
     private JCommandButton cmdDelete;
@@ -93,7 +93,7 @@ public class MainView implements MainViewAccessor {
     private ChartPanel dayPanel;
     private ChartPanel monthPanel;
     private ChartPanel yearPanel;
-    private Charts.MonthChartInfo monthChartInfo;
+    private Charts.MonthChartInfo mChartInfo;
 
     private final ZoneId z = ZoneId.systemDefault();
     private final MainControl control;
@@ -154,24 +154,20 @@ public class MainView implements MainViewAccessor {
 
     MainView(MainControl control){
         this.control = control;
-        Main.applyButtonTheme(btnPrevChart, btnNextChart, btnFirstChart, btnLastChart);
-        Main.applyButtonTheme(btnMonthPrevChart, btnMonthNextChart, btnMonthFirstChart, btnMonthLastChart);
-        Main.applyButtonTheme(btnYearPrevChart, btnYearNextChart, btnYearFirstChart, btnYearLastChart);
+        Main.applyButtonTheme(btnPrevD, btnNextD, btnFirstD, btnLastD);
+        Main.applyButtonTheme(btnPrevM, btnNextM, btnFirstM, btnLastM);
+        Main.applyButtonTheme(btnPrevY, btnNextY, btnFirstY, btnLastY);
 
-        tblActive.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tblActive.setDefaultRenderer(String.class, new ProjectCell());
-        tblFinished.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tblFinished.setDefaultRenderer(String.class, new ProjectCell());
-        tblUtilityTags.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tblUtilityTags.setDefaultRenderer(String.class, new ProjectCell());
-//        tblDaily.setDefaultRenderer(String.class, new DefaultTableCellRenderer());
-//        tblMonthly.setDefaultRenderer(String.class, new DefaultTableCellRenderer());
-//        tblDaily.setDefaultRenderer(Integer.class, new DurationCell(true));
-//        tblMonthly.setDefaultRenderer(Integer.class, new DurationCell());
+        tActive.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tActive.setDefaultRenderer(String.class, new ProjectCell());
+        tFinished.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tFinished.setDefaultRenderer(String.class, new ProjectCell());
+        tUtility.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tUtility.setDefaultRenderer(String.class, new ProjectCell());
 
-        ((JLabel) comboDayCharts.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
-        ((JLabel) comboMonthCharts.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
-        ((JLabel) comboYearCharts.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
+        ((JLabel) comboD.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
+        ((JLabel) comboM.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
+        ((JLabel) comboY.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
     }
 
     private ChartPanel getDayPanel() {
@@ -203,10 +199,10 @@ public class MainView implements MainViewAccessor {
     @Override
     public void init() {
         createCommandButtons(control);
-        control.setTables(tblActive, tblFinished, tblUtilityTags);
-        control.setChart(comboDayCharts, btnPrevChart, btnNextChart, btnFirstChart, btnLastChart, this::refreshDayChart);
-        control.setChart(comboMonthCharts, btnMonthPrevChart, btnMonthNextChart, btnMonthFirstChart, btnMonthLastChart, this::refreshMonthChart);
-        control.setChart(comboYearCharts, btnYearPrevChart, btnYearNextChart, btnYearFirstChart, btnYearLastChart, this::refreshYearChart);
+        control.setTables(tActive, tFinished, tUtility);
+        control.setChart(comboD, btnPrevD, btnNextD, btnFirstD, btnLastD, this::refreshDayChart);
+        control.setChart(comboM, btnPrevM, btnNextM, btnFirstM, btnLastM, this::refreshMonthChart);
+        control.setChart(comboY, btnPrevY, btnNextY, btnFirstY, btnLastY, this::refreshYearChart);
 
         frame.setContentPane(rootPane);
         frame.setMinimumSize(rootPane.getMinimumSize());
@@ -237,10 +233,6 @@ public class MainView implements MainViewAccessor {
         refreshProjects(cache, 0);
         refreshProjects(cache, 1);
         refreshProjects(cache, 2);
-//        final DayModel dayModel = new DayModel(cache.getObj(CacheId.DayRows, ReportRows.class));
-//        final MonthModel monthModel = new MonthModel(cache.getObj(CacheId.MonthRows, ReportRows.class));
-//        tblDaily.setModel(dayModel);
-//        tblMonthly.setModel(monthModel);
         final YearList yl = cache.getObj(YearList.cacheId(z), YearList.class);
         if(yl == null)return;
         final ArrayList<LocalDate> dates = new ArrayList<>();
@@ -257,26 +249,32 @@ public class MainView implements MainViewAccessor {
                 }
             }
         }
-        Object daySelected = comboDayCharts.getSelectedItem();
-        comboDayCharts.setModel(new DateSelectorModel<>(dates));
-        if(daySelected instanceof DateSelection && dates.contains(((DateSelection) daySelected).date)){
-            comboDayCharts.setSelectedItem(daySelected);
+        Object daySelected = comboD.getSelectedItem();
+        int numDay = comboD.getItemCount();
+        comboD.setModel(new DateSelectorModel<>(dates));
+        if(comboD.getItemCount() == numDay && daySelected instanceof DateSelection &&
+                dates.contains(((DateSelection) daySelected).date)){
+            comboD.setSelectedItem(daySelected);
         } else {
-            comboDayCharts.setSelectedIndex(comboDayCharts.getModel().getSize() - 1);
+            comboD.setSelectedIndex(comboD.getModel().getSize() - 1);
         }
-        Object monthSelected = comboMonthCharts.getSelectedItem();
-        comboMonthCharts.setModel(new DateSelectorModel<>(months, FormatUtil.DTF_MONTH_SELECTOR));
-        if(monthSelected instanceof DateSelection && months.contains(((DateSelection) monthSelected).date)){
-            comboMonthCharts.setSelectedItem(monthSelected);
+        Object monthSelected = comboM.getSelectedItem();
+        int numMonth = comboM.getItemCount();
+        comboM.setModel(new DateSelectorModel<>(months, FormatUtil.DTF_MONTH_SELECTOR));
+        if(comboM.getItemCount() == numMonth && monthSelected instanceof DateSelection &&
+                months.contains(((DateSelection) monthSelected).date)){
+            comboM.setSelectedItem(monthSelected);
         } else {
-            comboMonthCharts.setSelectedIndex(comboMonthCharts.getModel().getSize() - 1);
+            comboM.setSelectedIndex(comboM.getModel().getSize() - 1);
         }
-        Object yearSelected = comboYearCharts.getSelectedItem();
-        comboYearCharts.setModel(new DateSelectorModel<>(yl, FormatUtil.DTF_YEAR));
-        if(yearSelected instanceof DateSelection && yl.contains(((DateSelection) yearSelected).date)){
-            comboYearCharts.setSelectedItem(yearSelected);
+        Object yearSelected = comboY.getSelectedItem();
+        int numYear = comboY.getItemCount();
+        comboY.setModel(new DateSelectorModel<>(yl, FormatUtil.DTF_YEAR));
+        if(comboY.getItemCount() == numYear && yearSelected instanceof DateSelection &&
+                yl.contains(((DateSelection) yearSelected).date)){
+            comboY.setSelectedItem(yearSelected);
         } else {
-            comboYearCharts.setSelectedIndex(comboYearCharts.getModel().getSize() - 1);
+            comboY.setSelectedIndex(comboY.getModel().getSize() - 1);
         }
     }
 
@@ -284,32 +282,32 @@ public class MainView implements MainViewAccessor {
         switch (index){
             case 0:
                 final AllReportRows activeRows = cache.getObj(AllReportRows.activeCacheId(z), AllReportRows.class);
-                if(tblActive.getModel() instanceof AllModel){
-                    ((AllModel) tblActive.getModel()).reset(activeRows);
+                if(tActive.getModel() instanceof AllModel){
+                    ((AllModel) tActive.getModel()).reset(activeRows);
                 } else {
                     final AllModel allModel = new AllModel(activeRows);
-                    tblActive.setModel(allModel);
-                    allModel.setTableColumnWidths(tblActive);
+                    tActive.setModel(allModel);
+                    allModel.setTableColumnWidths(tActive);
                 }
                 break;
             case 1:
                 final AllReportRows finishedRows = cache.getObj(AllReportRows.finishedCacheId(z), AllReportRows.class);
-                if(tblFinished.getModel() instanceof AllModel){
-                    ((AllModel) tblFinished.getModel()).reset(finishedRows);
+                if(tFinished.getModel() instanceof AllModel){
+                    ((AllModel) tFinished.getModel()).reset(finishedRows);
                 } else {
                     final AllModel allModel = new AllModel(finishedRows);
-                    tblFinished.setModel(allModel);
-                    allModel.setTableColumnWidths(tblFinished);
+                    tFinished.setModel(allModel);
+                    allModel.setTableColumnWidths(tFinished);
                 }
                 break;
             case 2:
                 final AllReportRows utilityTagsRows = cache.getObj(AllReportRows.utilityCacheId(z), AllReportRows.class);
-                if(tblUtilityTags.getModel() instanceof AllModel){
-                    ((AllModel) tblUtilityTags.getModel()).reset(utilityTagsRows);
+                if(tUtility.getModel() instanceof AllModel){
+                    ((AllModel) tUtility.getModel()).reset(utilityTagsRows);
                 } else {
                     final AllModel allModel = new AllModel(utilityTagsRows, true);
-                    tblUtilityTags.setModel(allModel);
-                    allModel.setTableColumnWidths(tblUtilityTags);
+                    tUtility.setModel(allModel);
+                    allModel.setTableColumnWidths(tUtility);
                 }
                 break;
         }
@@ -317,105 +315,93 @@ public class MainView implements MainViewAccessor {
 
     public void refreshDayChart(CacheMgr cache, ItemEvent event) {
         if(event.getStateChange() != ItemEvent.SELECTED) return;
-        DateSelection<LocalDate> selected = (DateSelection<LocalDate>) comboDayCharts.getSelectedItem();
-        pnlDayChart.removeAll();
-        if (selected == null) { pnlDayChart.add(lblNoData); return;}
-        final MonthSummary summary = cache.getObj(MonthSummary.cacheId(YearMonth.from(selected.date), z), MonthSummary.class);
-        if (summary == null) { pnlDayChart.add(lblNoData); return;}
-        final ChartData dayChart = summary.getDayCharts().get(selected.date);
-        if (dayChart == null) { pnlDayChart.add(lblNoData); return;}
-        final ChartMeta meta = dayChart.getMeta();
-        getDayPanel().setChart(Charts.createDayBarChart(dayChart));
-        pnlDayChart.setPreferredSize(new Dimension(-1, 220));
-        pnlDayChart.add(getDayPanel());
-        pnlDayChart.updateUI();
-        int target = UserConfig.userGInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND);
-        int ratio = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < target ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / target);
-        lblLogged.setText(String.format("Logged: %s", FormatUtil.hms(meta.getLogDur())));
-        lblWorktime.setText(String.format("Project: %s", FormatUtil.hms(meta.getWorkDur())));
-        if (UserConfig.userGWDay(selected.date.get(ChronoField.DAY_OF_WEEK))) {
-            lblRatio.setText(String.format("Rating: %d%%", ratio));
-            Color ratioFG = interpolateNicely((float) ratio / 100f, bad, neu, gut);
-            lblRatio.setForeground(AppConfig.getTheme().dark ? ratioFG : multiply(gray, ratioFG));
+        DateSelection<LocalDate> s = (DateSelection<LocalDate>) comboD.getSelectedItem();
+        pnlDChart.removeAll();
+        if (s == null) { pnlDChart.add(lDNoData); return;}
+        final MonthSummary ms = cache.getObj(MonthSummary.cacheId(YearMonth.from(s.date), z), MonthSummary.class);
+        if (ms == null) { pnlDChart.add(lDNoData); return;}
+        final ChartData cd = ms.getDayCharts().get(s.date);
+        if (cd == null) { pnlDChart.add(lDNoData); return;}
+        final ChartMeta meta = cd.getMeta();
+        getDayPanel().setChart(Charts.createDayBarChart(cd));
+        refreshChart(getDayPanel(), pnlDChart, comboD, btnPrevD, btnNextD, btnFirstD, btnLastD);
+        int t = UserConfig.userGInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND);
+        int r = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < t ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / t);
+        lDLogged.setText(String.format("Logged: %s", FormatUtil.hms(meta.getLogDur())));
+        lDWorktime.setText(String.format("Project: %s", FormatUtil.hms(meta.getWorkDur())));
+        if (UserConfig.userGWDay(s.date.get(ChronoField.DAY_OF_WEEK))) {
+            lDRating.setText(String.format("Rating: %d%%", r));
+            Color ratioFG = interpolateNicely((float) r / 100f, bad, neu, gut);
+            lDRating.setForeground(Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
         } else {
-            lblRatio.setText(String.format("Rating: %d%% (holiday)", ratio));
-            lblRatio.setForeground(gray);
+            lDRating.setText(String.format("Rating: %d%% (holiday)", r));
+            lDRating.setForeground(Main.currentTheme.dark ? gray : light_gray);
         }
-        btnPrevChart.setEnabled(comboDayCharts.getSelectedIndex() > 0);
-        btnNextChart.setEnabled(comboDayCharts.getSelectedIndex() < comboDayCharts.getItemCount() - 1);
-        btnFirstChart.setEnabled(comboDayCharts.getSelectedIndex() > 0);
-        btnLastChart.setEnabled(comboDayCharts.getSelectedIndex() < comboDayCharts.getItemCount() - 1);
     }
 
     public void refreshMonthChart(CacheMgr cache, ItemEvent event){
         if(event.getStateChange() != ItemEvent.SELECTED) return;
-        DateSelection<YearMonth> selected = (DateSelection<YearMonth>) comboMonthCharts.getSelectedItem();
-        pnlMonthChart.removeAll();
-        if (selected == null) { pnlMonthChart.add(lblMonthNoData); return;}
-        final MonthSummary summary = cache.getObj(MonthSummary.cacheId(selected.date, z), MonthSummary.class);
-        if (summary == null) { pnlMonthChart.add(lblMonthNoData); return;}
-        Charts.MonthChartInfo chartInfo = Charts.createMonthBarChart(summary);
-        monthChartInfo = chartInfo;
-        getMonthPanel().setChart(chartInfo.chart);
-        pnlMonthChart.setPreferredSize(new Dimension(-1, 220));
-        pnlMonthChart.add(getMonthPanel());
-        pnlMonthChart.updateUI();
-        btnMonthPrevChart.setEnabled(comboMonthCharts.getSelectedIndex() > 0);
-        btnMonthNextChart.setEnabled(comboMonthCharts.getSelectedIndex() < comboMonthCharts.getItemCount() - 1);
-        btnMonthFirstChart.setEnabled(comboMonthCharts.getSelectedIndex() > 0);
-        btnMonthLastChart.setEnabled(comboMonthCharts.getSelectedIndex() < comboMonthCharts.getItemCount() - 1);
+        DateSelection<YearMonth> selected = (DateSelection<YearMonth>) comboM.getSelectedItem();
+        pnlMChart.removeAll();
+        if (selected == null) { pnlMChart.add(lMNoData); return;}
+        final MonthSummary s = cache.getObj(MonthSummary.cacheId(selected.date, z), MonthSummary.class);
+        if (s == null) { pnlMChart.add(lMNoData); return;}
+        Charts.MonthChartInfo info = Charts.createMonthBarChart(s);
+        mChartInfo = info;
+        getMonthPanel().setChart(info.chart);
+        refreshChart(getMonthPanel(), pnlMChart, comboM, btnPrevM, btnNextM, btnFirstM, btnLastM);
     }
 
     public void refreshYearChart(CacheMgr cache, ItemEvent event){
         if(event.getStateChange() != ItemEvent.SELECTED) return;
-        DateSelection<Year> selected = (DateSelection<Year>) comboYearCharts.getSelectedItem();
-        pnlYearChart.removeAll();
-        if (selected == null) { pnlYearChart.add(lblYearNoData); return;}
-        final YearSummary summary = cache.getObj(YearSummary.cacheId(selected.date, z), YearSummary.class);
-        if (summary == null) { pnlYearChart.add(lblYearNoData); return;}
-        getYearPanel().setChart(Charts.createYearBarChart(summary));
-        pnlYearChart.setPreferredSize(new Dimension(-1, 270));
-        pnlYearChart.add(getYearPanel());
-        pnlYearChart.updateUI();
-        btnYearPrevChart.setEnabled(comboYearCharts.getSelectedIndex() > 0);
-        btnYearNextChart.setEnabled(comboYearCharts.getSelectedIndex() < comboYearCharts.getItemCount() - 1);
-        btnYearFirstChart.setEnabled(comboYearCharts.getSelectedIndex() > 0);
-        btnYearLastChart.setEnabled(comboYearCharts.getSelectedIndex() < comboYearCharts.getItemCount() - 1);
+        DateSelection<Year> s = (DateSelection<Year>) comboY.getSelectedItem();
+        pnlYChart.removeAll();
+        if (s == null) { pnlYChart.add(lYNoData); return;}
+        final YearSummary ys = cache.getObj(YearSummary.cacheId(s.date, z), YearSummary.class);
+        if (ys == null) { pnlYChart.add(lYNoData); return;}
+        getYearPanel().setChart(Charts.createYearBarChart(ys));
+        refreshChart(getYearPanel(), pnlYChart, comboY, btnPrevY, btnNextY, btnFirstY, btnLastY);
+    }
+
+    private void refreshChart(ChartPanel cp, JPanel p, JComboBox cmb, JButton pr, JButton nx, JButton fs, JButton ls){
+        p.add(cp); p.updateUI();
+        pr.setEnabled(cmb.getSelectedIndex() > 0); nx.setEnabled(cmb.getSelectedIndex() < cmb.getItemCount() - 1);
+        fs.setEnabled(cmb.getSelectedIndex() > 0); ls.setEnabled(cmb.getSelectedIndex() < cmb.getItemCount() - 1);
     }
 
     public long selected(){
-        if(tabs.getSelectedIndex()==0 && tblActive.getSelectedRow() != -1) {
-            return ((AllModel) tblActive.getModel())
-                    .getProjectHash(tblActive.convertRowIndexToModel(tblActive.getSelectedRow()));
-        } else if(tabs.getSelectedIndex()==1 && tblFinished.getSelectedRow() != -1) {
-            return ((AllModel) tblFinished.getModel())
-                    .getProjectHash(tblFinished.convertRowIndexToModel(tblFinished.getSelectedRow()));
-        } else if(tabs.getSelectedIndex()==2 && tblUtilityTags.getSelectedRow() != -1) {
-            return ((AllModel) tblUtilityTags.getModel())
-                    .getProjectHash(tblUtilityTags.convertRowIndexToModel(tblUtilityTags.getSelectedRow()));
+        if(tabs.getSelectedIndex()==0 && tActive.getSelectedRow() != -1) {
+            return ((AllModel) tActive.getModel())
+                    .getProjectHash(tActive.convertRowIndexToModel(tActive.getSelectedRow()));
+        } else if(tabs.getSelectedIndex()==1 && tFinished.getSelectedRow() != -1) {
+            return ((AllModel) tFinished.getModel())
+                    .getProjectHash(tFinished.convertRowIndexToModel(tFinished.getSelectedRow()));
+        } else if(tabs.getSelectedIndex()==2 && tUtility.getSelectedRow() != -1) {
+            return ((AllModel) tUtility.getModel())
+                    .getProjectHash(tUtility.convertRowIndexToModel(tUtility.getSelectedRow()));
         }
         return -1;
     }
 
     public int selectedIndex(){
         switch (tabs.getSelectedIndex()){
-            case 0: return tblActive.convertRowIndexToModel(tblActive.getSelectedRow());
-            case 1: return tblFinished.convertRowIndexToModel(tblFinished.getSelectedRow());
-            case 2: return tblUtilityTags.convertRowIndexToModel(tblUtilityTags.getSelectedRow());
+            case 0: return tActive.convertRowIndexToModel(tActive.getSelectedRow());
+            case 1: return tFinished.convertRowIndexToModel(tFinished.getSelectedRow());
+            case 2: return tUtility.convertRowIndexToModel(tUtility.getSelectedRow());
             default: return -1;
         }
     }
 
     public void setSelected(long hash){
-        if(tabs.getSelectedIndex()==0 && tblActive.getModel() instanceof AllModel) {
-            int i = tblActive.convertRowIndexToView(((AllModel) tblActive.getModel()).findIndex(hash));
-            tblActive.setRowSelectionInterval(i, i);
-        } else if(tabs.getSelectedIndex()==1 && tblFinished.getModel() instanceof AllModel) {
-            int i = tblFinished.convertRowIndexToView(((AllModel) tblFinished.getModel()).findIndex(hash));
-            tblFinished.setRowSelectionInterval(i, i);
-        } else if(tabs.getSelectedIndex()==2 && tblUtilityTags.getModel() instanceof AllModel) {
-            int i = tblUtilityTags.convertRowIndexToView(((AllModel) tblUtilityTags.getModel()).findIndex(hash));
-            tblUtilityTags.setRowSelectionInterval(i, i);
+        if(tabs.getSelectedIndex()==0 && tActive.getModel() instanceof AllModel) {
+            int i = tActive.convertRowIndexToView(((AllModel) tActive.getModel()).findIndex(hash));
+            tActive.setRowSelectionInterval(i, i);
+        } else if(tabs.getSelectedIndex()==1 && tFinished.getModel() instanceof AllModel) {
+            int i = tFinished.convertRowIndexToView(((AllModel) tFinished.getModel()).findIndex(hash));
+            tFinished.setRowSelectionInterval(i, i);
+        } else if(tabs.getSelectedIndex()==2 && tUtility.getModel() instanceof AllModel) {
+            int i = tUtility.convertRowIndexToView(((AllModel) tUtility.getModel()).findIndex(hash));
+            tUtility.setRowSelectionInterval(i, i);
         }
     }
 
@@ -474,12 +460,12 @@ public class MainView implements MainViewAccessor {
 
     @Override
     public Charts.MonthChartInfo getMonthChartInfo() {
-        return monthChartInfo;
+        return mChartInfo;
     }
 
     private void createUIComponents() {
-        comboDayCharts = new JComboBox<>();
-        comboMonthCharts = new JComboBox<>();
-        comboYearCharts = new JComboBox<>();
+        comboD = new JComboBox<>();
+        comboM = new JComboBox<>();
+        comboY = new JComboBox<>();
     }
 }

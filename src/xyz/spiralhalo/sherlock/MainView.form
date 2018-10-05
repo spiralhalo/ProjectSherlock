@@ -252,32 +252,32 @@
                 </properties>
                 <border type="none"/>
                 <children>
-                  <component id="feea3" class="javax.swing.JButton" binding="btnFirstChart">
+                  <component id="feea3" class="javax.swing.JButton" binding="btnFirstD">
                     <constraints/>
                     <properties>
                       <icon value="xyz/spiralhalo/sherlock/res/sm_first.png"/>
                       <text value=""/>
                     </properties>
                   </component>
-                  <component id="8e31d" class="javax.swing.JButton" binding="btnPrevChart">
+                  <component id="8e31d" class="javax.swing.JButton" binding="btnPrevD">
                     <constraints/>
                     <properties>
                       <icon value="xyz/spiralhalo/sherlock/res/sm_left.png"/>
                       <text value=""/>
                     </properties>
                   </component>
-                  <component id="f1da6" class="javax.swing.JComboBox" binding="comboDayCharts" custom-create="true">
+                  <component id="f1da6" class="javax.swing.JComboBox" binding="comboD" custom-create="true">
                     <constraints/>
                     <properties/>
                   </component>
-                  <component id="1e7b6" class="javax.swing.JButton" binding="btnNextChart">
+                  <component id="1e7b6" class="javax.swing.JButton" binding="btnNextD">
                     <constraints/>
                     <properties>
                       <icon value="xyz/spiralhalo/sherlock/res/sm_right.png"/>
                       <text value=""/>
                     </properties>
                   </component>
-                  <component id="e990" class="javax.swing.JButton" binding="btnLastChart">
+                  <component id="e990" class="javax.swing.JButton" binding="btnLastD">
                     <constraints/>
                     <properties>
                       <icon value="xyz/spiralhalo/sherlock/res/sm_last.png"/>
@@ -286,14 +286,14 @@
                   </component>
                 </children>
               </toolbar>
-              <grid id="df04b" binding="pnlDayChart" layout-manager="BorderLayout" hgap="0" vgap="0">
+              <grid id="df04b" binding="pnlDChart" layout-manager="BorderLayout" hgap="0" vgap="0">
                 <constraints>
                   <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="652d9" class="javax.swing.JLabel" binding="lblNoData">
+                  <component id="652d9" class="javax.swing.JLabel" binding="lDNoData">
                     <constraints border-constraint="Center"/>
                     <properties>
                       <horizontalAlignment value="0"/>
@@ -310,7 +310,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="c0b0c" class="javax.swing.JLabel" binding="lblLogged">
+                  <component id="c0b0c" class="javax.swing.JLabel" binding="lDLogged">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -318,7 +318,7 @@
                       <text value="Logged"/>
                     </properties>
                   </component>
-                  <component id="9ce50" class="javax.swing.JLabel" binding="lblWorktime">
+                  <component id="9ce50" class="javax.swing.JLabel" binding="lDWorktime">
                     <constraints>
                       <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -326,7 +326,7 @@
                       <text value="Project"/>
                     </properties>
                   </component>
-                  <component id="c7e12" class="javax.swing.JLabel" binding="lblRatio">
+                  <component id="c7e12" class="javax.swing.JLabel" binding="lDRating">
                     <constraints>
                       <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -358,32 +358,32 @@
                 </properties>
                 <border type="none"/>
                 <children>
-                  <component id="ffae4" class="javax.swing.JButton" binding="btnMonthFirstChart">
+                  <component id="ffae4" class="javax.swing.JButton" binding="btnFirstM">
                     <constraints/>
                     <properties>
                       <icon value="xyz/spiralhalo/sherlock/res/sm_first.png"/>
                       <text value=""/>
                     </properties>
                   </component>
-                  <component id="9229d" class="javax.swing.JButton" binding="btnMonthPrevChart">
+                  <component id="9229d" class="javax.swing.JButton" binding="btnPrevM">
                     <constraints/>
                     <properties>
                       <icon value="xyz/spiralhalo/sherlock/res/sm_left.png"/>
                       <text value=""/>
                     </properties>
                   </component>
-                  <component id="72b4e" class="javax.swing.JComboBox" binding="comboMonthCharts" custom-create="true">
+                  <component id="72b4e" class="javax.swing.JComboBox" binding="comboM" custom-create="true">
                     <constraints/>
                     <properties/>
                   </component>
-                  <component id="fa6d2" class="javax.swing.JButton" binding="btnMonthNextChart">
+                  <component id="fa6d2" class="javax.swing.JButton" binding="btnNextM">
                     <constraints/>
                     <properties>
                       <icon value="xyz/spiralhalo/sherlock/res/sm_right.png"/>
                       <text value=""/>
                     </properties>
                   </component>
-                  <component id="2ee3b" class="javax.swing.JButton" binding="btnMonthLastChart">
+                  <component id="2ee3b" class="javax.swing.JButton" binding="btnLastM">
                     <constraints/>
                     <properties>
                       <icon value="xyz/spiralhalo/sherlock/res/sm_last.png"/>
@@ -392,14 +392,14 @@
                   </component>
                 </children>
               </toolbar>
-              <grid id="aa634" binding="pnlMonthChart" layout-manager="BorderLayout" hgap="0" vgap="0">
+              <grid id="aa634" binding="pnlMChart" layout-manager="BorderLayout" hgap="0" vgap="0">
                 <constraints>
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="4536" class="javax.swing.JLabel" binding="lblMonthNoData">
+                  <component id="4536" class="javax.swing.JLabel" binding="lMNoData">
                     <constraints border-constraint="Center"/>
                     <properties>
                       <horizontalAlignment value="0"/>
@@ -429,32 +429,32 @@
                 </properties>
                 <border type="none"/>
                 <children>
-                  <component id="6d9c9" class="javax.swing.JButton" binding="btnYearFirstChart">
+                  <component id="6d9c9" class="javax.swing.JButton" binding="btnFirstY">
                     <constraints/>
                     <properties>
                       <icon value="xyz/spiralhalo/sherlock/res/sm_first.png"/>
                       <text value=""/>
                     </properties>
                   </component>
-                  <component id="cf2a2" class="javax.swing.JButton" binding="btnYearPrevChart">
+                  <component id="cf2a2" class="javax.swing.JButton" binding="btnPrevY">
                     <constraints/>
                     <properties>
                       <icon value="xyz/spiralhalo/sherlock/res/sm_left.png"/>
                       <text value=""/>
                     </properties>
                   </component>
-                  <component id="3121b" class="javax.swing.JComboBox" binding="comboYearCharts" custom-create="true">
+                  <component id="3121b" class="javax.swing.JComboBox" binding="comboY" custom-create="true">
                     <constraints/>
                     <properties/>
                   </component>
-                  <component id="d5438" class="javax.swing.JButton" binding="btnYearNextChart">
+                  <component id="d5438" class="javax.swing.JButton" binding="btnNextY">
                     <constraints/>
                     <properties>
                       <icon value="xyz/spiralhalo/sherlock/res/sm_right.png"/>
                       <text value=""/>
                     </properties>
                   </component>
-                  <component id="b335d" class="javax.swing.JButton" binding="btnYearLastChart">
+                  <component id="b335d" class="javax.swing.JButton" binding="btnLastY">
                     <constraints/>
                     <properties>
                       <icon value="xyz/spiralhalo/sherlock/res/sm_last.png"/>
@@ -463,14 +463,14 @@
                   </component>
                 </children>
               </toolbar>
-              <grid id="e9cd8" binding="pnlYearChart" layout-manager="BorderLayout" hgap="0" vgap="0">
+              <grid id="e9cd8" binding="pnlYChart" layout-manager="BorderLayout" hgap="0" vgap="0">
                 <constraints>
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="e6dbd" class="javax.swing.JLabel" binding="lblYearNoData">
+                  <component id="e6dbd" class="javax.swing.JLabel" binding="lYNoData">
                     <constraints border-constraint="Center"/>
                     <properties>
                       <horizontalAlignment value="0"/>
@@ -507,7 +507,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="a7834" class="javax.swing.JTable" binding="tblActive">
+                  <component id="a7834" class="javax.swing.JTable" binding="tActive">
                     <constraints/>
                     <properties>
                       <autoCreateRowSorter value="true"/>
@@ -532,7 +532,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="accb" class="javax.swing.JTable" binding="tblFinished">
+                  <component id="accb" class="javax.swing.JTable" binding="tFinished">
                     <constraints/>
                     <properties>
                       <autoCreateRowSorter value="true"/>
@@ -557,7 +557,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="14b35" class="javax.swing.JTable" binding="tblUtilityTags">
+                  <component id="14b35" class="javax.swing.JTable" binding="tUtility">
                     <constraints/>
                     <properties>
                       <autoCreateRowSorter value="true"/>
