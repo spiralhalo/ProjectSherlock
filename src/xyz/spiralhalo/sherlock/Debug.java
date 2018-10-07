@@ -4,6 +4,7 @@ import xyz.spiralhalo.sherlock.Main.Arg;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.function.Supplier;
 import java.util.logging.*;
 
 import static xyz.spiralhalo.sherlock.util.FormatUtil.DTF_FULL;
@@ -81,7 +82,7 @@ public class Debug {
         getLogger().logp(level, n.substring(n.lastIndexOf('.') + 1), f.getMethodName(), x);
     }
 
-    public static void logVerbose(String x){
+    public static void logVerbose(Supplier<String> x){
         getLogger().fine(x);
     }
 

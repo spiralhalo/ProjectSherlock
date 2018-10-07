@@ -233,9 +233,10 @@ public abstract class AbstractRecordWriter {
     private void flush(boolean forced){
         final int recordElapsed = (getGranularityMillisInternal() + working.getDuration())/1000;
         final Instant recordTime = working.timestamp;
+        final String debug_name = working.debug_name;
 
-        Debug.log(String.format("[Buffer] Writing record entry for: %s", working.debug_name));
-        Debug.logVerbose(String.format("%8s %s, %s", "", FormatUtil.DTF_FULL.format(recordTime), recordElapsed));
+        Debug.logVerbose(()->String.format("[Buffer] Writing record entry for: %s\n%8s %s, %s", debug_name,
+                "", FormatUtil.DTF_FULL.format(recordTime), recordElapsed));
 
         buffer.put(RecordEntry.serialize(recordTime, recordElapsed, working.hash, working.utilityTag, working.productive));
 
