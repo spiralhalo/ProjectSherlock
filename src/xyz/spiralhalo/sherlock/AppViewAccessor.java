@@ -7,7 +7,7 @@ import javax.swing.*;
 import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 
-public interface MainViewAccessor {
+public interface AppViewAccessor {
     JFrame frame();
     void init();
     void refreshStatus(CacheMgr cache);

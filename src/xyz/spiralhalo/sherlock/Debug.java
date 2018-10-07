@@ -45,8 +45,11 @@ public class Debug {
     private static String errorVerbose(Throwable e){
         StringBuilder builder = new StringBuilder();
         StackTraceElement[] x = e.getStackTrace();
-        for (StackTraceElement y:x) builder.append(y.toString()).append('\n');
-        return String.format("%s at %s", e.toString(), builder.toString());
+        for (StackTraceElement y:x) {
+            builder.append("\nat ").append(y.toString());
+            if(y.getClassName().startsWith("xyz.spiralhalo.sherlock.Main")) break;
+        }
+        return String.format("%s %s", e.toString(), builder.toString());
     }
 
     public static void log(Throwable e) {
@@ -56,21 +59,26 @@ public class Debug {
     }
 
     public static void log(Error e){
-        if (Arg.Debug.isEnabled()) getLogger().severe(() -> errorVerbose(e));
-        else getLogger().severe(e::toString);
+        if (Arg.Debug.isEnabled()) log(Level.SEVERE, errorVerbose(e), Thread.currentThread().getStackTrace()[2]);
+        else log(Level.SEVERE, e.toString(), Thread.currentThread().getStackTrace()[2]);
     }
 
     public static void log(Exception e){
-        if (Arg.Debug.isEnabled()) getLogger().warning(() -> errorVerbose(e));
-        else getLogger().warning(e::toString);
+        if (Arg.Debug.isEnabled()) log(Level.WARNING, errorVerbose(e), Thread.currentThread().getStackTrace()[2]);
+        else log(Level.WARNING, e.toString(), Thread.currentThread().getStackTrace()[2]);
     }
 
     public static void log(String x){
-        getLogger().config(x);
+        log(Level.CONFIG, x, Thread.currentThread().getStackTrace()[2]);
     }
 
     public static void logImportant(String x){
-        getLogger().info(x);
+        log(Level.INFO, x, Thread.currentThread().getStackTrace()[2]);
+    }
+
+    private static void log(Level level, String x, StackTraceElement f){
+        String n = f.getClassName();
+        getLogger().logp(level, n.substring(n.lastIndexOf('.') + 1), f.getMethodName(), x);
     }
 
     public static void logVerbose(String x){
@@ -84,11 +92,9 @@ public class Debug {
                 return String.format("%7s %s: %s\n", r.getLevel().getName(),
                         DTF_FULL.format(Instant.ofEpochMilli(r.getMillis())), r.getMessage());
             } else {
-                StackTraceElement f = new Throwable().getStackTrace()[8];
-                String n = f.getClassName();
                 return String.format("%7s %s: %s %s: %s\n", r.getLevel().getName(),
                         DTF_FULL.format(Instant.ofEpochMilli(r.getMillis())),
-                        n.substring(n.lastIndexOf('.') + 1), f.getMethodName(), r.getMessage());
+                        r.getSourceClassName(), r.getSourceMethodName(), r.getMessage());
             }
         }
     }

@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 import static xyz.spiralhalo.sherlock.util.ColorUtil.*;
 
-public class MainView implements MainViewAccessor {
+public class AppView implements AppViewAccessor {
 
     private JPanel rootPane;
     private JTabbedPane tabs;
@@ -96,13 +96,13 @@ public class MainView implements MainViewAccessor {
     private Charts.MonthChartInfo mChartInfo;
 
     private final ZoneId z = ZoneId.systemDefault();
-    private final MainControl control;
+    private final AppControl control;
     private final ArrayList<JComponent> enableOnSelect = new ArrayList<>();
     private JPopupMenu tablePopUpMenu;
 
     private final JFrame frame = new JFrame(Main.APP_TITLE);
 
-    private void createCommandButtons(MainControl control){
+    private void createCommandButtons(AppControl control){
         if(Main.currentTheme == AppConfig.Theme.SYSTEM){
             Main.applyButtonTheme(btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings,
                     btnBookmarks, btnInbox, btnRefresh);
@@ -152,7 +152,7 @@ public class MainView implements MainViewAccessor {
         }
     }
 
-    MainView(MainControl control){
+    AppView(AppControl control){
         this.control = control;
         Main.applyButtonTheme(btnPrevD, btnNextD, btnFirstD, btnLastD);
         Main.applyButtonTheme(btnPrevM, btnNextM, btnFirstM, btnLastM);
@@ -316,12 +316,11 @@ public class MainView implements MainViewAccessor {
     public void refreshDayChart(CacheMgr cache, ItemEvent event) {
         if(event.getStateChange() != ItemEvent.SELECTED) return;
         DateSelection<LocalDate> s = (DateSelection<LocalDate>) comboD.getSelectedItem();
-        pnlDChart.removeAll();
-        if (s == null) { pnlDChart.add(lDNoData); return;}
+        if (s == null) { notifyNoData(pnlDChart, lDNoData, comboD, btnPrevD, btnNextD, btnFirstD, btnLastD); return;}
         final MonthSummary ms = cache.getObj(MonthSummary.cacheId(YearMonth.from(s.date), z), MonthSummary.class);
-        if (ms == null) { pnlDChart.add(lDNoData); return;}
+        if (ms == null) { notifyNoData(pnlDChart, lDNoData, comboD, btnPrevD, btnNextD, btnFirstD, btnLastD); return;}
         final ChartData cd = ms.getDayCharts().get(s.date);
-        if (cd == null) { pnlDChart.add(lDNoData); return;}
+        if (cd == null) { notifyNoData(pnlDChart, lDNoData, comboD, btnPrevD, btnNextD, btnFirstD, btnLastD); return;}
         final ChartMeta meta = cd.getMeta();
         getDayPanel().setChart(Charts.createDayBarChart(cd));
         refreshChart(getDayPanel(), pnlDChart, comboD, btnPrevD, btnNextD, btnFirstD, btnLastD);
@@ -342,10 +341,9 @@ public class MainView implements MainViewAccessor {
     public void refreshMonthChart(CacheMgr cache, ItemEvent event){
         if(event.getStateChange() != ItemEvent.SELECTED) return;
         DateSelection<YearMonth> selected = (DateSelection<YearMonth>) comboM.getSelectedItem();
-        pnlMChart.removeAll();
-        if (selected == null) { pnlMChart.add(lMNoData); return;}
+        if (selected == null) { notifyNoData(pnlMChart, lMNoData, comboM, btnPrevM, btnNextM, btnFirstM, btnLastM); return;}
         final MonthSummary s = cache.getObj(MonthSummary.cacheId(selected.date, z), MonthSummary.class);
-        if (s == null) { pnlMChart.add(lMNoData); return;}
+        if (s == null) { notifyNoData(pnlMChart, lMNoData, comboM, btnPrevM, btnNextM, btnFirstM, btnLastM); return;}
         Charts.MonthChartInfo info = Charts.createMonthBarChart(s);
         mChartInfo = info;
         getMonthPanel().setChart(info.chart);
@@ -355,16 +353,24 @@ public class MainView implements MainViewAccessor {
     public void refreshYearChart(CacheMgr cache, ItemEvent event){
         if(event.getStateChange() != ItemEvent.SELECTED) return;
         DateSelection<Year> s = (DateSelection<Year>) comboY.getSelectedItem();
-        pnlYChart.removeAll();
-        if (s == null) { pnlYChart.add(lYNoData); return;}
+        if (s == null) { notifyNoData(pnlYChart, lYNoData, comboY, btnPrevY, btnNextY, btnFirstY, btnLastY); return;}
         final YearSummary ys = cache.getObj(YearSummary.cacheId(s.date, z), YearSummary.class);
-        if (ys == null) { pnlYChart.add(lYNoData); return;}
+        if (ys == null) { notifyNoData(pnlYChart, lYNoData, comboY, btnPrevY, btnNextY, btnFirstY, btnLastY); return;}
         getYearPanel().setChart(Charts.createYearBarChart(ys));
         refreshChart(getYearPanel(), pnlYChart, comboY, btnPrevY, btnNextY, btnFirstY, btnLastY);
     }
 
     private void refreshChart(ChartPanel cp, JPanel p, JComboBox cmb, JButton pr, JButton nx, JButton fs, JButton ls){
+        p.removeAll();
         p.add(cp); p.updateUI();
+        pr.setEnabled(cmb.getSelectedIndex() > 0); nx.setEnabled(cmb.getSelectedIndex() < cmb.getItemCount() - 1);
+        fs.setEnabled(cmb.getSelectedIndex() > 0); ls.setEnabled(cmb.getSelectedIndex() < cmb.getItemCount() - 1);
+    }
+
+    private void notifyNoData(JPanel p, JLabel lND, JComboBox cmb, JButton pr, JButton nx, JButton fs, JButton ls){
+        p.removeAll();
+        p.add(lND);
+        p.updateUI();
         pr.setEnabled(cmb.getSelectedIndex() > 0); nx.setEnabled(cmb.getSelectedIndex() < cmb.getItemCount() - 1);
         fs.setEnabled(cmb.getSelectedIndex() > 0); ls.setEnabled(cmb.getSelectedIndex() < cmb.getItemCount() - 1);
     }

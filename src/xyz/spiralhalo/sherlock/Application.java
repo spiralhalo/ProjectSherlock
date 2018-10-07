@@ -36,7 +36,7 @@ public class Application {
     {
         if(cachedJarPath == null){
             try {
-                cachedJarPath = new File(MainView.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+                cachedJarPath = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
             } catch (URISyntaxException e) {
                 Debug.log(e);
                 return null;

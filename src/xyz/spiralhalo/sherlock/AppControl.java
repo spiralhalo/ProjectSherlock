@@ -54,13 +54,13 @@ import java.util.function.BiConsumer;
 import static java.awt.Frame.ICONIFIED;
 import static java.awt.Frame.NORMAL;
 
-public class MainControl implements ActionListener {
+public class AppControl implements ActionListener {
 
-    private static MainControl instance;
+    private static AppControl instance;
 
     public static void create() {
         if(instance!=null)return;
-        instance = new MainControl();
+        instance = new AppControl();
     }
 
     public enum Action{
@@ -77,7 +77,7 @@ public class MainControl implements ActionListener {
         A_REFRESH,
         A_EXTRA_BOOKMARKS
     }
-    private MainViewAccessor view;
+    private AppViewAccessor view;
     private final ProjectList projectList;
     private final Tracker tracker;
     private final CacheMgr cache;
@@ -87,7 +87,7 @@ public class MainControl implements ActionListener {
     private final ZoneId z = ZoneId.systemDefault();
     private LocalDate monthNoteEditing;
 
-    private MainControl() {
+    private AppControl() {
         cache = new CacheMgr();
         projectList = ProjectListIO.load();
         AutoImporter3.importRecords(projectList);
@@ -124,7 +124,7 @@ public class MainControl implements ActionListener {
     }
 
     private void createView(){
-        view = new MainView(this);
+        view = new AppView(this);
         view.init();
         view.frame().addWindowListener(windowAdapter);
         view.frame().addWindowStateListener(windowAdapter);
@@ -538,7 +538,7 @@ public class MainControl implements ActionListener {
         }
     };
 
-    private MainControl getThis(){return this;}
+    private AppControl getThis(){return this;}
 
     private void viewProject(){
         Project p = projectList.findByHash(view.selected());
