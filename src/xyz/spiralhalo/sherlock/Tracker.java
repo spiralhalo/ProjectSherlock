@@ -86,14 +86,14 @@ public class Tracker implements TrackerAccessor{
             final ZonedDateTime now = ZonedDateTime.now();
             tempa = EnumerateWindows.getActiveWindowTitle();
             lastTracked = projectList.getActiveProjectOf(tempa[0], now);
-            Debug.logVerbose(String.format("%18s %s", "[ForegroundWindow]", tempa[0]));
+            Debug.logVerbose(()->String.format("%18s %s", "[ForegroundWindow]", tempa[0]));
             if(lastTracked==null) {
                 tempa = EnumerateWindows.getRootWindowTitle();
                 lastTracked = projectList.getActiveProjectOf(tempa[0], now);
-                Debug.logVerbose(String.format("%18s %s", "[GW_OWNER]", tempa[0]));
+                Debug.logVerbose(()->String.format("%18s %s", "[GW_OWNER]", tempa[0]));
             }
             final String pn = String.valueOf(lastTracked);
-            Debug.logVerbose(String.format("%18s Detected project: %s", "", pn));
+            Debug.logVerbose(()->String.format("%18s Detected project: %s", "", pn));
             buffer.log(lastTracked);
             for(TrackerListener listener:listeners){
                 listener.onLog(lastTracked, tempa[0], tempa[1]);
