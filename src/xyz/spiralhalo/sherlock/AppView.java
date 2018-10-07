@@ -281,6 +281,7 @@ public class AppView implements AppViewAccessor {
     public void refreshProjects(CacheMgr cache, int index){
         switch (index){
             case 0:
+                long sA = selected(0);
                 final AllReportRows activeRows = cache.getObj(AllReportRows.activeCacheId(z), AllReportRows.class);
                 if(tActive.getModel() instanceof AllModel){
                     ((AllModel) tActive.getModel()).reset(activeRows);
@@ -289,8 +290,10 @@ public class AppView implements AppViewAccessor {
                     tActive.setModel(allModel);
                     allModel.setTableColumnWidths(tActive);
                 }
+                setSelected(0, sA);
                 break;
             case 1:
+                long sF = selected(1);
                 final AllReportRows finishedRows = cache.getObj(AllReportRows.finishedCacheId(z), AllReportRows.class);
                 if(tFinished.getModel() instanceof AllModel){
                     ((AllModel) tFinished.getModel()).reset(finishedRows);
@@ -299,8 +302,10 @@ public class AppView implements AppViewAccessor {
                     tFinished.setModel(allModel);
                     allModel.setTableColumnWidths(tFinished);
                 }
+                setSelected(1, sF);
                 break;
             case 2:
+                long sU = selected(2);
                 final AllReportRows utilityTagsRows = cache.getObj(AllReportRows.utilityCacheId(z), AllReportRows.class);
                 if(tUtility.getModel() instanceof AllModel){
                     ((AllModel) tUtility.getModel()).reset(utilityTagsRows);
@@ -309,6 +314,7 @@ public class AppView implements AppViewAccessor {
                     tUtility.setModel(allModel);
                     allModel.setTableColumnWidths(tUtility);
                 }
+                setSelected(2, sU);
                 break;
         }
     }
@@ -334,7 +340,7 @@ public class AppView implements AppViewAccessor {
             lDRating.setForeground(Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
         } else {
             lDRating.setText(String.format("Rating: %d%% (holiday)", r));
-            lDRating.setForeground(Main.currentTheme.dark ? gray : light_gray);
+            lDRating.setForeground(new Color(0x77000000 | Main.currentTheme.foreground, true));
         }
     }
 
@@ -376,13 +382,17 @@ public class AppView implements AppViewAccessor {
     }
 
     public long selected(){
-        if(tabs.getSelectedIndex()==0 && tActive.getSelectedRow() != -1) {
+        return selected(tabs.getSelectedIndex());
+    }
+
+    private long selected(int i){
+        if(i==0 && tActive.getSelectedRow() != -1) {
             return ((AllModel) tActive.getModel())
                     .getProjectHash(tActive.convertRowIndexToModel(tActive.getSelectedRow()));
-        } else if(tabs.getSelectedIndex()==1 && tFinished.getSelectedRow() != -1) {
+        } else if(i==1 && tFinished.getSelectedRow() != -1) {
             return ((AllModel) tFinished.getModel())
                     .getProjectHash(tFinished.convertRowIndexToModel(tFinished.getSelectedRow()));
-        } else if(tabs.getSelectedIndex()==2 && tUtility.getSelectedRow() != -1) {
+        } else if(i==2 && tUtility.getSelectedRow() != -1) {
             return ((AllModel) tUtility.getModel())
                     .getProjectHash(tUtility.convertRowIndexToModel(tUtility.getSelectedRow()));
         }
@@ -399,14 +409,24 @@ public class AppView implements AppViewAccessor {
     }
 
     public void setSelected(long hash){
-        if(tabs.getSelectedIndex()==0 && tActive.getModel() instanceof AllModel) {
-            int i = tActive.convertRowIndexToView(((AllModel) tActive.getModel()).findIndex(hash));
+        setSelected(tabs.getSelectedIndex(), hash);
+    }
+
+    private void setSelected(int ix, long hash){
+        if(ix==0 && tActive.getModel() instanceof AllModel) {
+            int x = ((AllModel) tActive.getModel()).findIndex(hash);
+            if(x == -1)return;
+            int i = tActive.convertRowIndexToView(x);
             tActive.setRowSelectionInterval(i, i);
-        } else if(tabs.getSelectedIndex()==1 && tFinished.getModel() instanceof AllModel) {
-            int i = tFinished.convertRowIndexToView(((AllModel) tFinished.getModel()).findIndex(hash));
+        } else if(ix==1 && tFinished.getModel() instanceof AllModel) {
+            int x = ((AllModel) tFinished.getModel()).findIndex(hash);
+            if(x == -1)return;
+            int i = tFinished.convertRowIndexToView(x);
             tFinished.setRowSelectionInterval(i, i);
-        } else if(tabs.getSelectedIndex()==2 && tUtility.getModel() instanceof AllModel) {
-            int i = tUtility.convertRowIndexToView(((AllModel) tUtility.getModel()).findIndex(hash));
+        } else if(ix==2 && tUtility.getModel() instanceof AllModel) {
+            int x = ((AllModel) tUtility.getModel()).findIndex(hash);
+            if(x == -1)return;
+            int i = tUtility.convertRowIndexToView(x);
             tUtility.setRowSelectionInterval(i, i);
         }
     }

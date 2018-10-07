@@ -116,7 +116,7 @@ public class Charts {
         double max = 0;
 
         CategoryDataset originalDataset = plot.getDataset(0);
-
+        Color holidayFG = new Color(0x77000000 | Main.currentTheme.foreground, true);
         for (int i = 0; i < ym.lengthOfMonth(); i++) {
             LocalDate date = ym.atDay(i+1);
             ChartData dayChart = monthSummary.getDayCharts().get(date);
@@ -128,7 +128,7 @@ public class Charts {
                     Color ratioFG = interpolateNicely((float) ratio / 100f, bad, neu, gut);
                     axis.setTickLabelPaint(unitLabel,Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
                 } else {
-                    axis.setTickLabelPaint(unitLabel,Main.currentTheme.dark ? gray : light_gray);
+                    axis.setTickLabelPaint(unitLabel, holidayFG);
                 }
                 ratingSet.addValue((Number) ((target/3600f) * (ratio / 100f)), "Rating", unitLabel);
             } else {
