@@ -10,7 +10,8 @@ import java.util.ArrayList;
 public interface AppViewAccessor {
     JFrame frame();
     void init();
-    void refreshStatus(CacheMgr cache);
+    void refreshRefreshStatus(CacheMgr cache);
+    void refreshTrackingStatus(String status);
     void refreshOverview(CacheMgr cache);
     void refreshProjects(CacheMgr cache, int index);
     void refreshDayChart(CacheMgr cache, ItemEvent event);

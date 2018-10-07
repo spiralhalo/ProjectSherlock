@@ -93,6 +93,11 @@ public class AppControl implements ActionListener {
         AutoImporter3.importRecords(projectList);
         AutoImporter2.importRecord(projectList);
         tracker = new Tracker(projectList);
+        tracker.addListener((project, windowTitle, exe) -> {
+            if(view != null && project != null) {
+                view.refreshTrackingStatus(String.format("Last tracked: %s (%s)", project.getName(), exe));
+            }
+        });
         tracker.start();
         bookmark = new BookmarkMgr(tracker);
 
@@ -578,7 +583,7 @@ public class AppControl implements ActionListener {
     private void decideRefresh(){
         if(cache.getElapsed(AllReportRows.activeCacheId(z)) > AppConfig.appGInt(AppInt.REFRESH_TIMEOUT)){
             refresh();
-        } else view.refreshStatus(cache);
+        } else view.refreshRefreshStatus(cache);
     }
 
     private void refreshProject(Project p){

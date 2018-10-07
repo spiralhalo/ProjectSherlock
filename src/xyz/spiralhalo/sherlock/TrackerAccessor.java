@@ -4,4 +4,5 @@ import xyz.spiralhalo.sherlock.persist.project.Project;
 
 public interface TrackerAccessor {
     Project lastTracked();
+    void addListener(TrackerListener listener);
 }

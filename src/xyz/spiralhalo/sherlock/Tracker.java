@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.TimerTask;
 
 import static xyz.spiralhalo.sherlock.GlobalInputHook.GLOBAL_KEYBOARD_HOOK;
@@ -30,9 +32,10 @@ public class Tracker implements TrackerAccessor{
     public static final int TIMER_DELAY_SECONDS = 1;
     public static final int TIMER_DELAY_MILLIS = TIMER_DELAY_SECONDS*ONE_SECOND;
 
-    private AFKMonitor afkMonitor;
+    private final AFKMonitor afkMonitor;
+    private final List<TrackerListener> listeners;
     private long last;
-    private String temps;
+    private String[] tempa;
     private Timer timer;
     private ProjectList projectList;
     private RealtimeRecordWriter buffer;
@@ -40,6 +43,7 @@ public class Tracker implements TrackerAccessor{
 
     public Tracker(ProjectList projectList){
         afkMonitor = new AFKMonitor();
+        listeners = new LinkedList<>();
         this.projectList = projectList;
         if(Arg.Sandbox.isEnabled()) {
             Debug.logImportant("[Sandbox mode] Tracking has been set to mode hiatus.");
@@ -80,17 +84,20 @@ public class Tracker implements TrackerAccessor{
     private void log(long time){
         if(afkMonitor.isNotAFK()) {
             final ZonedDateTime now = ZonedDateTime.now();
-            temps = EnumerateWindows.getActiveWindowTitle();
-            lastTracked = projectList.getActiveProjectOf(temps, now);
-            Debug.logVerbose(String.format("%18s %s", "[ForegroundWindow]", temps));
+            tempa = EnumerateWindows.getActiveWindowTitle();
+            lastTracked = projectList.getActiveProjectOf(tempa[0], now);
+            Debug.logVerbose(String.format("%18s %s", "[ForegroundWindow]", tempa[0]));
             if(lastTracked==null) {
-                temps = EnumerateWindows.getRootWindowTitle();
-                lastTracked = projectList.getActiveProjectOf(temps, now);
-                Debug.logVerbose(String.format("%18s %s", "[GW_OWNER]", temps));
+                tempa = EnumerateWindows.getRootWindowTitle();
+                lastTracked = projectList.getActiveProjectOf(tempa[0], now);
+                Debug.logVerbose(String.format("%18s %s", "[GW_OWNER]", tempa[0]));
             }
             final String pn = String.valueOf(lastTracked);
             Debug.logVerbose(String.format("%18s Detected project: %s", "", pn));
             buffer.log(lastTracked);
+            for(TrackerListener listener:listeners){
+                listener.onLog(lastTracked, tempa[0], tempa[1]);
+            }
         }
         last = time;
     }
@@ -106,6 +113,11 @@ public class Tracker implements TrackerAccessor{
     @Override
     public Project lastTracked() {
         return lastTracked;
+    }
+
+    @Override
+    public void addListener(TrackerListener listener) {
+        listeners.add(listener);
     }
 
     private static class AFKMonitor {

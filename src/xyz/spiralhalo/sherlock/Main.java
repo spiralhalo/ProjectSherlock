@@ -9,7 +9,7 @@ import javax.swing.*;
 
 public class Main {
 
-    public static final String APP_TITLE = "Project Sherlock 2 version 5 RC2";
+    public static final String APP_TITLE = "Project Sherlock 2 version 5 RC3";
     public static final String APP_NAME = "Project Sherlock 2";
     public static final String APP_NAME_NOSPACE = APP_NAME.replace(" ", "");
     public static Theme currentTheme;
@@ -59,7 +59,7 @@ public class Main {
             }
 
             Runtime.getRuntime().addShutdownHook(new Thread(Application::createOrDeleteStartupRegistry));
-            MainControl.create();
+            AppControl.create();
         });
     }
 

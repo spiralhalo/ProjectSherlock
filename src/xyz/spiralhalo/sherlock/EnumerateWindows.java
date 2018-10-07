@@ -24,17 +24,14 @@ public class EnumerateWindows {
     private static final Psapi psapi = Psapi.INSTANCE;
     private static final DwmApi dwmapi = DwmApi.INSTANCE;
 
-    public static String getActiveWindowTitle() {
-        char[] buffer = new char[MAX_TITLE_LENGTH * 2];
-        user32.GetWindowText(user32.GetForegroundWindow(), buffer, MAX_TITLE_LENGTH);
-        return Native.toString(buffer);
+    public static String[] getActiveWindowTitle() {
+        HWND foregroundWindow = user32.GetForegroundWindow();
+        return new String[]{getTitle(foregroundWindow), getExeName(foregroundWindow)};
     }
 
-    public static String getRootWindowTitle() {
-        char[] buffer = new char[MAX_TITLE_LENGTH * 2];
-        HWND foregroundWindow = user32.GetForegroundWindow();
-        user32.GetWindowText(user32.GetWindow(foregroundWindow, GW_OWNER), buffer, MAX_TITLE_LENGTH);
-        return Native.toString(buffer);
+    public static String[] getRootWindowTitle() {
+        HWND rootWindow = user32.GetWindow(user32.GetForegroundWindow(), GW_OWNER);
+        return new String[]{getTitle(rootWindow), getExeName(rootWindow)};
     }
 
     public static String[] getOpenWindowTitles(String[] filterOut, boolean includeProcess) {
@@ -52,6 +49,22 @@ public class EnumerateWindows {
             cloaked.setValue(0);
         }
         return cloaked.getValue();
+    }
+
+    private static String getTitle(HWND hwnd){
+        char[] buffer = new char[MAX_TITLE_LENGTH * 2];
+        user32.GetWindowText(hwnd, buffer, MAX_TITLE_LENGTH);
+        return Native.toString(buffer);
+    }
+
+    private static String getExeName(HWND hwnd){
+        IntByReference pidPtr = new IntByReference();
+        user32.GetWindowThreadProcessId(hwnd, pidPtr);
+        char[] buffer2 = new char[MAX_TITLE_LENGTH * 2];
+        HANDLE handle = kernel32.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, pidPtr.getValue());
+        psapi.GetModuleFileNameExW(handle, null, buffer2, MAX_TITLE_LENGTH);
+        String path = Native.toString(buffer2);
+        return path.substring(path.lastIndexOf('\\') + 1);
     }
 
     private static class EnumWindowsProc implements WNDENUMPROC {
@@ -78,14 +91,14 @@ public class EnumerateWindows {
                     psapi.GetModuleFileNameExW(handle, null, buffer2, MAX_TITLE_LENGTH);
                     String title = Native.toString(buffer);
                     String path = Native.toString(buffer2);
-                    if (title.length() > 0) {
+                    if (title.length() > 0 && !excluded(path)) {
                         String toPut;
                         if (includeProcess) {
                             toPut = String.format("%s, %s", title, path.substring(path.lastIndexOf('\\') + 1));
                         } else {
                             toPut = title;
                         }
-                        if (!titles.contains(toPut) && !excluded(path)) {
+                        if (!titles.contains(toPut)) {
                             titles.add(toPut);
                         }
                     }

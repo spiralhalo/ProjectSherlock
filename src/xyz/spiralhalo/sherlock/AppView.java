@@ -211,10 +211,9 @@ public class AppView implements AppViewAccessor {
         frame.setLocationByPlatform(true);
     }
 
-    public void refreshStatus(CacheMgr cache) {
+    public void refreshRefreshStatus(CacheMgr cache) {
         if (cache.getCreated(AllReportRows.activeCacheId(z)).equals(CacheMgr.NEVER)) {
             lblRefresh.setText("Last refresh: n/a");
-            lblTracking.setText("No data.");
         } else {
             int seconds = (int)cache.getElapsed(AllReportRows.activeCacheId(z));
             if (seconds == 0) {
@@ -222,13 +221,16 @@ public class AppView implements AppViewAccessor {
             } else {
                 lblRefresh.setText(String.format("Last refresh: %s ago", FormatUtil.hmsStrict(seconds)));
             }
-            int size = cache.getObj(AllReportRows.activeCacheId(z), AllReportRows.class).size();
-            lblTracking.setText(String.format("Tracking %d project%s", size, size>1?"s":""));
         }
     }
 
+    @Override
+    public void refreshTrackingStatus(String status) {
+        lblTracking.setText(status);
+    }
+
     public void refreshOverview(CacheMgr cache) {
-        refreshStatus(cache);
+        refreshRefreshStatus(cache);
         if(cache.getCreated(AllReportRows.activeCacheId(z)).equals(CacheMgr.NEVER)){return;}
         refreshProjects(cache, 0);
         refreshProjects(cache, 1);
