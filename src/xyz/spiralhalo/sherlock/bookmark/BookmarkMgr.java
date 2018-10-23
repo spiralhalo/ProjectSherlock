@@ -1,12 +1,11 @@
-package xyz.spiralhalo.sherlock.extras.bookmark;
+package xyz.spiralhalo.sherlock.bookmark;
 
 import lc.kra.system.keyboard.event.GlobalKeyAdapter;
 import lc.kra.system.keyboard.event.GlobalKeyEvent;
 import xyz.spiralhalo.sherlock.GlobalInputHook;
 import xyz.spiralhalo.sherlock.TrackerAccessor;
-import xyz.spiralhalo.sherlock.TrackerListener;
-import xyz.spiralhalo.sherlock.extras.bookmark.BookmarkConfig.BookmarkBool;
-import xyz.spiralhalo.sherlock.extras.bookmark.BookmarkConfig.BookmarkInt;
+import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkBool;
+import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkInt;
 import xyz.spiralhalo.sherlock.bookmark.persist.BookmarkMap;
 import xyz.spiralhalo.sherlock.bookmark.persist.ProjectBookmarks;
 import xyz.spiralhalo.sherlock.persist.project.Project;

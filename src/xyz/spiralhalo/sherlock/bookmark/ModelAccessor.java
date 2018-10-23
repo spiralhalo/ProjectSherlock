@@ -1,4 +1,4 @@
-package xyz.spiralhalo.sherlock.extras.bookmark;
+package xyz.spiralhalo.sherlock.bookmark;
 
 public interface ModelAccessor {
     int size();

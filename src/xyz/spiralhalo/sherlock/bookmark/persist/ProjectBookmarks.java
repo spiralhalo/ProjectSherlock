@@ -1,7 +1,7 @@
 package xyz.spiralhalo.sherlock.bookmark.persist;
 
-import xyz.spiralhalo.sherlock.extras.bookmark.ModelAccessor;
-import xyz.spiralhalo.sherlock.extras.bookmark.ProjectBookmarksModel;
+import xyz.spiralhalo.sherlock.bookmark.ModelAccessor;
+import xyz.spiralhalo.sherlock.bookmark.ProjectBookmarksModel;
 
 import java.io.Serializable;
 import java.util.ArrayList;

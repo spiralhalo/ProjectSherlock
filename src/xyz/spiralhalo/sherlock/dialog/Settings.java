@@ -2,8 +2,8 @@ package xyz.spiralhalo.sherlock.dialog;
 
 import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.Application;
-import xyz.spiralhalo.sherlock.extras.bookmark.BookmarkConfig.BookmarkInt;
-import xyz.spiralhalo.sherlock.extras.bookmark.BookmarkMgr;
+import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkInt;
+import xyz.spiralhalo.sherlock.bookmark.BookmarkMgr;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.HMSMode;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.Theme;
@@ -18,8 +18,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import static xyz.spiralhalo.sherlock.extras.bookmark.BookmarkConfig.*;
-import static xyz.spiralhalo.sherlock.extras.bookmark.BookmarkConfig.BookmarkBool.*;
+import static xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.*;
+import static xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkBool.*;
 import static xyz.spiralhalo.sherlock.persist.settings.AppConfig.*;
 import static xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppBool.*;
 import static xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt.*;

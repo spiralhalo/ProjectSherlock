@@ -1,1 +1,0 @@
-package bookmark.persist is preserved for backwards compatibility
