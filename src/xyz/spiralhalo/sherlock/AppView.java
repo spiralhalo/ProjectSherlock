@@ -78,6 +78,7 @@ public class AppView implements AppViewAccessor {
     private JButton btnPrevY;
     private JButton btnNextY;
     private JButton btnLastY;
+    private JButton btnFocus;
     private JCommandButton cmdNew;
     private JCommandButton cmdEdit;
     private JCommandButton cmdDelete;
@@ -88,6 +89,7 @@ public class AppView implements AppViewAccessor {
     private JCommandButton cmdDown;
     private JCommandButton cmdBookmarks;
     private JCommandButton cmdInbox;
+    private JCommandButton cmdFocus;
     private JCommandButton cmdSettings;
     private JCommandButton cmdRefresh;
     private ChartPanel dayPanel;
@@ -95,7 +97,7 @@ public class AppView implements AppViewAccessor {
     private ChartPanel yearPanel;
     private Charts.MonthChartInfo mChartInfo;
 
-    private final ZoneId z = ZoneId.systemDefault();
+    private final ZoneId z = Main.z;
     private final AppControl control;
     private final ArrayList<JComponent> enableOnSelect = new ArrayList<>();
     private JPopupMenu tablePopUpMenu;
@@ -107,7 +109,7 @@ public class AppView implements AppViewAccessor {
             Main.applyButtonTheme(btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings,
                     btnBookmarks, btnInbox, btnRefresh);
             control.setToolbar(btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnUp, btnDown, btnSettings, tabs, tabr);
-            control.setExtras(btnBookmarks);
+            control.setExtras(btnBookmarks, btnFocus);
             control.setRefresh(btnRefresh);
         } else {
             toolbarMain.removeAll();
@@ -121,11 +123,12 @@ public class AppView implements AppViewAccessor {
             cmdUp = new JCommandButton("Up");
             cmdDown = new JCommandButton("Down");
             cmdInbox = new JCommandButton("Inbox");
+            cmdFocus = new JCommandButton("Focus");
             cmdSettings = new JCommandButton("Settings");
             cmdRefresh = new JCommandButton("Refresh");
 
             JCommandButton[] iconButtons = new JCommandButton[]{
-                    cmdNew, cmdView, cmdFinish, cmdResume, cmdEdit, cmdDelete, cmdUp, cmdDown, cmdBookmarks, cmdInbox, cmdSettings, cmdRefresh
+                    cmdNew, cmdView, cmdFinish, cmdResume, cmdEdit, cmdDelete, cmdUp, cmdDown, cmdBookmarks, cmdInbox, cmdFocus, cmdSettings, cmdRefresh
             };
             for (JCommandButton btn : iconButtons) {
                 btn.setIcon(ImgUtil.autoColorIcon(btn.getText().toLowerCase() + ".png", 24, 24));
@@ -143,11 +146,12 @@ public class AppView implements AppViewAccessor {
             toolbarMain.add(cmdDown);
             toolbarMain.addSeparator();
 //            toolbarMain.add(cmdInbox);
+            toolbarMain.add(cmdFocus);
             toolbarMain.add(cmdSettings);
             toolbarMain.add(Box.createHorizontalGlue());
             toolbarMain.add(cmdRefresh);
             control.setToolbar(cmdNew, cmdView, cmdFinish, cmdResume, cmdEdit, cmdDelete, cmdUp, cmdDown, cmdSettings, tabs, tabr);
-            control.setExtras(cmdBookmarks);
+            control.setExtras(cmdBookmarks, cmdFocus);
             control.setRefresh(cmdRefresh);
         }
     }

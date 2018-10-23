@@ -16,6 +16,8 @@ import xyz.spiralhalo.sherlock.dialog.EditProject;
 import xyz.spiralhalo.sherlock.dialog.Quit;
 import xyz.spiralhalo.sherlock.dialog.Settings;
 import xyz.spiralhalo.sherlock.dialog.ViewProject;
+import xyz.spiralhalo.sherlock.focus.FocusConfig;
+import xyz.spiralhalo.sherlock.focus.FocusMgr;
 import xyz.spiralhalo.sherlock.notes.EditNote;
 import xyz.spiralhalo.sherlock.notes.YearNotes;
 import xyz.spiralhalo.sherlock.persist.cache.CacheId;
@@ -75,6 +77,7 @@ public class AppControl implements ActionListener {
         A_DOWN,
         A_SETTINGS,
         A_REFRESH,
+        A_EXTRA_FOCUS,
         A_EXTRA_BOOKMARKS
     }
     private AppViewAccessor view;
@@ -84,8 +87,9 @@ public class AppControl implements ActionListener {
     private final TrayIcon trayIcon;
     private final boolean trayIconUsed;
     private final BookmarkMgr bookmark;
-    private final ZoneId z = ZoneId.systemDefault();
+    private final FocusMgr focusMgr;
     private LocalDate monthNoteEditing;
+    private final ZoneId z = Main.z;
 
     private AppControl() {
         cache = new CacheMgr();
@@ -114,6 +118,7 @@ public class AppControl implements ActionListener {
         };
         trayIcon = Application.createTrayIcon(listenerTrayToggle,listenerTrayExit);
         trayIconUsed = (trayIcon != null);
+        focusMgr = new FocusMgr(projectList, tracker, trayIcon);
 
         if(!Main.Arg.Minimized.isEnabled()){
             showView();
@@ -232,15 +237,19 @@ public class AppControl implements ActionListener {
         btnSettings.addActionListener(this);
     }
 
-    public void setExtras(JButton btnBookmarks) {
+    public void setExtras(JButton btnBookmarks, JButton btnFocus) {
         btnBookmarks.setName(Action.A_EXTRA_BOOKMARKS.name());
+        btnFocus.setName(Action.A_EXTRA_FOCUS.name());
         btnBookmarks.addActionListener(this);
+        btnFocus.addActionListener(this);
         addEnableOnSelect(btnBookmarks);
     }
 
-    public void setExtras(JCommandButton btnBookmarks) {
+    public void setExtras(JCommandButton btnBookmarks, JCommandButton btnFocus) {
         btnBookmarks.setName(Action.A_EXTRA_BOOKMARKS.name());
+        btnFocus.setName(Action.A_EXTRA_FOCUS.name());
         btnBookmarks.addActionListener(this);
+        btnFocus.addActionListener(this);
         addEnableOnSelect(btnBookmarks);
     }
 
@@ -488,6 +497,10 @@ public class AppControl implements ActionListener {
                 if(!p.isUtilityTag()){
                     bookmark.invoke(p);
                 }
+                break;
+            case A_EXTRA_FOCUS:
+                FocusConfig focusConfig = new FocusConfig(view.frame(), focusMgr);
+                focusConfig.setVisible(true);
                 break;
         }
     }

@@ -115,6 +115,11 @@ public class Tracker implements TrackerAccessor{
         listeners.add(listener);
     }
 
+    @Override
+    public long getGranularityMillis() {
+        return TIMER_DELAY_MILLIS;
+    }
+
     private static class AFKMonitor {
         private class MouseAdapter extends GlobalMouseAdapter {
             @Override public void mousePressed(GlobalMouseEvent event) { logNow(); mousePressed = true; }

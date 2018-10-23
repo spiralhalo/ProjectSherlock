@@ -36,4 +36,12 @@ public class FocusState {
     public void setEnabled(boolean enabled){
         IniHandler.getInstance().putBoolean("focus", "enabled", enabled);
     }
+
+    public void setDuration(long millis){
+        IniHandler.getInstance().putLong("focus", "limit", millis);
+    }
+
+    public long getDuration(){
+        return IniHandler.getInstance().getLong("focus", "limit", -1);
+    }
 }

@@ -6,6 +6,7 @@ import xyz.spiralhalo.sherlock.persist.settings.AppConfig.Theme;
 import xyz.spiralhalo.sherlock.util.ImgUtil;
 
 import javax.swing.*;
+import java.time.ZoneId;
 
 public class Main {
 
@@ -13,6 +14,7 @@ public class Main {
     public static final String APP_NAME = "Project Sherlock 2";
     public static final String APP_NAME_NOSPACE = APP_NAME.replace(" ", "");
     public static Theme currentTheme;
+    public static ZoneId z = ZoneId.systemDefault();
     private static final Theme FALL_BACK_THEME = Theme.SYSTEM;
 
     public static void main(String[] args) {

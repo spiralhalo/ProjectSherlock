@@ -199,6 +199,17 @@
               <visible value="false"/>
             </properties>
           </component>
+          <component id="856b3" class="javax.swing.JButton" binding="btnFocus">
+            <constraints/>
+            <properties>
+              <hideActionText value="true"/>
+              <horizontalTextPosition value="0"/>
+              <icon value="xyz/spiralhalo/sherlock/res/focus.png"/>
+              <text value="Focus"/>
+              <toolTipText value="Settings"/>
+              <verticalTextPosition value="3"/>
+            </properties>
+          </component>
           <component id="74e38" class="javax.swing.JButton" binding="btnSettings">
             <constraints/>
             <properties>
