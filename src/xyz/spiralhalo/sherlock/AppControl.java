@@ -11,7 +11,7 @@ import org.pushingpixels.flamingo.api.common.JCommandMenuButton;
 import org.pushingpixels.flamingo.api.common.popup.JCommandPopupMenu;
 import xyz.spiralhalo.sherlock.async.Loader;
 import xyz.spiralhalo.sherlock.async.LoaderDialog;
-import xyz.spiralhalo.sherlock.bookmark.BookmarkMgr;
+import xyz.spiralhalo.sherlock.extras.bookmark.BookmarkMgr;
 import xyz.spiralhalo.sherlock.dialog.EditProject;
 import xyz.spiralhalo.sherlock.dialog.Quit;
 import xyz.spiralhalo.sherlock.dialog.Settings;

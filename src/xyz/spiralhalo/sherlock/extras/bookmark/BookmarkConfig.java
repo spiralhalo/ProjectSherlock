@@ -1,4 +1,4 @@
-package xyz.spiralhalo.sherlock.bookmark;
+package xyz.spiralhalo.sherlock.extras.bookmark;
 
 import lc.kra.system.keyboard.event.GlobalKeyEvent;
 import xyz.spiralhalo.sherlock.persist.settings.IniHandler;

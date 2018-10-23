@@ -111,11 +111,6 @@ public class Tracker implements TrackerAccessor{
     }
 
     @Override
-    public Project lastTracked() {
-        return lastTracked;
-    }
-
-    @Override
     public void addListener(TrackerListener listener) {
         listeners.add(listener);
     }

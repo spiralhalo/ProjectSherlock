@@ -1,11 +1,12 @@
-package xyz.spiralhalo.sherlock.bookmark;
+package xyz.spiralhalo.sherlock.extras.bookmark;
 
 import lc.kra.system.keyboard.event.GlobalKeyAdapter;
 import lc.kra.system.keyboard.event.GlobalKeyEvent;
 import xyz.spiralhalo.sherlock.GlobalInputHook;
 import xyz.spiralhalo.sherlock.TrackerAccessor;
-import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkBool;
-import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkInt;
+import xyz.spiralhalo.sherlock.TrackerListener;
+import xyz.spiralhalo.sherlock.extras.bookmark.BookmarkConfig.BookmarkBool;
+import xyz.spiralhalo.sherlock.extras.bookmark.BookmarkConfig.BookmarkInt;
 import xyz.spiralhalo.sherlock.bookmark.persist.BookmarkMap;
 import xyz.spiralhalo.sherlock.bookmark.persist.ProjectBookmarks;
 import xyz.spiralhalo.sherlock.persist.project.Project;
@@ -25,12 +26,12 @@ public class BookmarkMgr {
             "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12" };
 
     private final BookmarkMap bookmarkMap;
-    private final TrackerAccessor tracker;
     private final KeyAdapter keyAdapter = new KeyAdapter();
+    private Project lastTracked;
 
     public BookmarkMgr(TrackerAccessor tracker) {
         bookmarkMap = BookmarkMap.load();
-        this.tracker = tracker;
+        tracker.addListener((project, windowTitle, exe) -> lastTracked = project);
         GlobalInputHook.GLOBAL_KEYBOARD_HOOK.addKeyListener(keyAdapter);
     }
 
@@ -85,9 +86,9 @@ public class BookmarkMgr {
                     && event.getVirtualKeyCode() == hotkey
                     && (!BookmarkConfig.bkmkGBool(BookmarkBool.CTRL) || event.isControlPressed())
                     && (!BookmarkConfig.bkmkGBool(BookmarkBool.SHIFT) || event.isShiftPressed())){
-                if(!hotkeyPressed && tracker.lastTracked() != null && !tracker.lastTracked().isUtilityTag()) {
+                if(!hotkeyPressed && lastTracked != null && !lastTracked.isUtilityTag()) {
                     hotkeyPressed = true;
-                    getThis().invoke(tracker.lastTracked());
+                    getThis().invoke(lastTracked);
                 }
             }
         }

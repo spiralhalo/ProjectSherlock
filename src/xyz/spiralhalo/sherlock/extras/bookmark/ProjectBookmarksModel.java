@@ -1,4 +1,4 @@
-package xyz.spiralhalo.sherlock.bookmark;
+package xyz.spiralhalo.sherlock.extras.bookmark;
 
 import javax.swing.table.AbstractTableModel;
 

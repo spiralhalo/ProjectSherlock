@@ -1,4 +1,4 @@
-package xyz.spiralhalo.sherlock.bookmark;
+package xyz.spiralhalo.sherlock.extras.bookmark;
 
 import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.bookmark.persist.Bookmark;
