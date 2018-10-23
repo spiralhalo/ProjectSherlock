@@ -21,6 +21,7 @@ public class FocusConfig extends JDialog {
     public FocusConfig(JFrame parent, FocusMgr mgr) {
         super(parent);
         this.mgr = mgr;
+        setTitle("Focus mode configuration");
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
