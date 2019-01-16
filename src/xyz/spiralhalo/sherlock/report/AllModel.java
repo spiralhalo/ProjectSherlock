@@ -49,7 +49,11 @@ public class AllModel extends AbstractTableModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return String.class;
+        if(columnIndex==3 && utility || columnIndex==4) {
+            return Integer.class;
+        } else if(columnIndex==3){
+            return Double.class;
+        } return String.class;
     }
 
     @Override
@@ -74,10 +78,10 @@ public class AllModel extends AbstractTableModel {
                 String toDate = (data.get(rowIndex).getFinishDate()==null?"ongoing":data.get(rowIndex).getFinishDate().format(FormatUtil.DTF_YMD));
                 return String.format("%s ~ %s",fromDate,toDate);
             case 3:
-                if(utility) return FormatUtil.hms(data.get(rowIndex).getSeconds());
-                return String.format("%d days", data.get(rowIndex).getDays());
+                if(utility) return data.get(rowIndex).getSeconds();
+                return data.get(rowIndex).getDays();
             default:
-                return FormatUtil.hms(data.get(rowIndex).getSeconds());
+                return data.get(rowIndex).getSeconds();
         }
     }
 

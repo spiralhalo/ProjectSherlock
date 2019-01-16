@@ -85,11 +85,11 @@ public class Tracker implements TrackerAccessor{
         if(afkMonitor.isNotAFK()) {
             final ZonedDateTime now = ZonedDateTime.now();
             tempa = EnumerateWindows.getActiveWindowTitle();
-            lastTracked = projectList.getActiveProjectOf(tempa[0], now);
+            lastTracked = projectList.getActiveProjectOf(tempa[0], tempa[1], now);
             Debug.logVerbose(()->String.format("%18s %s", "[ForegroundWindow]", tempa[0]));
             if(lastTracked==null) {
                 tempa = EnumerateWindows.getRootWindowTitle();
-                lastTracked = projectList.getActiveProjectOf(tempa[0], now);
+                lastTracked = projectList.getActiveProjectOf(tempa[0], tempa[1], now);
                 Debug.logVerbose(()->String.format("%18s %s", "[GW_OWNER]", tempa[0]));
             }
             final String pn = String.valueOf(lastTracked);

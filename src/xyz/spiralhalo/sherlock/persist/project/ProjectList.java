@@ -13,6 +13,9 @@ import java.util.TreeSet;
 public class ProjectList implements Serializable {
     public static final long serialVersionUID = 1L;
 
+    public static transient final String USE_EXE = "use_exe";
+    public static transient final String EXELIST = "exe_list";
+
     private final ArrayList<Project> activeProjects;
     private final ArrayList<Project> finishedProjects;
     private transient UtilityTagList utilityTags;
@@ -91,23 +94,39 @@ public class ProjectList implements Serializable {
         resetCats(newCategory, oldCategory);
     }
 
-    public Project getActiveProjectOf(String windowTitle, ZonedDateTime time) {
+    public Project getActiveProjectOf(String windowTitle, String executable, ZonedDateTime time) {
         if(windowTitle == null || windowTitle.length() == 0) return null;
-        return getProjectOfInternal(windowTitle, time, ListUtil.extensiveIterator(activeProjects, getUtilityTags()));
+        return getProjectOfInternal(windowTitle, executable, time, ListUtil.extensiveIterator(activeProjects, getUtilityTags()));
     }
 
-    public Project getProjectOf(String windowTitle, ZonedDateTime time){
+    public Project getProjectOf(String windowTitle, String executable, ZonedDateTime time){
         if(windowTitle == null || windowTitle.length() == 0) return null;
-        return getProjectOfInternal(windowTitle, time, ListUtil.extensiveIterator(activeProjects, finishedProjects, getUtilityTags()));
+        return getProjectOfInternal(windowTitle, executable, time, ListUtil.extensiveIterator(activeProjects, finishedProjects, getUtilityTags()));
     }
 
-    private Project getProjectOfInternal(String windowTitle, ZonedDateTime time, Iterable<Project> toIterate){
+    private Project getProjectOfInternal(String windowTitle, String executable, ZonedDateTime time, Iterable<Project> toIterate){
         for (Project p : toIterate) {
             if((!p.isFinished() || !time.isAfter(p.getFinishedDate())) && !time.isBefore(p.getStartDate())) {
+                boolean foundTag = false;
                 for (String tag : p.getTags()) {
                     if (windowTitle.toLowerCase().contains(tag.toLowerCase())) {
-                        return p;
+                        foundTag = true;
+                        break;
                     }
+                }
+                Boolean useExe = p.getAppendix(USE_EXE, Boolean.class);
+                String[] exeList = p.getAppendix(EXELIST, String[].class);
+                boolean exeOK = useExe == null || exeList == null || !useExe || exeList.length == 0;
+                if(!exeOK){
+                    for (String exe : exeList) {
+                        if (executable.toLowerCase().equals(exe)) {
+                            exeOK = true;
+                            break;
+                        }
+                    }
+                }
+                if(foundTag && exeOK){
+                    return p;
                 }
             }
         }

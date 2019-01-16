@@ -164,10 +164,15 @@ public class AppView implements AppViewAccessor {
 
         tActive.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tActive.setDefaultRenderer(String.class, new ProjectCell());
+        tActive.setDefaultRenderer(Double.class, new DayDurationCell());
+        tActive.setDefaultRenderer(Integer.class, new DurationCell());
         tFinished.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tFinished.setDefaultRenderer(String.class, new ProjectCell());
+        tFinished.setDefaultRenderer(Double.class, new DayDurationCell());
+        tFinished.setDefaultRenderer(Integer.class, new DurationCell());
         tUtility.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tUtility.setDefaultRenderer(String.class, new ProjectCell());
+        tUtility.setDefaultRenderer(Integer.class, new DurationCell());
 
         ((JLabel) comboD.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
         ((JLabel) comboM.getRenderer()).setHorizontalAlignment(JLabel.CENTER);

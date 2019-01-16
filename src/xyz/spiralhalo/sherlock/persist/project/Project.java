@@ -90,7 +90,7 @@ public class Project implements Serializable {
         putAppendix("color", color);
     }
 
-    public void setTags(String tag) {
+    private void setTags(String tag) {
         this.tags = tag.split(",");
         for (int i = 0; i < this.tags.length; i++) {
             this.tags[i] = this.tags[i].trim();

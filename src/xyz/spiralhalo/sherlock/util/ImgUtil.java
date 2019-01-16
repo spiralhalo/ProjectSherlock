@@ -77,6 +77,7 @@ public class ImgUtil {
     }
 
     public static BufferedImage colorImage(Image src, int rgb) {
+        rgb = rgb & 0x00ffffff;
         BufferedImage buff;
         if(src instanceof BufferedImage){
             buff = (BufferedImage) src;
@@ -90,6 +91,30 @@ public class ImgUtil {
             }
         }
         return tinted;
+    }
+
+    public static BufferedImage outlineImage(Image src, int outlineColor, int distance) {
+        BufferedImage buff;
+        outlineColor = outlineColor & 0x00ffffff;
+        if(src instanceof BufferedImage){
+            buff = (BufferedImage) src;
+        } else if(src instanceof ToolkitImage){
+            buff = ((ToolkitImage) src).getBufferedImage();
+        } else throw new IllegalArgumentException("Source must be BufferedImage or ToolkitImage");
+        BufferedImage outline = new BufferedImage(buff.getWidth(), buff.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for(int i = 0; i < outline.getHeight(); i++) {
+            for (int j = 0; j < outline.getWidth(); j++) {
+                outline.setRGB(j, i, (buff.getRGB(j, i) & 0xff000000) | outlineColor);
+            }
+        }
+        BufferedImage outlined = new BufferedImage(buff.getWidth(), buff.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = outlined.createGraphics();
+        g2.drawImage(outline, -distance,-distance, outline.getWidth(), outline.getHeight(), null);
+        g2.drawImage(outline, -distance,distance, outline.getWidth(), outline.getHeight(), null);
+        g2.drawImage(outline, distance,-distance, outline.getWidth(), outline.getHeight(), null);
+        g2.drawImage(outline, distance,distance, outline.getWidth(), outline.getHeight(), null);
+        g2.drawImage(buff, 0,0, buff.getWidth(), buff.getHeight(), null);
+        return outlined;
     }
 
     public static BufferedImage loadImage(String path) throws IOException {

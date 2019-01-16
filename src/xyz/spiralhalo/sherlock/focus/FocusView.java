@@ -3,9 +3,12 @@ package xyz.spiralhalo.sherlock.focus;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.util.ColorUtil;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
+import xyz.spiralhalo.sherlock.util.swing.Dragger;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class FocusView {
     private JLabel lblProject;
@@ -14,7 +17,9 @@ public class FocusView {
     private JLabel lblHint2;
     private JLabel lblHMS;
     private JLabel lblTimeHint;
-    private JDialog view;
+    private JFrame view;
+    private Timer showTimer;
+    private boolean showing = false;
 
     public FocusView(Project project){
         if(project != null) {
@@ -30,12 +35,12 @@ public class FocusView {
             lblProject.setForeground(new Color(project.getColor()));
         } else {
 //            tblProjectName.setVisible(false);
-            lblProject.setText("NULL (error, please disable)");
+            lblProject.setText("UNKNOWN (error; please reconfigure)");
         }
         refreshDuration();
         lblHint.setForeground(ColorUtil.gray);
         lblHint2.setForeground(ColorUtil.gray);
-        view = new JDialog();
+        view = new JFrame();
         view.setFocusableWindowState(false);
         view.setContentPane(rootPanel);
         view.setUndecorated(true);
@@ -44,6 +49,7 @@ public class FocusView {
         view.setLocationRelativeTo(null);
         view.setLocation(view.getX(), 24);
         view.setAlwaysOnTop(true);
+        Dragger.makeDraggable(view, rootPanel);
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         boolean uniform = gd.isWindowTranslucencySupported(GraphicsDevice.WindowTranslucency.TRANSLUCENT);
         boolean perpixel = gd.isWindowTranslucencySupported(GraphicsDevice.WindowTranslucency.PERPIXEL_TRANSLUCENT);
@@ -55,10 +61,23 @@ public class FocusView {
     }
 
     public void setVisible(boolean visible) {
-        if(view.isVisible()!=visible){
-            refreshDuration();
+        if(visible && !showing && !view.isVisible()){
+            showing = true;
+            if(showTimer != null){
+                showTimer.restart();
+            } else {
+                showTimer = new Timer(5000, e -> {
+                    refreshDuration();
+                    view.setVisible(true);
+                    showTimer.stop();
+                    showing = false;
+                });
+                showTimer.start();
+            }
+        } else if(!visible && view.isVisible()){
+            view.setVisible(false);
+            showing = false;
         }
-        view.setVisible(visible);
     }
 
     private void refreshDuration() {

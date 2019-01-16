@@ -6,6 +6,7 @@ import xyz.spiralhalo.sherlock.bookmark.persist.BookmarkType;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.*;
@@ -93,9 +94,10 @@ public class EditBookmark extends JDialog {
     }
 
     private void onBrowse() {
-        fileChooser.showDialog(this, "Select");
-        File selected = fileChooser.getSelectedFile();
-        textFile.setText(selected.getPath());
+        if(fileChooser.showDialog(this, "Select") == JFileChooser.APPROVE_OPTION) {
+            File selected = fileChooser.getSelectedFile();
+            textFile.setText(selected.getPath());
+        }
     }
 
     private void typeChange(){

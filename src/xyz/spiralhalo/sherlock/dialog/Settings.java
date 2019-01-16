@@ -315,8 +315,8 @@ public class Settings extends JDialog {
 
     private void bindTimeSlider(JSlider slider, JLabel label){
         slider.addChangeListener(e->label.setText(String.format("%s",
-                FormatUtil.hmsLong(slider.getMinorTickSpacing()*(slider.getValue()/slider.getMinorTickSpacing())))));
-        label.setText(String.format("%s", FormatUtil.hmsLong(slider.getMinorTickSpacing()*(slider.getValue()/slider.getMinorTickSpacing()))));
+                FormatUtil.hmsLong(slider.getMinorTickSpacing()*Math.round(slider.getValue()*1f/slider.getMinorTickSpacing())))));
+        label.setText(String.format("%s", FormatUtil.hmsLong(slider.getMinorTickSpacing()*Math.round(slider.getValue()*1f/slider.getMinorTickSpacing()))));
     }
 
     public boolean getResult(){

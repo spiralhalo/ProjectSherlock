@@ -17,7 +17,7 @@
         <properties>
           <font size="24"/>
           <foreground color="-1"/>
-          <text value="FOCUS MODE IS ENABLED"/>
+          <text value="FOCUS MODE IS ACTIVE"/>
         </properties>
       </component>
       <component id="85ac8" class="javax.swing.JLabel" binding="lblHint">
