@@ -7,8 +7,6 @@ import xyz.spiralhalo.sherlock.util.swing.Dragger;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class FocusView {
     private JLabel lblProject;
@@ -92,6 +90,9 @@ public class FocusView {
     }
 
     public void dispose() {
+        if(showTimer != null){
+            showTimer.stop();
+        }
         view.dispose();
     }
 }
