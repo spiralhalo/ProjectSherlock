@@ -2,12 +2,15 @@ package xyz.spiralhalo.sherlock.persist.cache;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.WeakHashMap;
+import java.util.HashMap;
+//import java.util.WeakHashMap;
 
 public class CacheMgr {
     public static final Instant NEVER = Instant.EPOCH;
 
-    private final WeakHashMap<String, CachedObj> cache = new WeakHashMap<>();
+    // Somehow WeakHashMap always return null, making the cache completely useless
+    private final HashMap<String, CachedObj> cache = new HashMap<>();
+    // private final WeakHashMap<String, CachedObj> cache = new WeakHashMap<>();
 
     public synchronized <T extends Serializable> void put(String id, T object){
         cache.put(id, CacheHandler.writeCache(id, object));
