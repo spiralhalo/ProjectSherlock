@@ -1,3 +1,4 @@
 Manifest-Version: 1.0
+Class-Path: jfreechart.jar jkeymaster.jar
 Main-Class: xyz.spiralhalo.sherlock.Main
-Class-Path: jfreechart.jar
+

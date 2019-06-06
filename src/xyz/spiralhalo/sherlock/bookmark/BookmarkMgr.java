@@ -1,10 +1,9 @@
 package xyz.spiralhalo.sherlock.bookmark;
 
-import lc.kra.system.keyboard.event.GlobalKeyAdapter;
-import lc.kra.system.keyboard.event.GlobalKeyEvent;
-import xyz.spiralhalo.sherlock.GlobalInputHook;
+import com.tulskiy.keymaster.common.HotKey;
+import com.tulskiy.keymaster.common.HotKeyListener;
+import com.tulskiy.keymaster.common.Provider;
 import xyz.spiralhalo.sherlock.TrackerAccessor;
-import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkBool;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkInt;
 import xyz.spiralhalo.sherlock.bookmark.persist.BookmarkMap;
 import xyz.spiralhalo.sherlock.bookmark.persist.ProjectBookmarks;
@@ -12,12 +11,11 @@ import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectsOnly;
 
 import javax.swing.*;
-
 import java.util.Arrays;
 
-import static lc.kra.system.keyboard.event.GlobalKeyEvent.*;
+import static java.awt.event.KeyEvent.*;
 
-public class BookmarkMgr {
+public class BookmarkMgr implements HotKeyListener {
     public static final int[] ALLOWED_VK = new int[]{
             VK_F1, VK_F2, VK_F3, VK_F4, VK_F5, VK_F6, VK_F7, VK_F8, VK_F9, VK_F10, VK_F11, VK_F12 };
 
@@ -25,13 +23,14 @@ public class BookmarkMgr {
             "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12" };
 
     private final BookmarkMap bookmarkMap;
-    private final KeyAdapter keyAdapter = new KeyAdapter();
     private Project lastTracked;
+
+    private static Provider hotKeyProvider = Provider.getCurrentProvider(false);
 
     public BookmarkMgr(TrackerAccessor tracker) {
         bookmarkMap = BookmarkMap.load();
         tracker.addListener((project, windowTitle, exe) -> lastTracked = project);
-        GlobalInputHook.GLOBAL_KEYBOARD_HOOK.addKeyListener(keyAdapter);
+        reinitHotkeyHook();
     }
 
     @ProjectsOnly
@@ -56,10 +55,6 @@ public class BookmarkMgr {
         BookmarkMap.save(bookmarkMap);
     }
 
-    public void resetHotketState(){
-        keyAdapter.hotkeyPressed = false;
-    }
-
     private BookmarkMgr getThis(){
         return this;
     }
@@ -68,35 +63,29 @@ public class BookmarkMgr {
         if(p.isUtilityTag()) throw new IllegalArgumentException(methodName+"() don't accept utility tags");
     }
 
-    private class KeyAdapter extends GlobalKeyAdapter{
-        private boolean hotkeyPressed;
-
-        private int getHotkey(){
-            int hotkey_vk = BookmarkConfig.bkmkGInt(BookmarkInt.HOTKEY);
-            if(Arrays.binarySearch(ALLOWED_VK, hotkey_vk)==-1){
-                hotkey_vk = BookmarkConfig.bkmkDInt(BookmarkInt.HOTKEY);
-            }
-            return hotkey_vk;
+    @Override
+    public void onHotKey(HotKey hotKey) {
+        if(lastTracked != null && !lastTracked.isUtilityTag()){
+            invoke(lastTracked);
         }
+    }
 
-        @Override public void keyPressed(GlobalKeyEvent event) {
-            int hotkey = getHotkey();
-            if (BookmarkConfig.bkmkGBool(BookmarkBool.ENABLED)
-                    && event.getVirtualKeyCode() == hotkey
-                    && (!BookmarkConfig.bkmkGBool(BookmarkBool.CTRL) || event.isControlPressed())
-                    && (!BookmarkConfig.bkmkGBool(BookmarkBool.SHIFT) || event.isShiftPressed())){
-                if(!hotkeyPressed && lastTracked != null && !lastTracked.isUtilityTag()) {
-                    hotkeyPressed = true;
-                    getThis().invoke(lastTracked);
-                }
-            }
+    private int getHotKeyVK(){
+        int hotkeyVK = BookmarkConfig.bkmkGInt(BookmarkInt.HOTKEY);
+        if(Arrays.binarySearch(ALLOWED_VK, hotkeyVK)==-1){
+            hotkeyVK = BookmarkConfig.bkmkDInt(BookmarkInt.HOTKEY);
         }
+        return hotkeyVK;
+    }
 
-        @Override
-        public void keyReleased(GlobalKeyEvent event) {
-            if (event.getVirtualKeyCode() == getHotkey()){
-                hotkeyPressed = false;
-            }
+    public void reinitHotkeyHook() {
+        hotKeyProvider.reset();
+        if(BookmarkConfig.bkmkGBool(BookmarkConfig.BookmarkBool.ENABLED)) {
+            int hotkeyVK = getHotKeyVK();
+            int CTRLmask = BookmarkConfig.bkmkGBool(BookmarkConfig.BookmarkBool.CTRL) ? CTRL_DOWN_MASK : 0;
+            int SHIFTmask = BookmarkConfig.bkmkGBool(BookmarkConfig.BookmarkBool.SHIFT) ? SHIFT_DOWN_MASK : 0;
+            int mask = CTRLmask | SHIFTmask;
+            hotKeyProvider.register(KeyStroke.getKeyStroke(hotkeyVK, mask, false), this);
         }
     }
 }

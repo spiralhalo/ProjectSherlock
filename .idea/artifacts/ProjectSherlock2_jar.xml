@@ -11,6 +11,8 @@
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/pushing-pixels/radiance-neon/0.9-SNAPSHOT/radiance-neon-0.9-SNAPSHOT.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/pushing-pixels/radiance-flamingo/0.9-SNAPSHOT/radiance-flamingo-0.9-SNAPSHOT.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/ini4j/ini4j/0.5.4/ini4j-0.5.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/slf4j/slf4j-simple/1.7.2/slf4j-simple-1.7.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/1.7.2/slf4j-api-1.7.2.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

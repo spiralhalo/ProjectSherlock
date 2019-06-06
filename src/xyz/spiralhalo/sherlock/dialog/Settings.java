@@ -180,8 +180,11 @@ public class Settings extends JDialog {
         }
     }
 
-    public Settings(JFrame owner) {
+    private BookmarkMgr bookmarkMgr;
+
+    public Settings(JFrame owner, BookmarkMgr bookmarkMgr) {
         super(owner, "Settings");
+        this.bookmarkMgr = bookmarkMgr;
         setContentPane(contentPane);
         setMinimumSize(contentPane.getMinimumSize());
         setModal(true);
@@ -266,6 +269,7 @@ public class Settings extends JDialog {
                 Application.restartApp();
             }
         }
+        bookmarkMgr.reinitHotkeyHook();
     }
 
     private void bind(JComboBox x, String defNode, Supplier<Integer> confG, Consumer<Integer> confS, Integer defVal){

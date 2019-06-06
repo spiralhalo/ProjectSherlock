@@ -483,7 +483,7 @@ public class AppControl implements ActionListener {
                 }
                 break;
             case A_SETTINGS:
-                Settings settings = new Settings(view.frame());
+                Settings settings = new Settings(view.frame(), bookmark);
                 settings.setVisible(true);
                 if(settings.getResult()){
                     refresh();

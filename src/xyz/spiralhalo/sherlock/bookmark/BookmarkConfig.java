@@ -1,7 +1,8 @@
 package xyz.spiralhalo.sherlock.bookmark;
 
-import lc.kra.system.keyboard.event.GlobalKeyEvent;
 import xyz.spiralhalo.sherlock.persist.settings.IniHandler;
+
+import java.awt.event.KeyEvent;
 
 public class BookmarkConfig {
     private static final String NODE = "BOOKMARK";
@@ -28,7 +29,7 @@ public class BookmarkConfig {
 
     public static int bkmkDInt(BookmarkInt key){
         switch (key){
-            case HOTKEY: return GlobalKeyEvent.VK_F7;
+            case HOTKEY: return KeyEvent.VK_F7;
             default: return 0;
         }
     }
