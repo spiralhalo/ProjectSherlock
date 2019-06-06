@@ -18,9 +18,10 @@ public class ViewProject extends JDialog {
     private JPanel errorMonth;
     private JTextPane fieldTag;
     private JTextPane fieldName;
+    private JLabel lblName;
 
-    public ViewProject(JFrame owner, String project, String projectTags, DayModel dayModel, MonthModel monthModel) {
-        super(owner, "Project viewer");
+    public ViewProject(JFrame owner, boolean utility, String project, String projectTags, DayModel dayModel, MonthModel monthModel) {
+        super(owner, utility?"Activity viewer":"Project viewer");
         setContentPane(contentPane);
         setMinimumSize(contentPane.getMinimumSize());
         setModal(true);
@@ -32,6 +33,9 @@ public class ViewProject extends JDialog {
         tableMonthly.setDefaultRenderer(Integer.class, new DurationCell());
         tableDaily.setModel(dayModel);
         tableMonthly.setModel(monthModel);
+        if(utility){
+            lblName.setText("Activity:");
+        }
         if(dayModel.getRowCount() == 0){
             errorDay.setVisible(true);
             daily.setVisible(false);

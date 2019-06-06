@@ -610,7 +610,7 @@ public class AppControl implements ActionListener {
     }
 
     private void showProject(Project p, ReportRows dayRows, ReportRows monthRows){
-        SwingUtilities.invokeLater(() -> new ViewProject(view.frame(), p.toString(), String.join(", ",p.getTags())
+        SwingUtilities.invokeLater(() -> new ViewProject(view.frame(), p.isUtilityTag(), p.toString(), String.join(", ",p.getTags())
                 , new DayModel(dayRows), new MonthModel(monthRows)).setVisible(true));
     }
 
@@ -618,12 +618,12 @@ public class AppControl implements ActionListener {
         if(t != null){
             if(t.getMessage()!=null) {
                 JOptionPane.showMessageDialog(view.frame(),
-                        String.format("Could not view the project at the moment.\nreason: %s", t.getMessage()),
-                        "View project", JOptionPane.WARNING_MESSAGE);
+                        String.format("Could not view this item at the moment.\nreason: %s", t.getMessage()),
+                        "View item", JOptionPane.WARNING_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(view.frame(),
-                        String.format("Could not refresh the project due to an error.\nerror code: %s", t.toString()),
-                        "View project", JOptionPane.ERROR_MESSAGE);
+                        String.format("Could not read data for this item due to an error.\nerror code: %s", t.toString()),
+                        "View item", JOptionPane.ERROR_MESSAGE);
             }
         } else if(result!=null) {
             cache.put(CacheId.ProjectDayRows(result.p), result.dayRows);
