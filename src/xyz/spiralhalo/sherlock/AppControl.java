@@ -616,9 +616,15 @@ public class AppControl implements ActionListener {
 
     private void projectCB(ProjectViewResult result, Throwable t){
         if(t != null){
-            JOptionPane.showMessageDialog(view.frame(),
-                    String.format("Failed to refresh the project due to an error.\nerror code:\n\t%s", t.toString()),
-                    "Refresh failed", JOptionPane.ERROR_MESSAGE);
+            if(t.getMessage()!=null) {
+                JOptionPane.showMessageDialog(view.frame(),
+                        String.format("Could not view the project at the moment.\nreason: %s", t.getMessage()),
+                        "View project", JOptionPane.WARNING_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(view.frame(),
+                        String.format("Could not refresh the project due to an error.\nerror code: %s", t.toString()),
+                        "View project", JOptionPane.ERROR_MESSAGE);
+            }
         } else if(result!=null) {
             cache.put(CacheId.ProjectDayRows(result.p), result.dayRows);
             cache.put(CacheId.ProjectMonthRows(result.p), result.monthRows);

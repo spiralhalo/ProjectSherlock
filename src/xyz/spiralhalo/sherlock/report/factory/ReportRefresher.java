@@ -83,7 +83,6 @@ public class ReportRefresher extends AsyncTask<Boolean> {
             cache.put(YearList.cacheId(z), yearList);
         } catch (Exception e){
             Debug.log(e);
-            throw e;
         }
 
         AllReportRows activeRows = new AllReportRows();

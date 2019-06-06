@@ -12,6 +12,8 @@ import xyz.spiralhalo.sherlock.report.factory.table.ReportRows;
 import xyz.spiralhalo.sherlock.Debug;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -29,8 +31,17 @@ public class ProjectViewCreator extends AsyncTask<ProjectViewResult> {
     @Override
     public void doRun() throws Exception {
         File recordFile = new File(Application.getSaveDir(), DefaultRecordWriter.RECORD_FILE);
-        RecordFileSeek seeker = new RecordFileSeek(recordFile, false);
-        seeker.seekFirstOfDay(p.getStartDate().toLocalDate(), ZoneId.systemDefault());
+        RecordFileSeek seeker;
+        try {
+            seeker = new RecordFileSeek(recordFile, false);
+        } catch (FileNotFoundException e) {
+            throw new Exception("No data.");
+        }
+        try {
+            seeker.seekFirstOfDay(p.getStartDate().toLocalDate(), ZoneId.systemDefault());
+        } catch (IOException e) {
+            throw new Exception("No data.");
+        }
         try (RecordScanner sc = new RecordScanner(seeker)) {
             RecordEntry temp;
             ZonedDateTime c2;
