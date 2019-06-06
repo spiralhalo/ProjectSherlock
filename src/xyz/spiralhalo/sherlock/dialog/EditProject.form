@@ -141,7 +141,7 @@
                 </constraints>
                 <properties>
                   <enabled value="false"/>
-                  <text value="Productive tag counts towards your daily goal."/>
+                  <text value="Productive activity counts towards your daily goal."/>
                 </properties>
               </component>
               <hspacer id="b50be">

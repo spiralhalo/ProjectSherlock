@@ -56,7 +56,7 @@ public class EditProject extends JDialog {
     private EditProject getThis(){return this;}
 
     public EditProject(JFrame owner, Mode mode, Project project, ProjectList projectList, boolean utilityTag) {
-        super(owner, (mode==Mode.NEW?"New ":"Edit ")+(utilityTag?"tag":"project"));
+        super(owner, (mode==Mode.NEW?"New ":"Edit ")+(utilityTag?"activity":"project"));
         this.utilityTag = utilityTag;
         if(project != null && utilityTag != project.isUtilityTag()){
             throw new IllegalArgumentException("No editing projects in utility tag mode or vice versa.");
@@ -76,8 +76,8 @@ public class EditProject extends JDialog {
 //                    new Help(getThis(), "tag types", "help_tag_type.html").setVisible(true);
 //                }
 //            });
-            labelNameLabel.setText("Tag name");
-            labelTagsLabel.setText("Tag keywords (comma-separated)");
+            labelNameLabel.setText("Activity name");
+            labelTagsLabel.setText("Activity keywords (comma-separated)");
             comboTagType.setModel(new DefaultComboBoxModel<>(new String[]{UtilityTag.PRODUCTIVE_LABEL, UtilityTag.NON_PRODUCTIVE_LABEL}));
         } else {
             panelTag.setVisible(false);

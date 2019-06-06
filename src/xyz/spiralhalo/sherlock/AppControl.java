@@ -348,7 +348,7 @@ public class AppControl implements ActionListener {
 
     private void createPopupNew(JCommandButton cmdNew){
         JCommandMenuButton newP = new JCommandMenuButton("New project...", ImgUtil.autoColorIcon("new.png", 16, 16));
-        JCommandMenuButton newT = new JCommandMenuButton("New tag...", ImgUtil.autoColorIcon("new_tag.png", 16, 16));
+        JCommandMenuButton newT = new JCommandMenuButton("New activity...", ImgUtil.autoColorIcon("new_tag.png", 16, 16));
 
         newP.setName(Action.A_NEW.name());
         newT.setName(Action.A_NEW_TAG.name());

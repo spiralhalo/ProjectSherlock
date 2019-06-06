@@ -10,7 +10,7 @@ import java.time.ZoneId;
 
 public class Main {
 
-    public static final String APP_TITLE = "Project Sherlock 2 version 5 RC3";
+    public static final String APP_TITLE = "Project Sherlock 2 version 5 RC4";
     public static final String APP_NAME = "Project Sherlock 2";
     public static final String APP_NAME_NOSPACE = APP_NAME.replace(" ", "");
     public static Theme currentTheme;
