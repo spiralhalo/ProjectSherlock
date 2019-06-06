@@ -1,9 +1,6 @@
 package xyz.spiralhalo.sherlock;
 
-import lc.kra.system.keyboard.event.GlobalKeyAdapter;
-import lc.kra.system.keyboard.event.GlobalKeyEvent;
-import lc.kra.system.mouse.event.GlobalMouseAdapter;
-import lc.kra.system.mouse.event.GlobalMouseEvent;
+import com.sun.jna.platform.win32.*;
 import xyz.spiralhalo.sherlock.Main.Arg;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
@@ -20,9 +17,6 @@ import java.time.temporal.ChronoField;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TimerTask;
-
-import static xyz.spiralhalo.sherlock.GlobalInputHook.GLOBAL_KEYBOARD_HOOK;
-import static xyz.spiralhalo.sherlock.GlobalInputHook.GLOBAL_MOUSE_HOOK;
 
 public class Tracker implements TrackerAccessor{
     public static final String SPLIT_DIVIDER = "::";
@@ -121,32 +115,16 @@ public class Tracker implements TrackerAccessor{
     }
 
     private static class AFKMonitor {
-        private class MouseAdapter extends GlobalMouseAdapter {
-            @Override public void mousePressed(GlobalMouseEvent event) { logNow(); mousePressed = true; }
-            @Override public void mouseReleased(GlobalMouseEvent event) { logNow(); mousePressed = false; }
-            @Override public void mouseMoved(GlobalMouseEvent event) { logNow(); }
-            @Override public void mouseWheel(GlobalMouseEvent event) { logNow(); }
-        }
-
-        private class KeyAdapter extends GlobalKeyAdapter {
-            @Override public void keyPressed(GlobalKeyEvent event) { logNow(); keyPressed = true; }
-            @Override public void keyReleased(GlobalKeyEvent event) { logNow(); keyPressed = false; }
-        }
-
-        private void logNow(){ lastInput = System.currentTimeMillis(); }
-
-        private long lastInput;
-        private boolean keyPressed;
-        private boolean mousePressed;
-
-        AFKMonitor() {
-            GLOBAL_KEYBOARD_HOOK.addKeyListener(new KeyAdapter());
-            GLOBAL_MOUSE_HOOK.addMouseListener(new MouseAdapter());
-        }
 
         boolean isNotAFK() {
-            return keyPressed || mousePressed || (System.currentTimeMillis() - lastInput <
-                    UserConfig.userGInt(UserConfig.UserNode.TRACKING, UserConfig.UserInt.AFK_TIMEOUT_SECOND) * 1000);
+            return  getIdleTimeMillisWin32() <
+                    UserConfig.userGInt(UserConfig.UserNode.TRACKING, UserConfig.UserInt.AFK_TIMEOUT_SECOND) * 1000;
+        }
+
+        static int getIdleTimeMillisWin32() {
+            User32.LASTINPUTINFO lastInputInfo = new User32.LASTINPUTINFO();
+            User32.INSTANCE.GetLastInputInfo(lastInputInfo);
+            return Kernel32.INSTANCE.GetTickCount() - lastInputInfo.dwTime;
         }
     }
 }
