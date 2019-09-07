@@ -12,11 +12,17 @@ public class UserConfig {
 
     public enum UserInt {
         DAILY_TARGET_SECOND,
-        AFK_TIMEOUT_SECOND
+        AFK_TIMEOUT_SECOND,
+        WEEKLY_TARGET_DAYS,
+        OLD_RATING,
+        DISABLE_MONTH_LINE,
+        ENABLE_YEAR_LINE,
+        EXCEED_100_PERCENT
     }
 
     public enum UserNode {
-        TRACKING(Nodes.NODE_TRACKING.v);
+        GENERAL(NODE_TRACKING.v),
+        VIEW(NODE_VIEW.v);
 
         private String value;
         UserNode(String value){this.value=value;}
@@ -38,20 +44,45 @@ public class UserConfig {
 
     public static int userDInt(UserNode node, UserInt key){
         switch (node){
-            case TRACKING:
+            case GENERAL:
                 switch (key){
                     case DAILY_TARGET_SECOND: return 6 * 3600;
                     case AFK_TIMEOUT_SECOND: return 5 * 60;
+                    case WEEKLY_TARGET_DAYS: return 5;
                 }
             default: return 0;
         }
+    }
+
+    public static boolean userDBool(UserNode node, UserInt key){
+        return false;
     }
 
     public static int userGInt(UserNode node, UserInt key){
         return IniHandler.getInstance().getInt(node.value, key.name(), userDInt(node, key));
     }
 
+    public static int userGInt(UserNode node, UserInt key, int min, int max, boolean useDef){
+        final int x = IniHandler.getInstance().getInt(node.value, key.name(), userDInt(node, key));
+        if (x < min) {
+            if (useDef) return userDInt(node, key);
+            return min;
+        } else if (x > max){
+            if (useDef) return userDInt(node, key);
+            return max;
+        }
+        return x;
+    }
+
     public static void userSInt(UserNode node, UserInt key, int value){
         IniHandler.getInstance().putInt(node.value, key.name(), value);
+    }
+
+    public static boolean userGBool(UserNode node, UserInt key){
+        return IniHandler.getInstance().getBoolean(node.value, key.name(), userDBool(node, key));
+    }
+
+    public static void userSBool(UserNode node, UserInt key, boolean value){
+        IniHandler.getInstance().putBoolean(node.value, key.name(), value);
     }
 }

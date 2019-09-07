@@ -1,11 +1,11 @@
-package xyz.spiralhalo.sherlock.persist.settings;
+package xyz.spiralhalo.sherlock.util.swing;
 
-public class VkSelection {
+public class IntSelection {
 
     private final String name;
     private final int value;
 
-    public VkSelection(String name, int value) {
+    public IntSelection(String name, int value) {
         this.name = name;
         this.value = value;
     }

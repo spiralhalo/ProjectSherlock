@@ -1,17 +1,32 @@
 package xyz.spiralhalo.sherlock.util;
 
+import xyz.spiralhalo.sherlock.report.factory.charts.StripedPaint;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class ColorUtil {
     public static Color foreground = new Color(0,0,0);
+    public static Color trans = new Color(0,0,0, 0);
     public static Color bad = new Color(230,124,115);
     public static Color neu = new Color(255,214,102);
     public static Color gut = new Color(87,187,138);
+    public static Color gutw = new Color(57,127,88);
+    public static Color lite = new Color(0xff66ff);
+    public static Color med = new Color(0x00ff00);
+    public static Color excel = new Color(0x00ffff);
     public static Color light_gray = new Color(225,225,225);
-    public static Color med_red_gray = new Color(210,190,190);
     public static Color gray = new Color(160,160,160);
     public static Color white = new Color(250,250,250);
+
+//    public static StripedPaint CONST_IDLE_PAINT = new StripedPaint(multiply(gray,gray), multiply(gray,light_gray));
+//    public static StripedPaint CONST_LEFT_PAINT = new StripedPaint(gutw, multiply(gutw,gut));
+//    public static StripedPaint CONST_IDLE_PAINT = new StripedPaint(gray,new Color(0,64,118, 200));
+//    public static StripedPaint CONST_LEFT_PAINT = new StripedPaint(gray,new Color(0,64,118, 127));
+    public static Color CONST_IDLE_PAINT = new Color(160,160,160, 127);
+    public static Color CONST_LEFT_PAINT = new Color(87,187,138, 160);
+    public static Color CONST_OTHER_GRAY = gray;
+    public static Color CONST_DELETED_RED_GRAY = new Color(210,190,190);
 
     public static Color multiply(Color color1, Color color2){
         return new Color((color1.getRed()*color2.getRed())/255,

@@ -79,6 +79,9 @@ public class AppView implements AppViewAccessor {
     private JButton btnNextY;
     private JButton btnLastY;
     private JButton btnFocus;
+    private JButton btnDayNote;
+    private JButton btnDayAudit;
+    private JPanel pnlDProgress;
     private JCommandButton cmdNew;
     private JCommandButton cmdEdit;
     private JCommandButton cmdDelete;
@@ -92,10 +95,12 @@ public class AppView implements AppViewAccessor {
     private JCommandButton cmdFocus;
     private JCommandButton cmdSettings;
     private JCommandButton cmdRefresh;
+    private ChartPanel dayProgressPanel;
     private ChartPanel dayPanel;
     private ChartPanel monthPanel;
     private ChartPanel yearPanel;
     private Charts.MonthChartInfo mChartInfo;
+    private LocalDate today = LocalDate.now();
 
     private final ZoneId z = Main.z;
     private final AppControl control;
@@ -179,6 +184,14 @@ public class AppView implements AppViewAccessor {
         ((JLabel) comboY.getRenderer()).setHorizontalAlignment(JLabel.CENTER);
     }
 
+    private ChartPanel getDayProgressPanel() {
+        if(dayProgressPanel==null){
+            dayProgressPanel = new ChartPanel(null, false, false, false,false,true);
+            dayProgressPanel.setMinimumDrawWidth(260);
+        }
+        return dayProgressPanel;
+    }
+
     private ChartPanel getDayPanel() {
         if(dayPanel==null){
             dayPanel = Charts.emptyPanel();
@@ -208,6 +221,7 @@ public class AppView implements AppViewAccessor {
     @Override
     public void init() {
         createCommandButtons(control);
+        control.setDayButtons(btnDayNote, btnDayAudit);
         control.setTables(tActive, tFinished, tUtility);
         control.setChart(comboD, btnPrevD, btnNextD, btnFirstD, btnLastD, this::refreshDayChart);
         control.setChart(comboM, btnPrevM, btnNextM, btnFirstM, btnLastM, this::refreshMonthChart);
@@ -238,6 +252,7 @@ public class AppView implements AppViewAccessor {
         lblTracking.setText(status);
     }
 
+    @Override
     public void refreshOverview(CacheMgr cache) {
         refreshRefreshStatus(cache);
         if(cache.getCreated(AllReportRows.activeCacheId(z)).equals(CacheMgr.NEVER)){return;}
@@ -287,6 +302,7 @@ public class AppView implements AppViewAccessor {
         } else {
             comboY.setSelectedIndex(comboY.getModel().getSize() - 1);
         }
+        today = LocalDate.now();
     }
 
     public void refreshProjects(CacheMgr cache, int index){
@@ -330,28 +346,62 @@ public class AppView implements AppViewAccessor {
         }
     }
 
+    private void notifyNoDayData() {
+        notifyNoData(pnlDChart, lDNoData, comboD, btnPrevD, btnNextD, btnFirstD, btnLastD);
+        pnlDProgress.removeAll();
+    }
+
     public void refreshDayChart(CacheMgr cache, ItemEvent event) {
         if(event.getStateChange() != ItemEvent.SELECTED) return;
         DateSelection<LocalDate> s = (DateSelection<LocalDate>) comboD.getSelectedItem();
-        if (s == null) { notifyNoData(pnlDChart, lDNoData, comboD, btnPrevD, btnNextD, btnFirstD, btnLastD); return;}
+        if (s == null) { notifyNoDayData(); return; }
         final MonthSummary ms = cache.getObj(MonthSummary.cacheId(YearMonth.from(s.date), z), MonthSummary.class);
-        if (ms == null) { notifyNoData(pnlDChart, lDNoData, comboD, btnPrevD, btnNextD, btnFirstD, btnLastD); return;}
+        if (ms == null) { notifyNoDayData(); return; }
         final ChartData cd = ms.getDayCharts().get(s.date);
-        if (cd == null) { notifyNoData(pnlDChart, lDNoData, comboD, btnPrevD, btnNextD, btnFirstD, btnLastD); return;}
+        if (cd == null) { notifyNoDayData(); return; }
         final ChartMeta meta = cd.getMeta();
+        // Create day chart
         getDayPanel().setChart(Charts.createDayBarChart(cd));
         refreshChart(getDayPanel(), pnlDChart, comboD, btnPrevD, btnNextD, btnFirstD, btnLastD);
-        int t = UserConfig.userGInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND);
-        int r = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < t ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / t);
+        // Create day progress chart
+        pnlDProgress.removeAll();
+        getDayProgressPanel().setChart(Charts.createDayProgressChart(cd, s.date.equals(today)));
+        pnlDProgress.add(getDayProgressPanel());
+        pnlDProgress.updateUI();
+        // Create rating label
+        int t = UserConfig.userGInt(UserNode.GENERAL, UserInt.DAILY_TARGET_SECOND);
         lDLogged.setText(String.format("Logged: %s", FormatUtil.hms(meta.getLogDur())));
         lDWorktime.setText(String.format("Project: %s", FormatUtil.hms(meta.getWorkDur())));
-        if (UserConfig.userGWDay(s.date.get(ChronoField.DAY_OF_WEEK))) {
-            lDRating.setText(String.format("Rating: %d%%", r));
-            Color ratioFG = interpolateNicely((float) r / 100f, bad, neu, gut);
-            lDRating.setForeground(Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
+        if (UserConfig.userGBool(UserNode.VIEW, UserInt.OLD_RATING)) {
+            int r = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < t ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / t);
+            if(!UserConfig.userGBool(UserNode.VIEW, UserInt.EXCEED_100_PERCENT) && r > 100) r = 100;
+            if (UserConfig.userGWDay(s.date.get(ChronoField.DAY_OF_WEEK))) {
+                lDRating.setText(String.format("Rating: %d%%", r));
+                Color ratioFG = interpolateNicely((float) r / 100f, bad, neu, gut);
+                lDRating.setForeground(Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
+            } else {
+                lDRating.setText(String.format("Rating: %d%% (holiday)", r));
+                lDRating.setForeground(new Color(0x77000000 | Main.currentTheme.foreground, true));
+            }
         } else {
-            lDRating.setText(String.format("Rating: %d%% (holiday)", r));
-            lDRating.setForeground(new Color(0x77000000 | Main.currentTheme.foreground, true));
+            int r = meta.getWorkDur() * 100 / t;
+            if(!UserConfig.userGBool(UserNode.VIEW, UserInt.EXCEED_100_PERCENT) && r > 100) r = 100;
+            if (r < 20) {
+                lDRating.setText("BREAK DAY");
+//                Color ratioFG = new Color(0xff77aa);
+//                lDRating.setForeground(Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
+                lDRating.setForeground(new Color(0x77000000 | Main.currentTheme.foreground, true));
+            } else if (r < 40) {
+                lDRating.setText(String.format("LIGHT WORK (%d)", r));
+                lDRating.setForeground(Main.currentTheme.dark ? lite : multiply(gray, lite));
+            } else if (r < 90) {
+                lDRating.setText(String.format("WELL DONE (%d)", r));
+                lDRating.setForeground(Main.currentTheme.dark ? med : multiply(gray, med));
+            } else {
+                lDRating.setText(String.format("EXCELLENT (%d)", r));
+                Color ratioFG = new Color(0x00ffff);
+                lDRating.setForeground(Main.currentTheme.dark ? excel : multiply(gray, excel));
+            }
         }
     }
 
@@ -498,6 +548,11 @@ public class AppView implements AppViewAccessor {
     @Override
     public Charts.MonthChartInfo getMonthChartInfo() {
         return mChartInfo;
+    }
+
+    @Override
+    public LocalDate getSelectedDayChart() {
+        return ((DateSelection<LocalDate>) comboD.getSelectedItem()).date;
     }
 
     private void createUIComponents() {

@@ -11,6 +11,7 @@ import org.pushingpixels.flamingo.api.common.JCommandMenuButton;
 import org.pushingpixels.flamingo.api.common.popup.JCommandPopupMenu;
 import xyz.spiralhalo.sherlock.async.Loader;
 import xyz.spiralhalo.sherlock.async.LoaderDialog;
+import xyz.spiralhalo.sherlock.audit.ViewDayAudit;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkMgr;
 import xyz.spiralhalo.sherlock.dialog.EditProject;
 import xyz.spiralhalo.sherlock.dialog.Quit;
@@ -78,7 +79,9 @@ public class AppControl implements ActionListener {
         A_SETTINGS,
         A_REFRESH,
         A_EXTRA_FOCUS,
-        A_EXTRA_BOOKMARKS
+        A_EXTRA_BOOKMARKS,
+        A_DAY_NOTE,
+        A_DAY_AUDIT
     }
     private AppViewAccessor view;
     private final ProjectList projectList;
@@ -264,6 +267,13 @@ public class AppControl implements ActionListener {
         tabs.addChangeListener(tabChangeListener);
         tabr.addChangeListener(tabChangeListener);
         btnResume.setVisible(false);
+    }
+
+    public void setDayButtons(JButton btnNote, JButton btnAudit) {
+        btnNote.setName(Action.A_DAY_NOTE.name());
+        btnAudit.setName(Action.A_DAY_AUDIT.name());
+        btnNote.addActionListener(this);
+        btnAudit.addActionListener(this);
     }
 
     public void setMonthChart(ChartPanel monthPanel) {
@@ -502,6 +512,15 @@ public class AppControl implements ActionListener {
                 FocusConfig focusConfig = new FocusConfig(view.frame(), focusMgr);
                 focusConfig.setVisible(true);
                 break;
+            case A_DAY_AUDIT:
+                if(view.getSelectedDayChart() != null) {
+                    ViewDayAudit viewDayAudit = new ViewDayAudit(view.frame(), view.getSelectedDayChart(), projectList);
+                    viewDayAudit.setVisible(true);
+                    if(viewDayAudit.isResult()){
+                        //changes saved
+                        //do stuffs
+                    }
+                }
         }
     }
 

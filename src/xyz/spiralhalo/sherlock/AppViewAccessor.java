@@ -5,6 +5,7 @@ import xyz.spiralhalo.sherlock.report.Charts;
 
 import javax.swing.*;
 import java.awt.event.ItemEvent;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public interface AppViewAccessor {
@@ -31,4 +32,5 @@ public interface AppViewAccessor {
     void setTablePopUpMenu(JPopupMenu popupMenu);
     JPopupMenu getTablePopUpMenu();
     Charts.MonthChartInfo getMonthChartInfo();
+    LocalDate getSelectedDayChart();
 }

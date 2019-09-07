@@ -1,39 +1,39 @@
-package xyz.spiralhalo.sherlock.persist.settings;
+package xyz.spiralhalo.sherlock.util.swing;
 
 import javax.swing.*;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.util.ArrayList;
 
-public class VkSelectorModel implements ComboBoxModel<VkSelection> {
+public class IntSelectorModel implements ComboBoxModel<IntSelection> {
     private final ArrayList<ListDataListener> l = new ArrayList<>();
-    private final VkSelection[] vks;
-    private VkSelection selected;
+    private final IntSelection[] ints;
+    private IntSelection selected;
 
-    public VkSelectorModel(String[] VK_names, int[] VK_values) {
-        if(VK_names.length != VK_values.length) throw new IllegalArgumentException("VK name and value array lengths mismatch.");
-        if(VK_names.length == 0) throw new IllegalArgumentException("Zero length array.");
+    public IntSelectorModel(String[] intLabels, int[] intValues) {
+        if(intLabels.length != intValues.length) throw new IllegalArgumentException("Int name and value array lengths mismatch.");
+        if(intLabels.length == 0) throw new IllegalArgumentException("Zero length array.");
 
-        vks = new VkSelection[VK_names.length];
+        ints = new IntSelection[intLabels.length];
 
-        for (int i=0;i<VK_names.length;i++) {
-            vks[i]=new VkSelection(VK_names[i], VK_values[i]);
+        for (int i=0;i<intLabels.length;i++) {
+            ints[i]=new IntSelection(intLabels[i], intValues[i]);
         }
     }
 
     @Override
     public void setSelectedItem(Object obj) {
         int x = -1;
-        if (obj instanceof VkSelection) {
-            for (int i = 0; i < vks.length; i++) {
-                if(vks[i].equals(obj)){
+        if (obj instanceof IntSelection) {
+            for (int i = 0; i < ints.length; i++) {
+                if(ints[i].equals(obj)){
                     x = i;
                     break;
                 }
             }
         }
         if (x != -1) {
-            selected = vks[x];
+            selected = ints[x];
             for (ListDataListener l1:l) {
                 l1.contentsChanged(new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, -1, -1));
             }
@@ -47,18 +47,18 @@ public class VkSelectorModel implements ComboBoxModel<VkSelection> {
 
     @Override
     public int getSize() {
-        return vks.length;
+        return ints.length;
     }
 
     @Override
-    public VkSelection getElementAt(int index) {
-        if (index < 0 || index >= vks.length) return null;
-        return vks[index];
+    public IntSelection getElementAt(int index) {
+        if (index < 0 || index >= ints.length) return null;
+        return ints[index];
     }
 
     public int getIndexFor(int value) {
-        for (int i = 0; i < vks.length; i++) {
-            if(vks[i].getValue() == value){
+        for (int i = 0; i < ints.length; i++) {
+            if(ints[i].getValue() == value){
                 return i;
             }
         }

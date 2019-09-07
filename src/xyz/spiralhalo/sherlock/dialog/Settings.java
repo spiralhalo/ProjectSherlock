@@ -4,12 +4,12 @@ import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.Application;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkInt;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkMgr;
-import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
+import xyz.spiralhalo.sherlock.persist.settings.*;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.HMSMode;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.Theme;
-import xyz.spiralhalo.sherlock.persist.settings.VkSelection;
-import xyz.spiralhalo.sherlock.persist.settings.VkSelectorModel;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
+import xyz.spiralhalo.sherlock.util.swing.IntSelection;
+import xyz.spiralhalo.sherlock.util.swing.IntSelectorModel;
 
 import javax.swing.*;
 import java.awt.Component;
@@ -54,19 +54,33 @@ public class Settings extends JDialog {
     private JLabel lblAutoRefresh;
     private JSlider sliderAutoRefresh;
     private JComboBox<String> comboTheme;
-    private JComboBox<VkSelection> comboBkmkHotkey;
+    private JComboBox<IntSelection> comboBkmkHotkey;
     private JCheckBox checkBookmarks;
     private JCheckBox checkBkmkCtrl;
     private JCheckBox checkBkmkShift;
     private JButton btnDefBookmarks;
     private JLabel lblHotkey;
     private JCheckBox checkBkmkCloseWindow;
+    private JRadioButton radOldRating;
+    private JCheckBox checkShowAbove100;
+    private JRadioButton alwaysPickTheHighestRadioButton;
+    private JRadioButton radNewRating;
+    private JCheckBox checkShowMonthLine;
+    private JCheckBox checkShowYearLine;
+    private JButton btnDefView;
+    private JSlider sliderWeeklyTarget;
+    private JLabel lblWeeklyTarget;
+    private JPanel finHeader;
     private boolean result = false;
 
-    private VkSelectorModel vkSelectorModel;
+    private IntSelectorModel vkSelectorModel;
 
     private final JCheckBox[] days = new JCheckBox[]{day0,day1,day2,day3,day4,day5,day6};
     private final ApplyButtonEnabler enabler = new ApplyButtonEnabler(buttonApply);
+
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+    }
 
     private static class ApplyButtonEnabler{
         private boolean adjusting = false;
@@ -89,7 +103,7 @@ public class Settings extends JDialog {
             x.addItemListener(e -> changed());
         }
 
-        void add(JCheckBox x, Supplier<Boolean> confGetter){
+        void add(JToggleButton x, Supplier<Boolean> confGetter){
             sups.put(x::isSelected, confGetter);
             x.addItemListener(e -> changed());
         }
@@ -112,7 +126,7 @@ public class Settings extends JDialog {
     }
 
     private static class Dependency implements ItemListener {
-        public static void setChildren(JCheckBox y, Component... x){
+        public static void setChildren(JToggleButton y, Component... x){
             y.addItemListener(new Dependency(x, y));
         }
 
@@ -122,9 +136,9 @@ public class Settings extends JDialog {
         }
 
         private Component[] x;
-        private JCheckBox y;
+        private JToggleButton y;
 
-        private Dependency(Component[] x, JCheckBox y) {
+        private Dependency(Component[] x, JToggleButton y) {
             this.x = x;
             this.y = y;
         }
@@ -193,60 +207,73 @@ public class Settings extends JDialog {
         setLocationRelativeTo(owner);
         buttonApply.setEnabled(false);
 
+        buttonOK.addActionListener(e->onOK());
+        buttonApply.addActionListener(e->onApply());
+        buttonCancel.addActionListener(e->onCancel());
+
+        // <start> EDITABLE
+
+        // edit for NEW COMBO BOXES
         comboHMSMode.setModel(new DefaultComboBoxModel<>(new String[]{HMSMode.COLON.text, HMSMode.STRICT.text}));
         String[] themes = new String[Theme.values().length];
         for (Theme x:Theme.values()) { themes[x.x] = x.label; }
         comboTheme.setModel(new DefaultComboBoxModel<>(themes));
-        vkSelectorModel = new VkSelectorModel(BookmarkMgr.ALLOWED_VK_NAME, BookmarkMgr.ALLOWED_VK);
+        vkSelectorModel = new IntSelectorModel(BookmarkMgr.ALLOWED_VK_NAME, BookmarkMgr.ALLOWED_VK);
         comboBkmkHotkey.setModel(vkSelectorModel);
 
-        buttonOK.addActionListener(e->onOK());
-        buttonApply.addActionListener(e->onApply());
-        buttonCancel.addActionListener(e->onCancel());
+        // edit for NEW SEGMENTS
         registerDefaultButton(btnDefTracking, "tracking");
+        registerDefaultButton(btnDefView, "view");
         registerDefaultButton(btnDefApp, "app");
         registerDefaultButton(btnDefBookmarks, "bookmarks");
+
+        // edit for NEW SLIDERS
         resetSlider(sliderTarget, 4, 5*4, 12*4, 15*60);
         resetSlider(sliderTimeout, 1, 5, 30, 60);
         resetSlider(sliderAutoRefresh, 1, 10, 30, 60);
+        resetSlider(sliderWeeklyTarget, 1, 5, 7, 1);
         bindTimeSlider(sliderTarget, lblTarget);
         bindTimeSlider(sliderTimeout, lblTimeout);
         bindTimeSlider(sliderAutoRefresh, lblAutoRefresh);
+        bindCustomSlider(sliderWeeklyTarget, lblWeeklyTarget, "day", "days");
 
-        contentPane.registerKeyboardAction(e->onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-
+        // edit for NEW CHECK BOXES / RADIO BUTTONS WITH CHILDREN
         Dependency.setChildren(checkAStartup, checkARunMinimized);
         Dependency.setChildren(checkBookmarks, lblHotkey, checkBkmkCtrl, checkBkmkShift, comboBkmkHotkey);
+//        Dependency.setChildren(radOldRating, checkShowAbove100);
 
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                onCancel();
-            }
-        });
+        // edit for NEW OPTIONS
 
-        init();
-    }
+        // <start> NEW OPTIONS
 
-    private void init() {
+        String tracking = "tracking";
+        bind(sliderTimeout, tracking, ()->userGInt(GENERAL, AFK_TIMEOUT_SECOND),
+                i->userSInt(GENERAL, AFK_TIMEOUT_SECOND, i), userDInt(GENERAL, AFK_TIMEOUT_SECOND));
+        bind(sliderTarget, tracking, ()->userGInt(GENERAL, DAILY_TARGET_SECOND),
+                i->userSInt(GENERAL, DAILY_TARGET_SECOND, i), userDInt(GENERAL, DAILY_TARGET_SECOND));
+        for (int i = 0; i < days.length; i++) {
+            final int z = i;
+            bind(days[z], tracking, ()->userGWDay(z), b->userSWDay(z,b), userDWDay(i));
+        }
+        bind(sliderWeeklyTarget, tracking, ()->userGInt(GENERAL, WEEKLY_TARGET_DAYS, 1, 7, true),
+                i->userSInt(GENERAL, WEEKLY_TARGET_DAYS, i), userDInt(GENERAL, WEEKLY_TARGET_DAYS));
+
+        String view = "view";
+        bind(comboHMSMode, view, ()->appHMS()==HMSMode.COLON?0:1, i->appHMS(i==0?HMSMode.COLON:HMSMode.STRICT), defaultHMSMode()==HMSMode.COLON?0:1);
+        bind(radNewRating, view, ()->!userGBool(VIEW, OLD_RATING), b->userSBool(VIEW, OLD_RATING, !b), !userDBool(VIEW, OLD_RATING));
+        bind(radOldRating, view, ()->userGBool(VIEW, OLD_RATING), b->userSBool(VIEW, OLD_RATING, b), userDBool(VIEW, OLD_RATING));
+        bind(checkShowAbove100, view, ()->userGBool(VIEW, EXCEED_100_PERCENT), b->userSBool(VIEW, EXCEED_100_PERCENT, b), userDBool(VIEW, EXCEED_100_PERCENT));
+        bind(checkShowMonthLine, view, ()->!userGBool(VIEW, DISABLE_MONTH_LINE), b->userSBool(VIEW, DISABLE_MONTH_LINE, !b), !userDBool(VIEW, DISABLE_MONTH_LINE));
+        bind(checkShowYearLine, view, ()->userGBool(VIEW, ENABLE_YEAR_LINE), b->userSBool(VIEW, ENABLE_YEAR_LINE, b), userDBool(VIEW, ENABLE_YEAR_LINE));
+
         String app = "app";
         bind(checkAAskBeforeQuit, app, ()->appGBool(ASK_BEFORE_QUIT), i->appSBool(ASK_BEFORE_QUIT, i), appDBool(ASK_BEFORE_QUIT));
         bind(checkAMinimize, app, ()->appGBool(MINIMIZE_TO_TRAY), i->appSBool(MINIMIZE_TO_TRAY, i), appDBool(MINIMIZE_TO_TRAY));
         bind(checkAStartup, app, ()->appGBool(RUN_ON_STARTUP), i->appSBool(RUN_ON_STARTUP, i), appDBool(RUN_ON_STARTUP));
         bind(checkARunMinimized, app, ()->appGBool(RUN_MINIMIZED), i->appSBool(RUN_MINIMIZED, i), appDBool(RUN_MINIMIZED));
         bind(sliderAutoRefresh, app, ()->appGInt(REFRESH_TIMEOUT), i->appSInt(REFRESH_TIMEOUT, i), appDInt(REFRESH_TIMEOUT));
-        bind(comboHMSMode, app, ()->appHMS()==HMSMode.COLON?0:1, i->appHMS(i==0?HMSMode.COLON:HMSMode.STRICT), defaultHMSMode()==HMSMode.COLON?0:1);
         bind(comboTheme, app, ()->getTheme().x, AppConfig::setTheme, defaultTheme().x);
-        String tracking = "tracking";
-        bind(sliderTimeout, tracking, ()->userGInt(TRACKING, AFK_TIMEOUT_SECOND),
-                i->userSInt(TRACKING, AFK_TIMEOUT_SECOND, i), userDInt(TRACKING, AFK_TIMEOUT_SECOND));
-        bind(sliderTarget, tracking, ()->userGInt(TRACKING, DAILY_TARGET_SECOND),
-                i->userSInt(TRACKING, DAILY_TARGET_SECOND, i), userDInt(TRACKING, DAILY_TARGET_SECOND));
-        for (int i = 0; i < days.length; i++) {
-            final int z = i;
-            bind(days[z], tracking, ()->userGWDay(z), b->userSWDay(z,b), userDWDay(i));
-        }
+
         String bkmk = "bookmarks";
         bind(checkBookmarks, bkmk, ()->bkmkGBool(ENABLED), b->bkmkSBool(ENABLED, b), bkmkDBool(ENABLED));
         bind(checkBkmkCtrl, bkmk, ()->bkmkGBool(CTRL), b->bkmkSBool(CTRL, b), bkmkDBool(CTRL));
@@ -256,6 +283,20 @@ public class Settings extends JDialog {
         bind(comboBkmkHotkey, bkmk, ()->vkSelectorModel.getIndexFor(bkmkGInt(BookmarkInt.HOTKEY)),
                 i->bkmkSInt(BookmarkInt.HOTKEY, vkSelectorModel.getElementAt(i).getValue()),
                 vkSelectorModel.getIndexFor(bkmkDInt(BookmarkInt.HOTKEY)));
+
+        // <end> NEW OPTIONS
+
+        // <end> EDITABLE
+
+        contentPane.registerKeyboardAction(e->onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                onCancel();
+            }
+        });
     }
 
     private void onApply() {
@@ -278,7 +319,7 @@ public class Settings extends JDialog {
         register(defNode, x::getSelectedIndex, confS, defVal, x::setSelectedIndex);
     }
 
-    private void bind(JCheckBox x, String defNode, Supplier<Boolean> confG, Consumer<Boolean> confS, Boolean defVal){
+    private void bind(JToggleButton x, String defNode, Supplier<Boolean> confG, Consumer<Boolean> confS, Boolean defVal){
         enabler.add(x, confG);
         x.setSelected(confG.get());
         register(defNode, x::isSelected, confS, defVal, x::setSelected);
@@ -321,6 +362,11 @@ public class Settings extends JDialog {
         slider.addChangeListener(e->label.setText(String.format("%s",
                 FormatUtil.hmsLong(slider.getMinorTickSpacing()*Math.round(slider.getValue()*1f/slider.getMinorTickSpacing())))));
         label.setText(String.format("%s", FormatUtil.hmsLong(slider.getMinorTickSpacing()*Math.round(slider.getValue()*1f/slider.getMinorTickSpacing()))));
+    }
+
+    private void bindCustomSlider(JSlider slider, JLabel label, String unit, String pluralUnit){
+        slider.addChangeListener(e->label.setText(String.format("%d %s", slider.getValue(), (slider.getValue()>1?pluralUnit:unit))));
+        label.setText(String.format("%d %s", slider.getValue(), (slider.getValue()>1?pluralUnit:unit)));
     }
 
     public boolean getResult(){

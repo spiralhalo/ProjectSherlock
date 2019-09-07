@@ -36,7 +36,7 @@ public class DurationCell extends DefaultTableCellRenderer {
                 baseColor = light_gray;
             } else {
                 baseColor = interpolateNicely(((float) (int) value) /
-                        UserConfig.userGInt(UserNode.TRACKING, UserInt.DAILY_TARGET_SECOND), bad, neu, gut);
+                        UserConfig.userGInt(UserNode.GENERAL, UserInt.DAILY_TARGET_SECOND), bad, neu, gut);
             }
             if(isSelected) {
                 super.setBackground(multiply(super.getBackground(),baseColor));

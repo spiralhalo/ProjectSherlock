@@ -118,7 +118,7 @@ public class Tracker implements TrackerAccessor{
 
         boolean isNotAFK() {
             return  getIdleTimeMillisWin32() <
-                    UserConfig.userGInt(UserConfig.UserNode.TRACKING, UserConfig.UserInt.AFK_TIMEOUT_SECOND) * 1000;
+                    UserConfig.userGInt(UserConfig.UserNode.GENERAL, UserConfig.UserInt.AFK_TIMEOUT_SECOND) * 1000;
         }
 
         static int getIdleTimeMillisWin32() {

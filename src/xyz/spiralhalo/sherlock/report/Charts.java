@@ -4,6 +4,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.AbstractAnnotation;
 import org.jfree.chart.annotations.CategoryAnnotation;
+import org.jfree.chart.annotations.CategoryTextAnnotation;
 import org.jfree.chart.axis.*;
 import org.jfree.chart.block.LineBorder;
 import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
@@ -23,10 +24,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.notes.YearNotes;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
-import xyz.spiralhalo.sherlock.report.factory.charts.ChartData;
-import xyz.spiralhalo.sherlock.report.factory.charts.ChartMeta;
-import xyz.spiralhalo.sherlock.report.factory.charts.ChartType;
-import xyz.spiralhalo.sherlock.report.factory.charts.FlexibleLocale;
+import xyz.spiralhalo.sherlock.report.factory.charts.*;
 import xyz.spiralhalo.sherlock.report.factory.summary.MonthSummary;
 import xyz.spiralhalo.sherlock.report.factory.summary.YearSummary;
 import xyz.spiralhalo.sherlock.util.ImgUtil;
@@ -35,22 +33,28 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.temporal.ChronoField;
 import java.util.HashMap;
 
-import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.DAILY_TARGET_SECOND;
-import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.TRACKING;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.*;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.GENERAL;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.VIEW;
 import static xyz.spiralhalo.sherlock.util.ColorUtil.*;
 
 public class Charts {
     private static Image noteImg = null;
+    private static BufferedImage zzzImg = null;
     static {
         try {
             noteImg = ImgUtil.loadImage("sm_note.png");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            zzzImg = ImgUtil.loadImage("sm_zzz.png");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -82,30 +86,32 @@ public class Charts {
     }
 
     public static MonthChartInfo createMonthBarChart(MonthSummary monthSummary){
-        final JFreeChart x = createStackedBarChart("Day of month", "Time spent (hours)",
+        final JFreeChart x = createStackedBarChart("", "Time spent (hours)",
                 monthSummary.getMonthChart().getDataset(),
                 monthSummary.getMonthChart().getMeta());
-        final Color fg = new Color(Main.currentTheme.foreground);
-        final int target = UserConfig.userGInt(TRACKING, DAILY_TARGET_SECOND);
-        final ValueMarker marker = new ValueMarker(target/3600f, fg, new BasicStroke(
-                1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
-                1.0f, new float[] {6.0f, 6.0f}, 0.0f));
-
-        marker.setLabel("Target");
-        marker.setLabelPaint(new Color(Main.currentTheme.background));
-        marker.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT);
-        marker.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT);
-        marker.setLabelOffset(new RectangleInsets(0, 0, 13, 4));
-        marker.setLabelFont(new Font("Tahoma", 0, 11));
-        marker.setLabelBackgroundColor(fg);
 
         final CategoryPlot plot = x.getCategoryPlot();
+        final int target = UserConfig.userGInt(GENERAL, DAILY_TARGET_SECOND);
 
-        plot.addRangeMarker(marker);
+        final Color fg = new Color(Main.currentTheme.foreground | 0x88000000, true);
+        if(!UserConfig.userGBool(VIEW, DISABLE_MONTH_LINE)) {
+            final ValueMarker marker = new ValueMarker(target/3600f, fg, new BasicStroke(
+                    1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
+                    1.0f, new float[] {6.0f, 6.0f}, 0.0f));
+            marker.setLabel("Target");
+            marker.setLabelPaint(new Color(Main.currentTheme.background));
+            marker.setLabelAnchor(RectangleAnchor.TOP_RIGHT);
+            marker.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT);
+            marker.setLabelOffset(new RectangleInsets(0, 0, 13, 4));
+            marker.setLabelFont(new Font("Tahoma", 0, 11));
+            marker.setLabelBackgroundColor(fg);
+
+            plot.addRangeMarker(marker);
+        }
 
         final CategoryAxis axis = x.getCategoryPlot().getDomainAxis();
         final YearMonth ym = monthSummary.getMonth();
-        final DefaultCategoryDataset ratingSet = new DefaultCategoryDataset();
+        final DefaultCategoryDataset totalSet = new DefaultCategoryDataset();
 
         axis.setCategoryLabelPositions(
                 CategoryLabelPositions.createUpRotationLabelPositions(Math.PI / 3d));
@@ -123,16 +129,34 @@ public class Charts {
             FlexibleLocale unitLabel = ChartType.DAY_IN_MONTH.unitLabel(ym, i);
             if(dayChart != null){
                 ChartMeta meta = dayChart.getMeta();
-                int ratio = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < target ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / target);
-                if (UserConfig.userGWDay(date.get(ChronoField.DAY_OF_WEEK))) {
-                    Color ratioFG = interpolateNicely((float) ratio / 100f, bad, neu, gut);
-                    axis.setTickLabelPaint(unitLabel,Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
+                if (UserConfig.userGBool(VIEW, OLD_RATING)) {
+                    int ratio = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < target ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / target);
+                    if (UserConfig.userGWDay(date.get(ChronoField.DAY_OF_WEEK))) {
+                        Color ratioFG = interpolateNicely((float) ratio / 100f, bad, neu, gut);
+                        axis.setTickLabelPaint(unitLabel, Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
+                    } else {
+                        axis.setTickLabelPaint(unitLabel, holidayFG);
+                    }
                 } else {
-                    axis.setTickLabelPaint(unitLabel, holidayFG);
+                    int ratio = meta.getWorkDur() * 100 / target;
+                    if (ratio < 20) {
+                        axis.setTickLabelPaint(unitLabel, holidayFG);
+//                        Color ratioFG = new Color(0xff77aa);
+//                        axis.setTickLabelPaint(unitLabel, Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
+                    } else if (ratio < 40) {
+                        Color ratioFG = new Color(0xff66ff);
+                        axis.setTickLabelPaint(unitLabel, Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
+                    } else if (ratio < 90) {
+                        Color ratioFG = new Color(0x00ff00);
+                        axis.setTickLabelPaint(unitLabel, Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
+                    } else {
+                        Color ratioFG = new Color(0x00ffff);
+                        axis.setTickLabelPaint(unitLabel, Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
+                    }
                 }
-                ratingSet.addValue((Number) ((target/3600f) * (ratio / 100f)), "Rating", unitLabel);
+                totalSet.addValue((Number) (meta.getWorkDur() / 3600f), "Work Total", unitLabel);
             } else {
-                ratingSet.addValue((Number)0, "Rating", unitLabel);
+                totalSet.addValue((Number)0, "Work Total", unitLabel);
             }
             double total = 0;
             for (int j = 0; j < originalDataset.getRowCount(); j++) {
@@ -143,6 +167,7 @@ public class Charts {
             if(total>max)max=total;
         }
 
+        int ij = 0;
         for (int i = 0; i < ym.lengthOfMonth(); i++) {
             LocalDate date = ym.atDay(i+1);
             if(YearNotes.getNote(z, date) != null) {
@@ -150,12 +175,19 @@ public class Charts {
                 annotations.put(date, ann);
                 plot.addAnnotation(ann);
             }
+
+            if(date.getDayOfWeek().equals(DayOfWeek.MONDAY)){
+                ij++;
+                CategoryTextAnnotation textAnn = new CategoryTextAnnotation(Integer.toString(ij), ChartType.DAY_IN_MONTH.unitLabel(ym, i), max);
+                textAnn.setPaint(fg);
+                plot.addAnnotation(textAnn);
+            }
         }
 
         plot.setDataset(1, plot.getDataset(0));
         plot.setRenderer(1, plot.getRenderer(0));
 
-        plot.setDataset(0, ratingSet);
+        plot.setDataset(0, totalSet);
         plot.setRenderer(0, new LineAndShapeRenderer());
         plot.getRenderer(0).setDefaultToolTipGenerator(new StandardCategoryToolTipGenerator());
 
@@ -163,34 +195,171 @@ public class Charts {
     }
 
     public static JFreeChart createYearBarChart(YearSummary ys){
-        return createStackedBarChart("Month of year", "Time spent (hours)",
-                ys.getYearChart().getDataset(), ys.getYearChart().getMeta());
+        JFreeChart x = createStackedBarChart("","", "Time spent (hours)",
+                ys.getYearChart().getDataset(), ys.getYearChart().getMeta(), PlotOrientation.VERTICAL,
+                false, true, false, true, true);
+
+        final CategoryPlot plot = x.getCategoryPlot();
+        final DefaultCategoryDataset totalSet = new DefaultCategoryDataset();
+        final DefaultCategoryDataset data = ys.getYearChart().getDataset();
+
+        for(int i=0;i<12;i++){
+            double total = 0;
+            for (int j=0;j<data.getRowCount();j++) {
+                if(data.getValue(j, i) != null
+                        //weirdest way to identify productive entries
+                        && !CONST_OTHER_GRAY.equals(ys.getYearChart().getMeta().get(data.getRowKey(j)))
+                        && !CONST_DELETED_RED_GRAY.equals(ys.getYearChart().getMeta().get(data.getRowKey(j)))
+                        && !(ys.getYearChart().getMeta().get(data.getRowKey(j)) instanceof StripedPaint)) {
+                    total += data.getValue(j, i).doubleValue();
+                }
+            }
+            totalSet.addValue(total, "Work Total", data.getColumnKey(i));
+        }
+
+        if(UserConfig.userGBool(VIEW, ENABLE_YEAR_LINE)) {
+            final Color fg = new Color(Main.currentTheme.foreground | 0x88000000, true);
+            final int t = UserConfig.userGInt(GENERAL, DAILY_TARGET_SECOND);
+            final int weeklyT = UserConfig.userGInt(GENERAL, WEEKLY_TARGET_DAYS, 1, 7, true);
+            final ValueMarker marker = new ValueMarker((t/3600f)*4.348f*weeklyT, fg, new BasicStroke(
+                    1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
+                    1.0f, new float[] {6.0f, 6.0f}, 0.0f));
+
+            marker.setLabel("Monthly Target");
+            marker.setLabelPaint(new Color(Main.currentTheme.background));
+            marker.setLabelAnchor(RectangleAnchor.TOP_RIGHT);
+            marker.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT);
+            marker.setLabelOffset(new RectangleInsets(0, 0, 13, 4));
+            marker.setLabelFont(new Font("Tahoma", 0, 11));
+            marker.setLabelBackgroundColor(fg);
+
+            plot.addRangeMarker(marker);
+        }
+
+        plot.setDataset(1, plot.getDataset(0));
+        plot.setRenderer(1, plot.getRenderer(0));
+
+        plot.setDataset(0, totalSet);
+        plot.setRenderer(0, new LineAndShapeRenderer());
+        plot.getRenderer(0).setDefaultToolTipGenerator(new StandardCategoryToolTipGenerator());
+
+        return x;
     }
 
     public static JFreeChart createDayBarChart(ChartData dayChart){
-        return createStackedBarChart("Hour of day", "Time spent (minute)",
+        JFreeChart chart = createStackedBarChart("", "Time spent (minute)",
                 dayChart.getDataset(), dayChart.getMeta());
+        ((CategoryPlot)chart.getPlot()).getRangeAxis().setRange(0,60);
+        return chart;
+    }
+
+    public static JFreeChart createDayProgressChart(ChartData dayChart, boolean today){
+//        HashMap<String,Float> other = new HashMap<>();
+        float other = 0;
+        HashMap<String,Float> productive = new HashMap<>();
+        for (Object x:dayChart.getDataset().getRowKeys()) {
+            if(!x.equals("")){
+                if(dayChart.getMeta().get(x).equals(CONST_OTHER_GRAY) ||
+                        dayChart.getMeta().get(x) instanceof StripedPaint){
+                    for (Object y:dayChart.getDataset().getColumnKeys()){
+                        Float value = (Float)dayChart.getDataset().getValue((Comparable)x, (Comparable)y);
+                        if(value!=null){
+//                            other.put((String)x, other.getOrDefault((String)x, 0f)+value);
+                            other += value;
+                        }
+                    }
+                } else {
+                    for (Object y:dayChart.getDataset().getColumnKeys()){
+                        Float value = (Float)dayChart.getDataset().getValue((Comparable)x, (Comparable)y);
+                        if(value!=null){
+                            productive.put((String)x, productive.getOrDefault((String)x, 0f)+value);
+                        }
+                    }
+                }
+            }
+        }
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        float prod = 0;
+        for(String x:productive.keySet()){
+            dataset.addValue((Number)(productive.get(x)/60f), x, "");
+            prod += productive.get(x);
+        }
+        prod /= 60f;
+        other /= 60f;
+//        for(String x:other.keySet()){
+//            dataset.addValue((Number)(other.get(x)/60f), x, 0);
+//        }
+        float idle, available;
+        if(today){
+            float now = LocalTime.now().toSecondOfDay()/3600f;
+            idle = Math.max(now-other-prod,0);
+            available = Math.max(24f-now-Math.max(8f-idle,0),0);
+//            sleep = Math.min(8f-idle,8f);
+        } else {
+            idle = Math.max(24f-other-prod,0);
+            available = 0;
+//            sleep = Math.min(24f-other-prod,8f);
+        }
+        dataset.addValue((Number)available, "Available", "");
+        dataset.addValue((Number)other, "Other", "");
+        dataset.addValue((Number)idle, "Idle", "");
+//        dataset.addValue((Number)sleep, "Sleep", "");
+        ChartMeta colors = dayChart.getMeta();
+        colors.put("Idle", CONST_IDLE_PAINT);
+        colors.put("Available", CONST_LEFT_PAINT);
+//        colors.put("Sleep", trans);
+//        dataset.addValue((Number)(24f-8-prod), "Other", 0);
+        JFreeChart chart = createStackedBarChart("", "", "", dataset, colors,
+                PlotOrientation.VERTICAL, false, true, false, false, false);
+        ((CategoryPlot)chart.getPlot()).getRangeAxis().setRange(0, 24);
+
+        final BasicStroke thinStroke = new BasicStroke( 2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
+                1.0f, null, 0.0f);
+
+        final int target = UserConfig.userGInt(GENERAL, DAILY_TARGET_SECOND);
+        final Color fg = new Color(Main.currentTheme.foreground | 0x88000000, true);
+        final ValueMarker marker = new ValueMarker(target/3600f, Color.black, thinStroke);
+        ((CategoryPlot)chart.getPlot()).addRangeMarker(marker);
+
+//        if(today) {
+//        final BasicStroke thickStroke = new BasicStroke( 4.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
+//                1.0f, null, 0.0f);
+//            LocalTime now = LocalTime.now();
+//            final ValueMarker timeMarker = new ValueMarker(now.toSecondOfDay()/3600f, gut, thickStroke);
+//            timeMarker.setLabelAnchor(RectangleAnchor.TOP);
+//            ((CategoryPlot)chart.getPlot()).addRangeMarker(timeMarker);
+//        }
+
+        ((CategoryPlot)chart.getPlot()).getDomainAxis().setUpperMargin(0);
+        ((CategoryPlot)chart.getPlot()).getDomainAxis().setLowerMargin(0);
+        ((CategoryPlot)chart.getPlot()).setRangeGridlinesVisible(false);
+        chart.getPlot().setBackgroundAlpha(0);
+        chart.setBackgroundImage(zzzImg);
+        chart.setBackgroundImageAlpha(1);
+        return chart;
     }
 
     public static JFreeChart createStackedBarChart(String domainAxisLabel, String rangeAxisLabel, DefaultCategoryDataset dataset, ChartMeta colors){
         return createStackedBarChart("", domainAxisLabel, rangeAxisLabel,
-                dataset, colors, PlotOrientation.VERTICAL, true, true, false);
+                dataset, colors, PlotOrientation.VERTICAL, true, true, false, true, true);
     }
 
     private static JFreeChart createStackedBarChart(String title, String domainAxisLabel, String rangeAxisLabel,
                                                    CategoryDataset dataset, ChartMeta colors, PlotOrientation orientation,
-                                                   boolean showLegend, boolean tooltips, boolean urls) {
+                                                   boolean showLegend, boolean tooltips, boolean urls, boolean labels, boolean shadow) {
 
         CategoryAxis categoryAxis = new CategoryAxis(domainAxisLabel);
         ValueAxis valueAxis = new NumberAxis(rangeAxisLabel);
         StackedBarRenderer renderer = new StackedBarRenderer();
+        valueAxis.setTickLabelsVisible(labels);
+        categoryAxis.setTickLabelsVisible(labels);
         if (tooltips) renderer.setDefaultToolTipGenerator(new StandardCategoryToolTipGenerator());
         if (urls) renderer.setDefaultItemURLGenerator(new StandardCategoryURLGenerator());
         CategoryPlot plot = new CategoryPlot(dataset, categoryAxis, valueAxis, renderer);
         plot.setOrientation(orientation);
         JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, showLegend);
         renderer.setBarPainter(new SherlockBarPainter());
-        renderer.setShadowVisible(true);
+        renderer.setShadowVisible(shadow);
         int i =0;
         for (Object x:dataset.getRowKeys()) {
             if(x.equals("")){
@@ -228,11 +397,19 @@ public class Charts {
         valueAxis.setLabelPaint(fg);
         valueAxis.setTickLabelFont(regularFont);
 
-        LegendTitle legend = chart.getLegend();
-        legend.setBackgroundPaint(leanToBg);
-        legend.setItemPaint(fg);
-        legend.setFrame(new LineBorder(fg, new BasicStroke(), new RectangleInsets()));
-        legend.setItemFont(regularFont);
+        if (showLegend) {
+            LegendTitle legend = chart.getLegend();
+            legend.setBackgroundPaint(leanToBg);
+            legend.setItemPaint(fg);
+            legend.setFrame(new LineBorder(fg, new BasicStroke(), new RectangleInsets()));
+            if (dataset.getRowCount() > 8) {
+                legend.setItemFont(smallFont);
+                legend.setItemLabelPadding(new RectangleInsets(-1, 1, -1, 2));
+                legend.setLegendItemGraphicPadding(new RectangleInsets(-1, 2, -1, 1));
+            } else {
+                legend.setItemFont(regularFont);
+            }
+        }
 
         plot.setRangeGridlinePaint(leanToFg);
         plot.setBackgroundPaint(leanToBg);

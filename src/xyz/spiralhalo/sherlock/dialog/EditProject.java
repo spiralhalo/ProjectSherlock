@@ -28,9 +28,7 @@ public class EditProject extends JDialog {
     private JTextArea fieldTag;
     private JComboBox comboCat;
     private JLabel labelWarning;
-    private JLabel labelCatLabel;
     private JLabel labelNameLabel;
-    private JLabel labelTagsLabel;
     private JLabel helpIcon;
     private JPanel panelTag;
     private JComboBox comboTagType;
@@ -38,6 +36,11 @@ public class EditProject extends JDialog {
     private JCheckBox cbWhitelist;
     private JTextField fieldWhitelist;
     private JButton btnBrowseExe;
+    private JSpinner finSpinnerProfit;
+    private JLabel finLblProfit;
+    private JLabel finLblCurr;
+    private JPanel finHeader;
+    private JPanel finPanelProfit;
     private Mode mode;
     private Project p;
     private ProjectList projectList;
@@ -52,6 +55,19 @@ public class EditProject extends JDialog {
     public EditProject(JFrame owner, Project project, ProjectList projectList, boolean utilityTag){
         this(owner, Mode.EDIT, project, projectList, utilityTag);
     }
+
+    private static final String[] REV_TYPE_S = new String[]{
+            "Total (Calculated at finish)",
+            "Hourly (Worked hours only)",
+            "Monthly (Calculated at end of month)"
+    };
+
+    private static final int[] REV_TYPE_I = new int[]{
+            0,
+            1,
+            2,
+            3
+    };
 
     private EditProject getThis(){return this;}
 
@@ -76,9 +92,10 @@ public class EditProject extends JDialog {
 //                    new Help(getThis(), "tag types", "help_tag_type.html").setVisible(true);
 //                }
 //            });
-            labelNameLabel.setText("Activity name");
-            labelTagsLabel.setText("Activity keywords (comma-separated)");
+            labelNameLabel.setText("Activity name:");
             comboTagType.setModel(new DefaultComboBoxModel<>(new String[]{UtilityTag.PRODUCTIVE_LABEL, UtilityTag.NON_PRODUCTIVE_LABEL}));
+            finHeader.setVisible(false);
+            finPanelProfit.setVisible(false);
         } else {
             panelTag.setVisible(false);
         }

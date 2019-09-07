@@ -93,8 +93,8 @@ public class ChartBuilder<T extends Temporal> {
         final ChartMeta meta = new ChartMeta();
         final Locale locale = Locale.getDefault();
         if(inclTotal) meta.put(TOTAL, ColorUtil.white);
-        meta.put(OTHER, ColorUtil.gray);
-        meta.put(DELETED, ColorUtil.med_red_gray);
+        meta.put(OTHER, ColorUtil.CONST_OTHER_GRAY);
+        meta.put(DELETED, ColorUtil.CONST_DELETED_RED_GRAY);
         final int[] deleted = new int[type.numUnits(date)];
         final int[] other = new int[type.numUnits(date)];
         final HashMap<Long,Integer>[] nonProds = new HashMap[type.numUnits(date)];
@@ -114,7 +114,7 @@ public class ChartBuilder<T extends Temporal> {
                             meta.putIfAbsent(p.getName(), new Color(p.getColor()));
                             dataset.setValue((Number) (s / type.subunitNormalizer()), p.getName(), unitLabel);
                         } else {
-                            meta.putIfAbsent(p.getName(), new StripedPaint(new Color(p.getColor()), ColorUtil.gray));
+                            meta.putIfAbsent(p.getName(), new StripedPaint(new Color(p.getColor()), ColorUtil.CONST_OTHER_GRAY));
                             if(nonProds[i] == null){
                                 nonProds[i] = new HashMap<>();
                             }

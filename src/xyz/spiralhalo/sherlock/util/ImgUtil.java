@@ -34,6 +34,14 @@ public class ImgUtil {
         }
     }
 
+    public static Icon autoColorIcon(Icon source) {
+        if(Main.currentTheme.foreground!=0 && source instanceof ImageIcon) {
+            return createTintedIcon(((ImageIcon) source).getImage(), Main.currentTheme.foreground);
+        } else {
+            return source;
+        }
+    }
+
     public static ResizableIcon createResizableIcon(String path, int initW, int initH) {
         try {
             return ImageWrapperResizableIcon.getIcon(loadImage(path), new Dimension(initW, initH));
