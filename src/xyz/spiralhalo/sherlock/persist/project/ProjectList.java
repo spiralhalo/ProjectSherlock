@@ -13,8 +13,15 @@ import java.util.TreeSet;
 public class ProjectList implements Serializable {
     public static final long serialVersionUID = 1L;
 
+    // DEFINED APPENDICES
     public static transient final String USE_EXE = "use_exe";
-    public static transient final String EXELIST = "exe_list";
+    public static transient final String EXE_LIST = "exe_list";
+    public static transient final String USE_REV_TRACKING = "use_rev_tracking";
+    public static transient final String USE_REV_HOURLY = "use_rev_hourly";
+    public static transient final String USE_REV_FIXED = "use_rev_fixed";
+    public static transient final String REV_HOURLY = "rev_hourly";
+    public static transient final String REV_FIXED = "rev_fixed";
+
 
     private final ArrayList<Project> activeProjects;
     private final ArrayList<Project> finishedProjects;
@@ -53,9 +60,9 @@ public class ProjectList implements Serializable {
     }
 
     @ProjectsOnly
-    public void editProject(Project p, String name, String newCategory, String oldCategory, String tags){
+    public void editProject(Project p, String name, String newCategory, String oldCategory, String tags, int ptype){
         assureProject(p, "editProject");
-        p.edit(name, newCategory, tags);
+        p.edit(name, newCategory, tags, ptype);
         save(this);
         resetCats(newCategory, oldCategory);
     }
@@ -88,8 +95,8 @@ public class ProjectList implements Serializable {
         }
     }
 
-    public void editUtilityTag(UtilityTag p, String name, String newCategory, String oldCategory, String tags, boolean productive){
-        p.edit(name, newCategory, tags, productive);
+    public void editUtilityTag(UtilityTag p, String name, String newCategory, String oldCategory, String tags, int ptype){
+        p.edit(name, newCategory, tags, ptype);
         saveUtilityTags(this);
         resetCats(newCategory, oldCategory);
     }
@@ -115,7 +122,7 @@ public class ProjectList implements Serializable {
                     }
                 }
                 Boolean useExe = p.getAppendix(USE_EXE, Boolean.class);
-                String[] exeList = p.getAppendix(EXELIST, String[].class);
+                String[] exeList = p.getAppendix(EXE_LIST, String[].class);
                 boolean exeOK = useExe == null || exeList == null || !useExe || exeList.length == 0;
                 if(!exeOK){
                     for (String exe : exeList) {
@@ -169,6 +176,11 @@ public class ProjectList implements Serializable {
         T moving = list.get(pos);
         list.remove(pos);
         list.add(newPos, moving);
+        if(list.equals(activeProjects) || list.equals(finishedProjects)) {
+            save(this);
+        } else if (list.equals(getUtilityTags())){
+            saveUtilityTags(this);
+        }
         return moving.getHash();
     }
 

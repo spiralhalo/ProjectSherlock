@@ -44,4 +44,8 @@ public class CacheMgr {
         }
         return x;
     }
+
+    public void forceDiskCacheCleanup() {
+        CacheHandler.forceDiskCacheCleanup();
+    }
 }

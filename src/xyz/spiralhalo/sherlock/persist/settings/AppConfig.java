@@ -7,7 +7,7 @@ public class AppConfig {
     private static final String KEY_THEME = "THEME";
 
     public enum HMSMode{
-        COLON("12:45:30"),
+        COLON("12:45 30"),
         STRICT("12h 45m 30s");
         public String text;
         HMSMode(String text){this.text=text;}
@@ -48,7 +48,7 @@ public class AppConfig {
         REFRESH_TIMEOUT
     }
 
-    public static HMSMode defaultHMSMode() {return HMSMode.COLON;}
+    public static HMSMode defaultHMSMode() {return HMSMode.STRICT;}
 
     public static HMSMode appHMS(){
         return HMSMode.valueOf(IniHandler.getInstance().get(NODE, KEY_HMS_MODE, defaultHMSMode().name()));

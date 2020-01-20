@@ -31,4 +31,18 @@ class CacheHandler {
         }
         return null;
     }
+
+    static void forceDiskCacheCleanup() {
+        File cacheDir = new File(Application.getCacheDir());
+        if(cacheDir.exists()) {
+            File[] cacheFiles = cacheDir.listFiles();
+            if (cacheFiles != null) {
+                for (File file : cacheFiles) {
+                    if (!file.getName().contains(".")) {
+                        file.delete();
+                    }
+                }
+            }
+        }
+    }
 }

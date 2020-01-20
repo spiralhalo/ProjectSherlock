@@ -4,23 +4,24 @@ import java.io.Serializable;
 
 public class UtilityTag extends Project implements Serializable {
     public static final long serialVersionUID = 1L;
-    public static final String PRODUCTIVE_LABEL = "Productive";
-    public static final String NON_PRODUCTIVE_LABEL = "Non-productive";
 
     private boolean productive;
 
-    public UtilityTag(String name, String category, String tags, boolean productive) {
-        super(name, category, tags, productive);
-        this.productive = productive;
+    public UtilityTag(String name, String category, String tags, int ptype) {
+        super(name, category, tags, ptype);
+        this.productive = (ptype == PTYPE_PRODUCTIVE);
     }
 
     @Override
     public boolean isProductive() {
+        if(_appendix().containsKey(APPEND_PTYPE)){
+            return ((int) _appendix().get(APPEND_PTYPE) == PTYPE_PRODUCTIVE);
+        }
         return productive;
     }
-
-    public void edit(String name, String category, String tags, boolean productive){
-        super.edit(name, category, tags, productive);
-        this.productive = productive;
-    }
+//
+//    public void edit(String name, String category, String tags, int productive){
+//        super.edit(name, category, tags, productive);
+//        this.productive = productive;
+//    }
 }

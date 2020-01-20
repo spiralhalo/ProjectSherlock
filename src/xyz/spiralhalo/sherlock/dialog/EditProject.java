@@ -12,7 +12,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 
-import static xyz.spiralhalo.sherlock.persist.project.ProjectList.EXELIST;
+import static xyz.spiralhalo.sherlock.persist.project.ProjectList.EXE_LIST;
 import static xyz.spiralhalo.sherlock.persist.project.ProjectList.USE_EXE;
 
 public class EditProject extends JDialog {
@@ -36,11 +36,14 @@ public class EditProject extends JDialog {
     private JCheckBox cbWhitelist;
     private JTextField fieldWhitelist;
     private JButton btnBrowseExe;
-    private JSpinner finSpinnerProfit;
-    private JLabel finLblProfit;
-    private JLabel finLblCurr;
-    private JPanel finHeader;
-    private JPanel finPanelProfit;
+    private JCheckBox checkRevTracking;
+    private JSpinner spinnerFixed;
+    private JCheckBox checkHourly;
+    private JCheckBox checkFixed;
+    private JLabel lblRevNA;
+    private JSpinner spinnerHourly;
+    private JComboBox comboCurrency;
+    private JPanel panelRevenue;
     private Mode mode;
     private Project p;
     private ProjectList projectList;
@@ -81,36 +84,40 @@ public class EditProject extends JDialog {
         this.p=project;
         this.projectList = projectList;
 
-        if(utilityTag){
-            panelTag.setVisible(true);
-//            if(Main.currentTheme.foreground != 0){
-//                helpIcon.setIcon(ImgUtil.createTintedIcon(((ImageIcon)helpIcon.getIcon()).getImage(), Main.currentTheme.foreground));
-//            }
-//            helpIcon.addMouseListener(new MouseAdapter() {
-//                @Override
-//                public void mouseClicked(MouseEvent e) {
-//                    new Help(getThis(), "tag types", "help_tag_type.html").setVisible(true);
-//                }
-//            });
+        if(utilityTag) {
             labelNameLabel.setText("Activity name:");
-            comboTagType.setModel(new DefaultComboBoxModel<>(new String[]{UtilityTag.PRODUCTIVE_LABEL, UtilityTag.NON_PRODUCTIVE_LABEL}));
-            finHeader.setVisible(false);
-            finPanelProfit.setVisible(false);
+            comboTagType.setModel(new DefaultComboBoxModel<>(new String[]{Project.PRODUCTIVE_LABEL + " (Work)", Project.RECREATIONAL_LABEL + " (Break)", Project.NON_PRODUCTIVE_LABEL}));
         } else {
-            panelTag.setVisible(false);
+            comboTagType.setModel(new DefaultComboBoxModel<>(new String[]{Project.PRODUCTIVE_LABEL + " (Work)", Project.RECREATIONAL_LABEL + " (Break)"}));
         }
+//        if(utilityTag){
+//            panelTag.setVisible(true);
+/////*            if(Main.currentTheme.foreground != 0){
+////                helpIcon.setIcon(ImgUtil.createTintedIcon(((ImageIcon)helpIcon.getIcon()).getImage(), Main.currentTheme.foreground));
+////            }
+////            helpIcon.addMouseListener(new MouseAdapter() {
+////                @Override
+////                public void mouseClicked(MouseEvent e) {
+////                    new Help(getThis(), "tag types", "help_tag_type.html").setVisible(true);
+////                }
+////            });*/
+//            labelNameLabel.setText("Activity name:");
+//            comboTagType.setModel(new DefaultComboBoxModel<>(new String[]{UtilityTag.PRODUCTIVE_LABEL, UtilityTag.NON_PRODUCTIVE_LABEL}));
+//        } else {
+//            panelTag.setVisible(false);
+//        }
         comboCat.setModel(new DefaultComboBoxModel<>(projectList.getCategories().toArray(new String[0])));
 
         if(mode == Mode.EDIT){
             fieldName.setText(p.getName());
             comboCat.setSelectedItem(p.getCategory());
             fieldTag.setText(String.join(", ",p.getTags()));
-            if(p.isUtilityTag()) {
-                comboTagType.setSelectedIndex(p.isProductive() ? 0 : 1);
-            }
+            comboTagType.setSelectedIndex(p.getPtype());
+//            if(p.isUtilityTag()) {
+//            }
             cbWhitelist.setSelected(p.getAppendix(USE_EXE, Boolean.class) != null && p.getAppendix(USE_EXE, Boolean.class));
-            if(p.getAppendix(EXELIST, String[].class) != null){
-                fieldWhitelist.setText(String.join(", ", p.getAppendix(EXELIST, String[].class)));
+            if(p.getAppendix(EXE_LIST, String[].class) != null){
+                fieldWhitelist.setText(String.join(", ", p.getAppendix(EXE_LIST, String[].class)));
             }
         }
 
@@ -142,6 +149,7 @@ public class EditProject extends JDialog {
         setMinimumSize(contentPane.getMinimumSize());
         getRootPane().setDefaultButton(buttonOK);
         pack();
+        setMinimumSize(getSize());
         setLocationRelativeTo(owner);
 
         btnBrowseExe.addActionListener(e -> onBrowse());
@@ -212,18 +220,18 @@ public class EditProject extends JDialog {
     private void onOK() {
         Project x;
 
-        //create or set project
+        //create (NEW) or set project (EDIT)
         if(mode == Mode.EDIT){
             x = p;
         } else {
             if (utilityTag) {
-                x = new UtilityTag(fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), fieldTag.getText(), comboTagType.getSelectedIndex() == 0);
+                x = new UtilityTag(fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), fieldTag.getText(), comboTagType.getSelectedIndex());
             } else {
-                x = new Project(fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), fieldTag.getText());
+                x = new Project(fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), fieldTag.getText(), comboTagType.getSelectedIndex());
             }
         }
 
-        //alter project
+        //alter project (NEW and EDIT)
         if(cbWhitelist.isSelected()){
             x.putAppendix(USE_EXE, true);
         } else if(x.getAppendix(USE_EXE, Boolean.class) != null){
@@ -234,16 +242,16 @@ public class EditProject extends JDialog {
             for (int i = 0; i < exe.length; i++) {
                 exe[i] = exe[i].trim().toLowerCase();
             }
-            x.putAppendix(EXELIST, exe);
+            x.putAppendix(EXE_LIST, exe);
         }
 
-        //save project
+        //add project (NEW) or save edited project (EDIT)
         if(mode == Mode.EDIT){
             String category = p.getCategory();
             if(utilityTag){
-                projectList.editUtilityTag((UtilityTag)p, fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), category, fieldTag.getText(), comboTagType.getSelectedIndex()==0);
+                projectList.editUtilityTag((UtilityTag)p, fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), category, fieldTag.getText(), comboTagType.getSelectedIndex());
             } else {
-                projectList.editProject(p, fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), category, fieldTag.getText());
+                projectList.editProject(p, fieldName.getText(), String.valueOf(comboCat.getSelectedItem()), category, fieldTag.getText(), comboTagType.getSelectedIndex());
             }
         } else {
             if (utilityTag) {

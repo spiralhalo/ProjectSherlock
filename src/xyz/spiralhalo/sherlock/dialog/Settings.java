@@ -214,7 +214,7 @@ public class Settings extends JDialog {
         // <start> EDITABLE
 
         // edit for NEW COMBO BOXES
-        comboHMSMode.setModel(new DefaultComboBoxModel<>(new String[]{HMSMode.COLON.text, HMSMode.STRICT.text}));
+        comboHMSMode.setModel(new DefaultComboBoxModel<>(new String[]{HMSMode.STRICT.text, HMSMode.COLON.text}));
         String[] themes = new String[Theme.values().length];
         for (Theme x:Theme.values()) { themes[x.x] = x.label; }
         comboTheme.setModel(new DefaultComboBoxModel<>(themes));
@@ -259,7 +259,7 @@ public class Settings extends JDialog {
                 i->userSInt(GENERAL, WEEKLY_TARGET_DAYS, i), userDInt(GENERAL, WEEKLY_TARGET_DAYS));
 
         String view = "view";
-        bind(comboHMSMode, view, ()->appHMS()==HMSMode.COLON?0:1, i->appHMS(i==0?HMSMode.COLON:HMSMode.STRICT), defaultHMSMode()==HMSMode.COLON?0:1);
+        bind(comboHMSMode, view, ()->appHMS()==HMSMode.COLON?1:0, i->appHMS(i==1?HMSMode.COLON:HMSMode.STRICT), defaultHMSMode()==HMSMode.COLON?1:0);
         bind(radNewRating, view, ()->!userGBool(VIEW, OLD_RATING), b->userSBool(VIEW, OLD_RATING, !b), !userDBool(VIEW, OLD_RATING));
         bind(radOldRating, view, ()->userGBool(VIEW, OLD_RATING), b->userSBool(VIEW, OLD_RATING, b), userDBool(VIEW, OLD_RATING));
         bind(checkShowAbove100, view, ()->userGBool(VIEW, EXCEED_100_PERCENT), b->userSBool(VIEW, EXCEED_100_PERCENT, b), userDBool(VIEW, EXCEED_100_PERCENT));

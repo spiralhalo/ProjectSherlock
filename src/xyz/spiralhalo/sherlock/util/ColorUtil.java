@@ -25,6 +25,7 @@ public class ColorUtil {
 //    public static StripedPaint CONST_LEFT_PAINT = new StripedPaint(gray,new Color(0,64,118, 127));
     public static Color CONST_IDLE_PAINT = new Color(160,160,160, 127);
     public static Color CONST_LEFT_PAINT = new Color(87,187,138, 160);
+    public static Color CONST_BREAK_GREEN = new Color(0,187,10);
     public static Color CONST_OTHER_GRAY = gray;
     public static Color CONST_DELETED_RED_GRAY = new Color(210,190,190);
 

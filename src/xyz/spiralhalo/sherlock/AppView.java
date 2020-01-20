@@ -82,6 +82,9 @@ public class AppView implements AppViewAccessor {
     private JButton btnDayNote;
     private JButton btnDayAudit;
     private JPanel pnlDProgress;
+    private JLabel lDBreaktime;
+    private JButton btnDeepRefresh;
+    private JProgressBar pbBreakRatio;
     private JCommandButton cmdNew;
     private JCommandButton cmdEdit;
     private JCommandButton cmdDelete;
@@ -115,7 +118,7 @@ public class AppView implements AppViewAccessor {
                     btnBookmarks, btnInbox, btnRefresh);
             control.setToolbar(btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnUp, btnDown, btnSettings, tabs, tabr);
             control.setExtras(btnBookmarks, btnFocus);
-            control.setRefresh(btnRefresh);
+            control.setRefresh(btnRefresh, btnDeepRefresh);
         } else {
             toolbarMain.removeAll();
             cmdNew = new JCommandButton("New");
@@ -371,7 +374,15 @@ public class AppView implements AppViewAccessor {
         // Create rating label
         int t = UserConfig.userGInt(UserNode.GENERAL, UserInt.DAILY_TARGET_SECOND);
         lDLogged.setText(String.format("Logged: %s", FormatUtil.hms(meta.getLogDur())));
-        lDWorktime.setText(String.format("Project: %s", FormatUtil.hms(meta.getWorkDur())));
+        lDWorktime.setText(String.format("Work: %s", FormatUtil.hms(meta.getWorkDur())));
+        if(meta.getBreakDur() > 0){
+            lDBreaktime.setVisible(true);
+            lDBreaktime.setText(String.format("Break: %s", FormatUtil.hms(meta.getBreakDur())));
+//            pbBreakRatio.setValue(meta.getWorkDur()*100/(meta.getWorkDur()+meta.getBreakDur()));
+        } else {
+//            pbBreakRatio.setValue(100);
+            lDBreaktime.setVisible(false);
+        }
         if (UserConfig.userGBool(UserNode.VIEW, UserInt.OLD_RATING)) {
             int r = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < t ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / t);
             if(!UserConfig.userGBool(UserNode.VIEW, UserInt.EXCEED_100_PERCENT) && r > 100) r = 100;

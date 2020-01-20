@@ -31,7 +31,7 @@ public class FormatUtil {
         int s = seconds % 60;
         int m = (seconds / 60) % 60;
         int h = seconds / 3600;
-        return String.format("%02d:%02d:%02d",h,m,s);
+        return String.format("%02d:%02d %02d",h,m,s);
     }
 
     public static String hmsStrict(int seconds) {

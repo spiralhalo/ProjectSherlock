@@ -107,28 +107,37 @@ public class ChartBuilder<T extends Temporal> {
                     Project p = projectList.findByHash(l);
 
                     boolean productive;
+                    boolean recreational;
                     int s = units[i].get(l);
                     if (p != null) {
                         productive = p.isProductive();
+                        recreational = p.isRecreational();
                         if(productive) {
                             meta.putIfAbsent(p.getName(), new Color(p.getColor()));
                             dataset.setValue((Number) (s / type.subunitNormalizer()), p.getName(), unitLabel);
                         } else {
-                            meta.putIfAbsent(p.getName(), new StripedPaint(new Color(p.getColor()), ColorUtil.CONST_OTHER_GRAY));
+                            if (recreational) {
+                                meta.putIfAbsent(p.getName(), new StripedPaint(new Color(p.getColor()), ColorUtil.CONST_BREAK_GREEN));
+                            } else {
+                                meta.putIfAbsent(p.getName(), new StripedPaint(new Color(p.getColor()), ColorUtil.CONST_OTHER_GRAY));
+                            }
                             if(nonProds[i] == null){
                                 nonProds[i] = new HashMap<>();
                             }
                             nonProds[i].put(p.getHash(), s + nonProds[i].getOrDefault(p.getHash(), 0));
                         }
                     } else if (l == -1 || !productiveMap.getOrDefault(l, false)) {
+                        recreational = false;
                         productive = false;
                         other[i] += s;
                     } else {
+                        recreational = false;
                         productive = productiveMap.getOrDefault(l, false);
                         deleted[i] += s;
                     }
 
                     meta.addWorkDur(productive ? s : 0);
+                    meta.addBreakDur(recreational ? s : 0);
                     meta.addLogDur(s);
                     if (inclTotal) total += s;
                 }

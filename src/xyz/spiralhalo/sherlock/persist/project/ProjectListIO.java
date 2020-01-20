@@ -48,7 +48,7 @@ public class ProjectListIO {
         ProjectList n = new ProjectList();
         if(x instanceof projectlogger.ProjectList){
             for (projectlogger.Project p:((projectlogger.ProjectList)x).getProjects()) {
-                Project m = new Project(p.getSupertag()+"/"+p.getTag(),p.getCategory(),p.getTag());
+                Project m = new Project(p.getSupertag()+"/"+p.getTag(),p.getCategory(),p.getTag(),Project.PTYPE_PRODUCTIVE);
                 m.setStartDate(p.getStartDate());
                 if(p.isFinished()){
                     n.getFinishedProjects().add(m);
@@ -60,7 +60,7 @@ public class ProjectListIO {
             }
         } else if(x instanceof projectlogger.persist.ProjectList){
             for (projectlogger.persist.Project p:((projectlogger.persist.ProjectList)x).getProjects()) {
-                Project m = new Project(p.getGroup()+"/"+p.getTag(),p.getCategory(),p.getTag());
+                Project m = new Project(p.getGroup()+"/"+p.getTag(),p.getCategory(),p.getTag(),Project.PTYPE_PRODUCTIVE);
                 m.setStartDate(p.getStartDate());
                 if(p.isFinished()){
                     n.getFinishedProjects().add(m);

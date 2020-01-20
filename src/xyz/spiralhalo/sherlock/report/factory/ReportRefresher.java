@@ -24,7 +24,7 @@ public class ReportRefresher extends AsyncTask<Boolean> {
     private final CacheMgr cache;
     private final ProjectList projectList;
     private final boolean forceReconstruct;
-    private final boolean deleteUnused;
+    private final boolean forceDelete;
     private final ZoneId z;
     private Boolean result = false;
 
@@ -36,12 +36,15 @@ public class ReportRefresher extends AsyncTask<Boolean> {
         this.cache = cache;
         this.projectList = projectList;
         this.forceReconstruct = forceReconstruct;
-        this.deleteUnused = deleteUnused;
+        this.forceDelete = deleteUnused;
         this.z = ZoneId.systemDefault();
     }
 
     @Override
     protected void doRun() throws Exception {
+        if(forceDelete){
+            cache.forceDiskCacheCleanup();
+        }
         File recordFile = new File(Application.getSaveDir(), DefaultRecordWriter.RECORD_FILE);
         try(RecordFileSeek seeker = new RecordFileSeek(recordFile, false, cache)){
             final LocalDateTime earliest = seeker.getCurrentTimestamp().atZone(z).toLocalDateTime();
@@ -111,9 +114,9 @@ public class ReportRefresher extends AsyncTask<Boolean> {
             }
             AllReportRow x;
             if(p.isUtilityTag()) {
-                x = new AllReportRow(p.getHash(), p.getColor(), p.toString(), p.isProductive(), day, seconds);
+                x = new AllReportRow(p.getHash(), p.getColor(), p.getName(), p.getCategory(), p.getPtype(), day, seconds);
             } else {
-                x = new AllReportRow(p.getHash(), p.getColor(), p.toString(),
+                x = new AllReportRow(p.getHash(), p.getColor(), p.getName(), p.getCategory(), p.getPtype(),
                         LocalDateTime.from(p.getStartDate()),
                         (p.isFinished() ? LocalDateTime.from(p.getFinishedDate()) : null),
                         day, seconds);

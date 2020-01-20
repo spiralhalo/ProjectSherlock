@@ -78,6 +78,7 @@ public class AppControl implements ActionListener {
         A_DOWN,
         A_SETTINGS,
         A_REFRESH,
+        A_DEEP_REFRESH,
         A_EXTRA_FOCUS,
         A_EXTRA_BOOKMARKS,
         A_DAY_NOTE,
@@ -374,26 +375,31 @@ public class AppControl implements ActionListener {
 
     private void createPopupRefresh(JCommandButton cmdRefresh){
         JCommandMenuButton rNorm = new JCommandMenuButton("Refresh", ImgUtil.autoColorIcon("refresh.png", 16, 16));
-        JCommandMenuButton rForc = new JCommandMenuButton("Full refresh", null);
-        JCommandMenuButton rAdvn = new JCommandMenuButton("Advanced...", null);
+        JCommandMenuButton rForc = new JCommandMenuButton("Deep refresh", null);
+//        JCommandMenuButton rAdvn = new JCommandMenuButton("Advanced...", null);
 
         rNorm.setName(Action.A_REFRESH.name());
         rNorm.addActionListener(this);
+        rForc.setName(Action.A_DEEP_REFRESH.name());
+        rForc.addActionListener(this);
 
         JCommandPopupMenu menu = new JCommandPopupMenu();
         menu.addMenuButton(rNorm);
         menu.addMenuButton(rForc);
-        menu.addMenuButton(rAdvn);
+//        menu.addMenuButton(rAdvn);
         cmdRefresh.setPopupCallback(jCommandButton -> menu);
         cmdRefresh.setCommandButtonKind(JCommandButton.CommandButtonKind.ACTION_AND_POPUP_MAIN_POPUP);
     }
 
-    public void setRefresh(JButton button){
+    public void setRefresh(JButton button, JButton deepButton){
         button.setName(Action.A_REFRESH.name());
         button.addActionListener(this);
+        deepButton.setName(Action.A_DEEP_REFRESH.name());
+        deepButton.addActionListener(this);
     }
 
     public void setRefresh(JCommandButton button){
+        createPopupRefresh(button);
         button.setName(Action.A_REFRESH.name());
         button.addActionListener(this);
     }
@@ -501,6 +507,9 @@ public class AppControl implements ActionListener {
                 break;
             case A_REFRESH:
                 refresh();
+                break;
+            case A_DEEP_REFRESH:
+                refresh(true);
                 break;
             case A_EXTRA_BOOKMARKS:
                 Project p = projectList.findByHash(view.selected());
@@ -623,8 +632,17 @@ public class AppControl implements ActionListener {
     }
 
     private void refresh(){
+        refresh(false);
+    }
+
+    private void refresh(boolean forceReconstructAndDelete){
+        if(forceReconstructAndDelete && JOptionPane.showConfirmDialog(view.frame(),
+                "Use deep refresh to expunge discrepancy from older charts. \nPerform deep refresh?",
+                        "Confirmation", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION){
+            return;
+        }
         tracker.flushRecordBuffer();
-        Loader.execute("refresh", new ReportRefresher(cache, projectList), this::refreshCB,
+        Loader.execute("refresh", new ReportRefresher(cache, projectList, forceReconstructAndDelete, forceReconstructAndDelete), this::refreshCB,
                 view.getToShowOnRefresh(), view.toHideOnRefresh());
     }
 

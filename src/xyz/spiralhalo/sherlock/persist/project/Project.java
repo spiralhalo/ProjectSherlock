@@ -11,6 +11,13 @@ import java.util.Random;
 
 public class Project implements Serializable {
     public static final long serialVersionUID = 1L;
+    public static final int PTYPE_PRODUCTIVE = 0;
+    public static final int PTYPE_RECREATIONAL = 1;
+    public static final int PTYPE_MISC = 2;
+    protected static final String APPEND_PTYPE = "productivity_type";
+    public static final String PRODUCTIVE_LABEL = "Productive";
+    public static final String NON_PRODUCTIVE_LABEL = "Misc.";
+    public static final String RECREATIONAL_LABEL = "Recreational";
 
     private long hash;
     private String name;
@@ -21,18 +28,19 @@ public class Project implements Serializable {
     private boolean isFinished;
     private final HashMap<String, Object> appendix;
 
-    public Project(String name, String category, String tags) {
-        this(name, category, tags, true);
-    }
+//    public Project(String name, String category, String tags) {
+//        this(name, category, tags, true);
+//    }
 
-    protected Project(String name, String category, String tags, boolean productive) {
+    public Project(String name, String category, String tags, int ptype) {
         this.hash = System.currentTimeMillis() ^ ((long)tags.hashCode() << 42);
         this.name = name;
         this.category = category;
         this.startDate = ZonedDateTime.now();
         this.appendix = new HashMap<>();
         setTags(tags);
-        resetColor(productive);
+        appendix.put(APPEND_PTYPE, ptype);
+        resetColor(ptype == PTYPE_PRODUCTIVE);
     }
 
     public boolean isUtilityTag(){
@@ -40,21 +48,33 @@ public class Project implements Serializable {
     }
 
     public boolean isProductive(){
+        if(this.appendix.containsKey(APPEND_PTYPE)){
+            return ((int)appendix.get(APPEND_PTYPE) == PTYPE_PRODUCTIVE);
+        }
         return true;
     }
 
-    void edit(String name, String category, String tags){
-        edit(name, category, tags, true);
+    public boolean isRecreational(){
+        if(this.appendix.containsKey(APPEND_PTYPE)){
+            return (!isProductive()) && ((int)appendix.get(APPEND_PTYPE) == PTYPE_RECREATIONAL);
+        }
+        return false;
     }
 
-    protected void edit(String name, String category, String tags, boolean productive){
+
+    protected HashMap<String, Object> _appendix(){
+        return appendix;
+    }
+
+    protected void edit(String name, String category, String tags, int ptype){
         String oldCat = this.category;
         this.name = name;
         setTags(tags);
-        if(!oldCat.equals(category) || this.isProductive() != productive) {
+        if(!oldCat.equals(category) || this.isProductive() != (ptype==PTYPE_PRODUCTIVE)) {
             this.category = category;
-            resetColor(productive);
+            resetColor(ptype == PTYPE_PRODUCTIVE);
         }
+        this.appendix.put(APPEND_PTYPE, ptype);
     }
 
     void setStartDate(ZonedDateTime startDate) {
@@ -133,5 +153,12 @@ public class Project implements Serializable {
     @Override
     public String toString() {
         return String.format("%s [%s]", name, category);
+    }
+
+    public int getPtype() {
+        if(this.appendix.containsKey(APPEND_PTYPE)){
+            return (int)appendix.get(APPEND_PTYPE);
+        } else if(isProductive()) return PTYPE_PRODUCTIVE;
+        else return PTYPE_MISC;
     }
 }

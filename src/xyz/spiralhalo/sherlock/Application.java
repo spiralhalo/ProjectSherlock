@@ -161,7 +161,7 @@ public class Application {
         if (!Application.isWindows() || (!Application.isJar() && !Application.isExe())) return;
         try {
             String key = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
-            String valueName = Main.APP_NAME_NOSPACE;
+            String valueName = Main.REGISTRY_KEY;
             String value;
             if(Application.isJar()) {
                 value = String.format("%s -jar \"%s\"%s",

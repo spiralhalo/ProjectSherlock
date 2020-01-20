@@ -320,6 +320,7 @@
                             <properties>
                               <font/>
                               <text value="Resolve conflicts (unimplemented):"/>
+                              <visible value="false"/>
                             </properties>
                           </component>
                           <component id="dcbc5" class="javax.swing.JRadioButton" binding="alwaysPickTheHighestRadioButton" default-binding="true">
@@ -329,6 +330,7 @@
                             <properties>
                               <enabled value="false"/>
                               <text value="Always pick the highest priority upon conflicts (default)"/>
+                              <visible value="false"/>
                             </properties>
                           </component>
                           <component id="d8e33" class="javax.swing.JRadioButton" default-binding="true">
@@ -338,6 +340,7 @@
                             <properties>
                               <enabled value="false"/>
                               <text value="Resolve conflicts manually"/>
+                              <visible value="false"/>
                             </properties>
                           </component>
                           <component id="3168d" class="javax.swing.JRadioButton" default-binding="true">
@@ -347,6 +350,7 @@
                             <properties>
                               <enabled value="false"/>
                               <text value="Resolve manually for projects, automatically for activities"/>
+                              <visible value="false"/>
                             </properties>
                           </component>
                           <component id="666da" class="javax.swing.JLabel">
@@ -392,6 +396,7 @@
                               <enabled value="false"/>
                               <font/>
                               <text value="Projects are always prioritized over activities."/>
+                              <visible value="false"/>
                             </properties>
                           </component>
                         </children>
@@ -562,7 +567,9 @@
                             <constraints>
                               <grid row="9" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                             </constraints>
-                            <properties/>
+                            <properties>
+                              <visible value="false"/>
+                            </properties>
                             <border type="none"/>
                             <children>
                               <component id="b7fb4" class="javax.swing.JSeparator">
@@ -588,6 +595,7 @@
                             </constraints>
                             <properties>
                               <text value="Show pending revenue projection on main window"/>
+                              <visible value="false"/>
                             </properties>
                           </component>
                           <component id="6a0af" class="javax.swing.JCheckBox">
@@ -596,6 +604,7 @@
                             </constraints>
                             <properties>
                               <text value="Monthly revenue on year chart"/>
+                              <visible value="false"/>
                             </properties>
                           </component>
                           <component id="91fcc" class="javax.swing.JLabel">
@@ -604,6 +613,7 @@
                             </constraints>
                             <properties>
                               <text value="Show revenue as annotations:"/>
+                              <visible value="false"/>
                             </properties>
                           </component>
                           <component id="d775c" class="javax.swing.JCheckBox">
@@ -612,6 +622,7 @@
                             </constraints>
                             <properties>
                               <text value="Weekly revenue on month chart"/>
+                              <visible value="false"/>
                             </properties>
                           </component>
                           <component id="de240" class="javax.swing.JLabel">
@@ -621,6 +632,7 @@
                             <properties>
                               <enabled value="false"/>
                               <text value="Based on initial revenue projection on active projects."/>
+                              <visible value="false"/>
                             </properties>
                           </component>
                           <component id="4328" class="javax.swing.JLabel">
@@ -630,6 +642,7 @@
                             <properties>
                               <enabled value="false"/>
                               <text value="Actual revenue is calculated based on day audits."/>
+                              <visible value="false"/>
                             </properties>
                           </component>
                         </children>
