@@ -293,11 +293,12 @@ public class AppControl implements ActionListener {
                     final CategoryPlot plot = e.getChart().getCategoryPlot();
                     final RectangleEdge domainEdge = Plot.resolveDomainAxisLocation(plot.getDomainAxisLocation(), plot.getOrientation());
                     final int count = plot.getDataset(1).getColumnCount();
-                    final int xStart = (int) plot.getDomainAxis().getCategoryStart(0, count, monthPanel.getScreenDataArea(), domainEdge);
-                    final int xLen = (int) plot.getDomainAxis().getCategoryEnd(count - 1, count, monthPanel.getScreenDataArea(), domainEdge) - xStart;
+                    final double xStart = plot.getDomainAxis().getCategoryStart(0, count, monthPanel.getScreenDataArea(), domainEdge);
+                    final double xEnd = plot.getDomainAxis().getCategoryEnd(count - 1, count, monthPanel.getScreenDataArea(), domainEdge);
                     final int x = e.getTrigger().getX();
-                    if (x > xStart && x < xStart + xLen) {
-                        monthNoteEditing = month.atDay((x - xStart) / (xLen / month.lengthOfMonth()) + 1);
+                    if (x > xStart && x < xEnd) {
+                        final double barWidth = (xEnd - xStart) / month.lengthOfMonth();
+                        monthNoteEditing = month.atDay((int)Math.floor((x - xStart) / barWidth) + 1);
                         if(view.getMonthChartInfo().annotations.containsKey(monthNoteEditing)) {
                             editNote.setText(String.format("View note: %s", monthNoteEditing.format(FormatUtil.DTF_MONTH_CHART)));
                             removeNote.setVisible(true);
