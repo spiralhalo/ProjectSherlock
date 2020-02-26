@@ -13,10 +13,7 @@ import xyz.spiralhalo.sherlock.async.Loader;
 import xyz.spiralhalo.sherlock.async.LoaderDialog;
 import xyz.spiralhalo.sherlock.audit.ViewDayAudit;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkMgr;
-import xyz.spiralhalo.sherlock.dialog.EditProject;
-import xyz.spiralhalo.sherlock.dialog.Quit;
-import xyz.spiralhalo.sherlock.dialog.Settings;
-import xyz.spiralhalo.sherlock.dialog.ViewProject;
+import xyz.spiralhalo.sherlock.dialog.*;
 import xyz.spiralhalo.sherlock.focus.FocusConfig;
 import xyz.spiralhalo.sherlock.focus.FocusMgr;
 import xyz.spiralhalo.sherlock.notes.EditNote;
@@ -76,6 +73,7 @@ public class AppControl implements ActionListener {
         A_DELETE,
         A_UP,
         A_DOWN,
+        A_EXPORT,
         A_SETTINGS,
         A_REFRESH,
         A_DEEP_REFRESH,
@@ -193,7 +191,7 @@ public class AppControl implements ActionListener {
 
     private void setToolbarInternal(JComponent btnNew, JComponent btnView, JComponent btnFinish, JComponent btnResume,
                                     JComponent btnEdit, JComponent btnDelete, JComponent btnUp, JComponent btnDown,
-                                    JComponent btnSettings, JTabbedPane tabs, JTabbedPane tabr){
+                                    JComponent btnExport, JComponent btnSettings, JTabbedPane tabs, JTabbedPane tabr){
         btnNew.setName(Action.A_NEW.name());
         btnView.setName(Action.A_VIEW.name());
         btnFinish.setName(Action.A_FINISH.name());
@@ -202,6 +200,7 @@ public class AppControl implements ActionListener {
         btnDelete.setName(Action.A_DELETE.name());
         btnUp.setName(Action.A_UP.name());
         btnDown.setName(Action.A_DOWN.name());
+        btnExport.setName(Action.A_EXPORT.name());
         btnSettings.setName(Action.A_SETTINGS.name());
         addEnableOnSelect(btnView, btnEdit, btnDelete, btnUp, btnDown, btnFinish, btnResume);
         btnFinish.setEnabled(false);
@@ -210,8 +209,8 @@ public class AppControl implements ActionListener {
 
     public void setToolbar(JButton btnNew, JButton btnNewTag, JButton btnView, JButton btnFinish, JButton btnResume,
                            JButton btnEdit, JButton btnDelete, JButton btnUp, JButton btnDown,
-                           JButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
-        setToolbarInternal(btnNew, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnUp, btnDown, btnSettings, tabs, tabr);
+                           JButton btnExport, JButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
+        setToolbarInternal(btnNew, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnUp, btnDown, btnExport, btnSettings, tabs, tabr);
         btnNewTag.setName(Action.A_NEW_TAG.name());
         btnNew.addActionListener(this);
         btnNewTag.addActionListener(this);
@@ -222,14 +221,15 @@ public class AppControl implements ActionListener {
         btnDelete.addActionListener(this);
         btnUp.addActionListener(this);
         btnDown.addActionListener(this);
+        btnExport.addActionListener(this);
         btnSettings.addActionListener(this);
     }
 
     public void setToolbar(JCommandButton btnNew, JCommandButton btnView, JCommandButton btnFinish, JCommandButton btnResume,
                            JCommandButton btnEdit, JCommandButton btnDelete, JCommandButton btnUp, JCommandButton btnDown,
-                           JCommandButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
+                           JCommandButton btnExport, JCommandButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
         createPopupNew(btnNew);
-        setToolbarInternal(btnNew, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnUp, btnDown, btnSettings, tabs, tabr);
+        setToolbarInternal(btnNew, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnUp, btnDown, btnExport, btnSettings, tabs, tabr);
         btnNew.addActionListener(this);
         btnView.addActionListener(this);
         btnFinish.addActionListener(this);
@@ -238,6 +238,7 @@ public class AppControl implements ActionListener {
         btnDelete.addActionListener(this);
         btnUp.addActionListener(this);
         btnDown.addActionListener(this);
+        btnExport.addActionListener(this);
         btnSettings.addActionListener(this);
     }
 
@@ -498,6 +499,9 @@ public class AppControl implements ActionListener {
                         view.setSelected(hash);
                     }
                 }
+                break;
+            case A_EXPORT:
+                new ExportReport(view.frame(), view.getTableActive(), view.getTableFinished()).setVisible(true);
                 break;
             case A_SETTINGS:
                 Settings settings = new Settings(view.frame(), bookmark);

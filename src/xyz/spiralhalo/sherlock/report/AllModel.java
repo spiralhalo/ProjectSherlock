@@ -8,7 +8,7 @@ import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 
 public class AllModel extends AbstractTableModel {
-    private static final String[] columnName = new String[]{"Priority", "Project", "Category", "Type", "Period","Days worked","Time spent"};
+    private static final String[] columnName = new String[]{"Priority", "Project", "Category", "Type", "Start", "Finish","Days worked","Time spent"};
     private static final String[] columnNameUtility = new String[]{"Priority", "Activity", "Category", "Type", "Time spent"};
 
     private AllReportRows data;
@@ -36,9 +36,10 @@ public class AllModel extends AbstractTableModel {
         table.getColumnModel().getColumn(3).setPreferredWidth(75);
         table.getColumnModel().getColumn(3).setMaxWidth(80);
         if(table.getColumnModel().getColumnCount() > 5){
-            table.getColumnModel().getColumn(4).setPreferredWidth(125);
-            table.getColumnModel().getColumn(5).setPreferredWidth(60);
-            table.getColumnModel().getColumn(6).setPreferredWidth(80);
+            table.getColumnModel().getColumn(4).setPreferredWidth(62);
+            table.getColumnModel().getColumn(5).setPreferredWidth(62);
+            table.getColumnModel().getColumn(6).setPreferredWidth(60);
+            table.getColumnModel().getColumn(7).setPreferredWidth(80);
         }
     }
 
@@ -57,8 +58,12 @@ public class AllModel extends AbstractTableModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        if(utility && columnIndex == 4 || columnIndex == 6) return Integer.class;
-        if(!utility && columnIndex == 5) return Double.class;
+        if(utility){
+            if (columnIndex == 4) return Integer.class;
+        } else {
+            if(columnIndex == 6) return Double.class;
+            if (columnIndex == 7) return Integer.class;
+        }
         return String.class;
     }
 
@@ -87,10 +92,10 @@ public class AllModel extends AbstractTableModel {
         if(!utility){
             switch (columnIndex) {
                 case 4:
-                    String fromDate = data.get(rowIndex).getStartDate().format(FormatUtil.DTF_YMD);
-                    String toDate = (data.get(rowIndex).getFinishDate() == null ? "ongoing" : data.get(rowIndex).getFinishDate().format(FormatUtil.DTF_YMD));
-                    return String.format("%s ~ %s", fromDate, toDate);
+                    return data.get(rowIndex).getStartDate().format(FormatUtil.DTF_YMD);
                 case 5:
+                    return data.get(rowIndex).getFinishDate() == null ? "ongoing" : data.get(rowIndex).getFinishDate().format(FormatUtil.DTF_YMD);
+                case 6:
                     return data.get(rowIndex).getDays();
             }
         }

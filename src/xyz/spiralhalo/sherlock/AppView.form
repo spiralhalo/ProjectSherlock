@@ -210,6 +210,16 @@
               <verticalTextPosition value="3"/>
             </properties>
           </component>
+          <component id="3761" class="javax.swing.JButton" binding="btnExport">
+            <constraints/>
+            <properties>
+              <horizontalTextPosition value="0"/>
+              <icon value="xyz/spiralhalo/sherlock/res/export.png"/>
+              <text value="Export"/>
+              <toolTipText value="Settings"/>
+              <verticalTextPosition value="3"/>
+            </properties>
+          </component>
           <component id="74e38" class="javax.swing.JButton" binding="btnSettings">
             <constraints/>
             <properties>

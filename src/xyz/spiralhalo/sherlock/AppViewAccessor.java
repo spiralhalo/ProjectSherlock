@@ -33,4 +33,6 @@ public interface AppViewAccessor {
     JPopupMenu getTablePopUpMenu();
     Charts.MonthChartInfo getMonthChartInfo();
     LocalDate getSelectedDayChart();
+    JTable getTableFinished();
+    JTable getTableActive();
 }

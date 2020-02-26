@@ -27,6 +27,7 @@
             </constraints>
             <properties>
               <text value="Cancel"/>
+              <visible value="false"/>
             </properties>
           </component>
           <hspacer id="53b9b">

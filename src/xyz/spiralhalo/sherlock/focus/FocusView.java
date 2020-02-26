@@ -82,7 +82,7 @@ public class FocusView {
         long duration = FocusState.getInstance().getDuration();
         if(duration >= 0){
             lblTimeHint.setForeground(ColorUtil.gray);
-            lblHMS.setText(FormatUtil.hmsColon((int)(duration/1000)));
+            lblHMS.setText(FormatUtil.hmsHomoColon((int)(duration/1000)));
         } else {
             lblTimeHint.setVisible(false);
             lblHMS.setVisible(false);

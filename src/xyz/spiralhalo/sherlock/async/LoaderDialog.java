@@ -3,25 +3,25 @@ package xyz.spiralhalo.sherlock.async;
 import xyz.spiralhalo.sherlock.Debug;
 
 import javax.swing.*;
-import java.util.concurrent.CompletableFuture;
+import java.awt.*;
 import java.util.function.BiConsumer;
 
 public class LoaderDialog extends JDialog {
-    private static CompletableFuture completableFuture;
+//    private static CompletableFuture completableFuture;
     private static LoaderDialog loaderDialog = new LoaderDialog();
 
-    private static void onCancel() {
-        completableFuture.cancel(true);
-    }
+//    private static void onCancel() {
+//        completableFuture.cancel(true);
+//    }
 
-    public static <T> void execute(JFrame owner, AsyncTask<T> supplier, BiConsumer<T, ? super Throwable> callback){
+    public static <T> void execute(Component parent, AsyncTask<T> supplier, BiConsumer<T, ? super Throwable> callback){
         supplier.start((e,t) -> {
             if(t!=null) Debug.log(t);
-            completableFuture = null;
+//            completableFuture = null;
             loaderDialog.dispose();
             callback.accept(e,t);
         });
-        loaderDialog.setLocationRelativeTo(owner);
+        loaderDialog.setLocationRelativeTo(parent);
         loaderDialog.setVisible(true);
     }
 
@@ -34,7 +34,7 @@ public class LoaderDialog extends JDialog {
         setContentPane(contentPane);
         setModal(true);
 
-        buttonCancel.addActionListener(e -> onCancel());
+//        buttonCancel.addActionListener(e -> onCancel());
 
         pack();
     }

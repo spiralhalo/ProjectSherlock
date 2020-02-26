@@ -31,7 +31,7 @@ public class DurationSelection implements Serializable {
         switch (mode){
             case Long: return FormatUtil.hmsLong(value);
             case Strict: return FormatUtil.hmsStrict(value);
-            case Colon: return FormatUtil.hmsColon(value);
+            case Colon: return FormatUtil.hmsHomoColon(value);
         }
         return FormatUtil.hms(value);
     }

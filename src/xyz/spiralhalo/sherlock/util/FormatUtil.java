@@ -20,18 +20,25 @@ public class FormatUtil {
     public static String hms(int seconds) {
         switch (AppConfig.appHMS()){
             case COLON:
-                return hmsColon(seconds);
+                return hmsHomoColon(seconds);
             case STRICT:
             default:
                 return hmsStrict(seconds);
         }
     }
 
-    public static String hmsColon(int seconds) {
+    public static String hmsHomoColon(int seconds) {
         int s = seconds % 60;
         int m = (seconds / 60) % 60;
         int h = seconds / 3600;
         return String.format("%02d:%02d %02d",h,m,s);
+    }
+
+    public static String hmsMachineColon(int seconds) {
+        int s = seconds % 60;
+        int m = (seconds / 60) % 60;
+        int h = seconds / 3600;
+        return String.format("%02d:%02d:%02d",h,m,s);
     }
 
     public static String hmsStrict(int seconds) {
