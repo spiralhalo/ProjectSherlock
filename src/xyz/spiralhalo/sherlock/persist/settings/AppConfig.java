@@ -5,6 +5,7 @@ public class AppConfig {
 
     private static final String KEY_HMS_MODE = "HMS_MODE";
     private static final String KEY_THEME = "THEME";
+    private static final String KEY_SOCKET_PORT = "SOCKET_PORT";
 
     public enum HMSMode{
         COLON("12:45 30"),
@@ -49,6 +50,18 @@ public class AppConfig {
     }
 
     public static HMSMode defaultHMSMode() {return HMSMode.STRICT;}
+
+    public static int getSocketPort() {
+        return IniHandler.getInstance().getInt(NODE, KEY_SOCKET_PORT, defaultSocketPort());
+    }
+
+    public static void setSocketPort(int port) {
+        IniHandler.getInstance().putInt(NODE, KEY_SOCKET_PORT, port);
+    }
+
+    public static int defaultSocketPort() {
+        return 8889;
+    }
 
     public static HMSMode appHMS(){
         return HMSMode.valueOf(IniHandler.getInstance().get(NODE, KEY_HMS_MODE, defaultHMSMode().name()));

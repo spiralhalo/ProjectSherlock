@@ -20,6 +20,20 @@ public class Main {
     private static final Theme FALL_BACK_THEME = Theme.SYSTEM;
 
     public static void main(String[] args) {
+//        int serverStatus = WebServer.start();
+//
+//        if(serverStatus == WebServer.ALREADY_RUNNING) {
+//            JOptionPane.showMessageDialog(null, "Another instance of Project Sherlock is already running.",
+//                    APP_NAME, JOptionPane.ERROR_MESSAGE);
+//            return;
+//        }
+//
+//        if(serverStatus == WebServer.FAILED) {
+//            JOptionPane.showMessageDialog(null, "Failed to start a websocket (required to prevent multiple instance). Exiting...",
+//                    APP_NAME, JOptionPane.ERROR_MESSAGE);
+//            return;
+//        }
+
         if(!Application.isWindows()) {
             JOptionPane.showMessageDialog(null, "This operating system is not supported.",
                     APP_NAME, JOptionPane.ERROR_MESSAGE);
@@ -62,9 +76,13 @@ public class Main {
                 }
             }
 
-            Runtime.getRuntime().addShutdownHook(new Thread(Application::createOrDeleteStartupRegistry));
+            Runtime.getRuntime().addShutdownHook(new Thread(Main::onShutdown));
             AppControl.create();
         });
+    }
+
+    private static void onShutdown() {
+        Application.createOrDeleteStartupRegistry();
     }
 
     public static void applyButtonTheme(JButton... buttons){
