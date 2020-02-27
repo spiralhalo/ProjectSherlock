@@ -8,8 +8,11 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 
 public class Application {
     private static final String ORGDIR = "spiralhalo";
@@ -89,6 +92,25 @@ public class Application {
             cacheDir.mkdir();
         }
         return cachedCacheDir = cacheDir.getPath();
+    }
+
+    private static final String LOCKFILE = "running.lock";
+    private static FileLock lockReference;
+
+    public static boolean isAlreadyRunning(){
+        try {
+            File lock = new File(getSaveDir(), LOCKFILE);
+            if (lock.exists())
+                lock.delete();
+            FileChannel lockChannel = new RandomAccessFile(lock, "rw").getChannel();
+            FileLock fileLock = lockChannel.tryLock();
+            if(fileLock == null) throw new Exception("Unable to obtain lock on file.");
+            lockReference = fileLock; //survive gc
+            return false;
+        } catch (Exception e){
+            Debug.log(e);
+        }
+        return true;
     }
 
     public static String getLogDir()
