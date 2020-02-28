@@ -20,11 +20,6 @@ public class Main {
     private static final Theme FALL_BACK_THEME = Theme.SYSTEM;
 
     public static void main(String[] args) {
-        if(Application.isAlreadyRunning()) {
-            JOptionPane.showMessageDialog(null, "Another instance of Project Sherlock is already running. Exiting...",
-                    APP_NAME, JOptionPane.ERROR_MESSAGE);
-            return;
-        }
 
         if(!Application.isWindows()) {
             JOptionPane.showMessageDialog(null, "This operating system is not supported. Exiting...",
@@ -33,6 +28,12 @@ public class Main {
         }
 
         Arg.setArgs(args);
+
+        if(Application.isAlreadyRunning() && !Arg.Sandbox.isEnabled()) {
+            JOptionPane.showMessageDialog(null, "Another instance of Project Sherlock is already running. Exiting...",
+                    APP_NAME, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         if(Application.isJar()){
             Debug.log("Running from a .jar file");
