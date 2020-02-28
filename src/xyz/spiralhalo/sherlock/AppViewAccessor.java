@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public interface AppViewAccessor {
     JFrame frame();
-    void init();
+    void prePackInit();
     void refreshRefreshStatus(CacheMgr cache);
     void refreshTrackingStatus(String status);
     void refreshOverview(CacheMgr cache);

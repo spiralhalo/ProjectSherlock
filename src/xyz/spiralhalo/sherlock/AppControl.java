@@ -137,15 +137,46 @@ public class AppControl implements ActionListener {
 
     private void createView(){
         view = new AppView(this);
-        view.init();
+        view.prePackInit();
+        Dimension defaultSize = view.frame().getPreferredSize();
+        Dimension preferredSize = new Dimension(Math.max(defaultSize.width, AppConfig.getPreferredWindowWidth()),
+                Math.max(defaultSize.height, AppConfig.getPreferredWindowHeight()));
+        view.frame().setPreferredSize(preferredSize);
+        view.frame().setLocationByPlatform(true);
+        if(AppConfig.getWindowLastMaximized())
+            view.frame().setExtendedState(view.frame().getExtendedState() | JFrame.MAXIMIZED_BOTH);
+        if(AppConfig.getWindowLastLocationX() != -1 && AppConfig.getWindowLastLocationY() != -1)
+            view.frame().setLocation(AppConfig.getWindowLastLocationX(), AppConfig.getWindowLastLocationY());
+        view.frame().pack();
         view.frame().addWindowListener(windowAdapter);
         view.frame().addWindowStateListener(windowAdapter);
         view.frame().addWindowFocusListener(windowAdapter);
+        view.frame().addComponentListener(windowAdapter2);
         view.frame().setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         view.frame().setIconImages(Arrays.asList(ImgUtil.createImage("icon.png","App Icon Small"),
                 ImgUtil.createImage("med_icon.png","App Icon")));
         view.refreshOverview(cache);
     }
+
+    private ComponentAdapter windowAdapter2 = new ComponentAdapter() {
+        @Override
+        public void componentResized(ComponentEvent componentEvent) {
+            if(!isMaximized()) {
+                Dimension newSize = view.frame().getSize();
+                AppConfig.setPreferredWindowHeight(newSize.height);
+                AppConfig.setPreferredWindowWidth(newSize.width);
+            }
+        }
+
+        @Override
+        public void componentMoved(ComponentEvent componentEvent) {
+            if(!isMaximized()) {
+                Point location = view.frame().getLocation();
+                AppConfig.setWindowLastLocationX(location.x);
+                AppConfig.setWindowLastLocationY(location.y);
+            }
+        }
+    };
 
     private WindowAdapter windowAdapter = new WindowAdapter() {
         @Override
@@ -176,11 +207,19 @@ public class AppControl implements ActionListener {
 
         @Override
         public void windowStateChanged(WindowEvent e) {
-            if(trayIconUsed && AppConfig.appGBool(AppBool.MINIMIZE_TO_TRAY) && (view.frame().getState() == ICONIFIED)){
-                minimizeToTray();
+            if(view.frame().getState() == ICONIFIED){
+                if(trayIconUsed && AppConfig.appGBool(AppBool.MINIMIZE_TO_TRAY)){
+                    minimizeToTray();
+                }
+            } else {
+                AppConfig.setWindowLastMaximized(isMaximized());
             }
         }
     };
+
+    private boolean isMaximized() {
+        return (view.frame().getExtendedState() & JFrame.MAXIMIZED_BOTH) != 0;
+    }
 
     private void minimizeToTray(){
         if(trayIconUsed) {

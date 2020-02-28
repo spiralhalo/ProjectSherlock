@@ -6,6 +6,11 @@ public class AppConfig {
     private static final String KEY_HMS_MODE = "HMS_MODE";
     private static final String KEY_THEME = "THEME";
     private static final String KEY_SOCKET_PORT = "SOCKET_PORT";
+    private static final String KEY_PREFERRED_WINDOW_WIDTH = "PREFERRED_WINDOW_WIDTH";
+    private static final String KEY_PREFERRED_WINDOW_HEIGHT = "PREFERRED_WINDOW_HEIGHT";
+    private static final String KEY_WINDOW_LAST_MAXIMIZED = "WINDOW_LAST_MAXIMIZED";
+    private static final String KEY_WINDOW_LAST_LOCATION_X = "WINDOW_LAST_LOCATION_X";
+    private static final String KEY_WINDOW_LAST_LOCATION_Y = "WINDOW_LAST_LOCATION_Y";
 
     public enum HMSMode{
         COLON("12:45 30"),
@@ -50,6 +55,46 @@ public class AppConfig {
     }
 
     public static HMSMode defaultHMSMode() {return HMSMode.STRICT;}
+
+    public static int getPreferredWindowWidth() {
+        return IniHandler.getInstance().getInt(NODE, KEY_PREFERRED_WINDOW_WIDTH, 0);
+    }
+
+    public static void setPreferredWindowWidth(int width) {
+        IniHandler.getInstance().putInt(NODE, KEY_PREFERRED_WINDOW_WIDTH, width);
+    }
+
+    public static int getPreferredWindowHeight() {
+        return IniHandler.getInstance().getInt(NODE, KEY_PREFERRED_WINDOW_HEIGHT, 0);
+    }
+
+    public static void setPreferredWindowHeight(int height) {
+        IniHandler.getInstance().putInt(NODE, KEY_PREFERRED_WINDOW_HEIGHT, height);
+    }
+
+    public static int getWindowLastLocationX() {
+        return IniHandler.getInstance().getInt(NODE, KEY_WINDOW_LAST_LOCATION_X, -1);
+    }
+
+    public static void setWindowLastLocationX(int x) {
+        IniHandler.getInstance().putInt(NODE, KEY_WINDOW_LAST_LOCATION_X, x);
+    }
+
+    public static int getWindowLastLocationY() {
+        return IniHandler.getInstance().getInt(NODE, KEY_WINDOW_LAST_LOCATION_Y, -1);
+    }
+
+    public static void setWindowLastLocationY(int y) {
+        IniHandler.getInstance().putInt(NODE, KEY_WINDOW_LAST_LOCATION_Y, y);
+    }
+
+    public static boolean getWindowLastMaximized() {
+        return IniHandler.getInstance().getBoolean(NODE, KEY_WINDOW_LAST_MAXIMIZED, false);
+    }
+
+    public static void setWindowLastMaximized(boolean maximized) {
+        IniHandler.getInstance().putBoolean(NODE, KEY_WINDOW_LAST_MAXIMIZED, maximized);
+    }
 
     public static int getSocketPort() {
         return IniHandler.getInstance().getInt(NODE, KEY_SOCKET_PORT, defaultSocketPort());

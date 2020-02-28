@@ -226,7 +226,7 @@ public class AppView implements AppViewAccessor {
     }
 
     @Override
-    public void init() {
+    public void prePackInit() {
         createCommandButtons(control);
         control.setDayButtons(btnDayNote, btnDayAudit);
         control.setTables(tActive, tFinished, tUtility);
@@ -235,10 +235,7 @@ public class AppView implements AppViewAccessor {
         control.setChart(comboY, btnPrevY, btnNextY, btnFirstY, btnLastY, this::refreshYearChart);
 
         frame.setContentPane(rootPane);
-        frame.setMinimumSize(rootPane.getMinimumSize());
-        frame.setPreferredSize(rootPane.getMinimumSize());
-        frame.pack();
-        frame.setLocationByPlatform(true);
+        frame.setPreferredSize(rootPane.getPreferredSize());
     }
 
     public void refreshRefreshStatus(CacheMgr cache) {
