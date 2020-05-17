@@ -332,7 +332,7 @@ public class AppControl implements ActionListener {
                     if(month == null)return;
                     final CategoryPlot plot = e.getChart().getCategoryPlot();
                     final RectangleEdge domainEdge = Plot.resolveDomainAxisLocation(plot.getDomainAxisLocation(), plot.getOrientation());
-                    final int count = plot.getDataset(1).getColumnCount();
+                    final int count = plot.getDataset(0).getColumnCount();
                     final double xStart = plot.getDomainAxis().getCategoryStart(0, count, monthPanel.getScreenDataArea(), domainEdge);
                     final double xEnd = plot.getDomainAxis().getCategoryEnd(count - 1, count, monthPanel.getScreenDataArea(), domainEdge);
                     final int x = e.getTrigger().getX();

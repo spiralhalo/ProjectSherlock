@@ -25,6 +25,7 @@ import static xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppBool.*;
 import static xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt.*;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.*;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.*;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserBool.*;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.*;
 
 public class Settings extends JDialog {
@@ -71,6 +72,8 @@ public class Settings extends JDialog {
     private JSlider sliderWeeklyTarget;
     private JLabel lblWeeklyTarget;
     private JPanel finHeader;
+    private JCheckBox checkUseRankChart;
+    private JCheckBox checkLimitMonthChart;
     private boolean result = false;
 
     private IntSelectorModel vkSelectorModel;
@@ -240,6 +243,7 @@ public class Settings extends JDialog {
         // edit for NEW CHECK BOXES / RADIO BUTTONS WITH CHILDREN
         Dependency.setChildren(checkAStartup, checkARunMinimized);
         Dependency.setChildren(checkBookmarks, lblHotkey, checkBkmkCtrl, checkBkmkShift, comboBkmkHotkey);
+        Dependency.setChildren(radNewRating, checkUseRankChart);
 //        Dependency.setChildren(radOldRating, checkShowAbove100);
 
         // edit for NEW OPTIONS
@@ -265,6 +269,8 @@ public class Settings extends JDialog {
         bind(checkShowAbove100, view, ()->userGBool(VIEW, EXCEED_100_PERCENT), b->userSBool(VIEW, EXCEED_100_PERCENT, b), userDBool(VIEW, EXCEED_100_PERCENT));
         bind(checkShowMonthLine, view, ()->!userGBool(VIEW, DISABLE_MONTH_LINE), b->userSBool(VIEW, DISABLE_MONTH_LINE, !b), !userDBool(VIEW, DISABLE_MONTH_LINE));
         bind(checkShowYearLine, view, ()->userGBool(VIEW, ENABLE_YEAR_LINE), b->userSBool(VIEW, ENABLE_YEAR_LINE, b), userDBool(VIEW, ENABLE_YEAR_LINE));
+        bind(checkUseRankChart, view, ()->userGBool(VIEW, USE_RANK_MONTH_CHART), b->userSBool(VIEW, USE_RANK_MONTH_CHART, b), userDBool(VIEW, USE_RANK_MONTH_CHART));
+        bind(checkLimitMonthChart, view, ()->userGBool(VIEW, LIMIT_MONTH_CHART_UPPER), b->userSBool(VIEW, LIMIT_MONTH_CHART_UPPER, b), userDBool(VIEW, LIMIT_MONTH_CHART_UPPER));
 
         String app = "app";
         bind(checkAAskBeforeQuit, app, ()->appGBool(ASK_BEFORE_QUIT), i->appSBool(ASK_BEFORE_QUIT, i), appDBool(ASK_BEFORE_QUIT));

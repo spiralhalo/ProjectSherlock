@@ -3,10 +3,10 @@
   <grid id="cbd77" binding="contentPane" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="48" y="54" width="500" height="549"/>
+      <xy x="48" y="54" width="500" height="600"/>
     </constraints>
     <properties>
-      <minimumSize width="500" height="549"/>
+      <minimumSize width="500" height="600"/>
     </properties>
     <border type="none"/>
     <children>
@@ -420,7 +420,7 @@
                     <properties/>
                     <border type="none"/>
                     <children>
-                      <grid id="76b70" layout-manager="GridLayoutManager" row-count="19" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                      <grid id="76b70" layout-manager="GridLayoutManager" row-count="25" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                         <margin top="6" left="6" bottom="6" right="6"/>
                         <constraints/>
                         <properties/>
@@ -467,7 +467,7 @@
                           </component>
                           <vspacer id="f5f80">
                             <constraints>
-                              <grid row="16" column="0" row-span="1" col-span="3" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                              <grid row="22" column="0" row-span="1" col-span="3" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                             </constraints>
                           </vspacer>
                           <hspacer id="76e5">
@@ -477,7 +477,7 @@
                           </hspacer>
                           <component id="6ed51" class="javax.swing.JButton" binding="btnDefView">
                             <constraints>
-                              <grid row="18" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                              <grid row="24" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <text value="Restore defaults for 'View'"/>
@@ -526,7 +526,7 @@
                           </component>
                           <component id="35dc8" class="javax.swing.JLabel">
                             <constraints>
-                              <grid row="5" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                              <grid row="8" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <text value="Rating system:"/>
@@ -534,7 +534,7 @@
                           </component>
                           <component id="4c077" class="javax.swing.JRadioButton" binding="radOldRating">
                             <constraints>
-                              <grid row="7" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+                              <grid row="13" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <text value="Use proportional rating system (old)"/>
@@ -542,15 +542,15 @@
                           </component>
                           <component id="7eefb" class="javax.swing.JRadioButton" binding="radNewRating">
                             <constraints>
-                              <grid row="6" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+                              <grid row="9" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
                             </constraints>
                             <properties>
-                              <text value="Use graded rating system (new)"/>
+                              <text value="Use graded ranking system (new)"/>
                             </properties>
                           </component>
                           <component id="f902e" class="javax.swing.JCheckBox" binding="checkShowAbove100">
                             <constraints>
-                              <grid row="8" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                              <grid row="14" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <text value="Show rating values above 100%"/>
@@ -558,14 +558,14 @@
                           </component>
                           <component id="8979d" class="javax.swing.JSeparator">
                             <constraints>
-                              <grid row="17" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                              <grid row="23" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                             </constraints>
                             <properties/>
                           </component>
                           <grid id="d4222" binding="finHeader" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                             <margin top="0" left="0" bottom="0" right="0"/>
                             <constraints>
-                              <grid row="9" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                              <grid row="15" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <visible value="false"/>
@@ -591,7 +591,7 @@
                           </grid>
                           <component id="9a8a8" class="javax.swing.JCheckBox">
                             <constraints>
-                              <grid row="10" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                              <grid row="16" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <text value="Show pending revenue projection on main window"/>
@@ -600,7 +600,7 @@
                           </component>
                           <component id="6a0af" class="javax.swing.JCheckBox">
                             <constraints>
-                              <grid row="14" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+                              <grid row="20" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <text value="Monthly revenue on year chart"/>
@@ -609,7 +609,7 @@
                           </component>
                           <component id="91fcc" class="javax.swing.JLabel">
                             <constraints>
-                              <grid row="12" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                              <grid row="18" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <text value="Show revenue as annotations:"/>
@@ -618,7 +618,7 @@
                           </component>
                           <component id="d775c" class="javax.swing.JCheckBox">
                             <constraints>
-                              <grid row="13" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+                              <grid row="19" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <text value="Weekly revenue on month chart"/>
@@ -627,7 +627,7 @@
                           </component>
                           <component id="de240" class="javax.swing.JLabel">
                             <constraints>
-                              <grid row="11" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="3" use-parent-layout="false"/>
+                              <grid row="17" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="3" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <enabled value="false"/>
@@ -637,12 +637,60 @@
                           </component>
                           <component id="4328" class="javax.swing.JLabel">
                             <constraints>
-                              <grid row="15" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="3" use-parent-layout="false"/>
+                              <grid row="21" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="3" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <enabled value="false"/>
                               <text value="Actual revenue is calculated based on day audits."/>
                               <visible value="false"/>
+                            </properties>
+                          </component>
+                          <component id="46f8d" class="javax.swing.JCheckBox" binding="checkUseRankChart">
+                            <constraints>
+                              <grid row="10" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="3" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text value="Use ranking-based month chart**"/>
+                            </properties>
+                          </component>
+                          <component id="b15f3" class="javax.swing.JLabel">
+                            <constraints>
+                              <grid row="12" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="5" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text value="**) Requires a deep refresh"/>
+                            </properties>
+                          </component>
+                          <component id="4a66f" class="javax.swing.JLabel">
+                            <constraints>
+                              <grid row="11" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="5" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <icon value="xyz/spiralhalo/sherlock/res/rank_chart_hint.png"/>
+                            </properties>
+                          </component>
+                          <component id="c3522" class="javax.swing.JCheckBox" binding="checkLimitMonthChart">
+                            <constraints>
+                              <grid row="5" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text value="Limit month chart upper bound to daily target*"/>
+                            </properties>
+                          </component>
+                          <component id="a12b2" class="javax.swing.JLabel">
+                            <constraints>
+                              <grid row="6" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="3" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text value="*) Always true when using ranking-based month chart"/>
+                            </properties>
+                          </component>
+                          <component id="2a947" class="javax.swing.JLabel">
+                            <constraints>
+                              <grid row="7" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="3" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text value="Note: right click and drag on charts to zoom in/out"/>
                             </properties>
                           </component>
                         </children>

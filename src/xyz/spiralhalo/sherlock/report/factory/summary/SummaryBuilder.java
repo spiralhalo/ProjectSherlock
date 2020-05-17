@@ -1,9 +1,12 @@
 package xyz.spiralhalo.sherlock.report.factory.summary;
 
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
+import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
+import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
 import xyz.spiralhalo.sherlock.record.RecordEntry;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartBuilder;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartData;
+import xyz.spiralhalo.sherlock.report.factory.charts.RankChartBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,6 +15,11 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserBool.*;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.VIEW;
+
+//Builds a MonthSummary.
+//MonthSummary contains all charts for the days in that month and the overall chart for that month.
 public class SummaryBuilder {
 
     private static class DayMap extends HashMap<Long,Integer>{}
@@ -38,7 +46,11 @@ public class SummaryBuilder {
         this.productiveMap = new HashMap<>();
         this.z = z;
         this.complete = complete;
-        this.monthChartBuilder = new ChartBuilder<>(month, z, false);
+        if(UserConfig.userGBool(VIEW, USE_RANK_MONTH_CHART) && ! UserConfig.userGBool(VIEW, OLD_RATING)){
+            this.monthChartBuilder = new RankChartBuilder(month, z, false);
+        } else {
+            this.monthChartBuilder = new ChartBuilder<>(month, z, false);
+        }
         this.dayChartBuilders = new DayChartBuilder[month.lengthOfMonth()];
     }
 

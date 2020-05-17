@@ -19,6 +19,8 @@ import java.io.File;
 import java.time.*;
 import java.util.ArrayList;
 
+// Async task for refreshing the charts + project table (AllReportRows). Garbage collected when the task ends.
+// Actual chart creation happens in SummaryBuilder and ChartBuilder classes.
 public class ReportRefresher extends AsyncTask<Boolean> {
 
     private final CacheMgr cache;
@@ -51,6 +53,7 @@ public class ReportRefresher extends AsyncTask<Boolean> {
             final int minYear = Year.from(earliest).getValue();
             int maxYear = minYear;
             YearMonth ym = YearMonth.from(earliest);
+            // create missing MonthSummary by reading the record
             while(!seeker.eof()){
                 if(missingMonthSummary(ym)){
                     SummaryBuilder summaryBuilder = new SummaryBuilder(ym, z, ym.isBefore(YearMonth.now(z)));
@@ -63,6 +66,7 @@ public class ReportRefresher extends AsyncTask<Boolean> {
                 maxYear = ym.getYear();
                 ym = ym.plusMonths(1);
             }
+            // create missing YearSummary by reading existing MonthSummary
             YearList yearList = new YearList();
             for (int year = minYear; year <= maxYear; year++) {
                 final Year y = Year.of(year);
@@ -154,3 +158,4 @@ public class ReportRefresher extends AsyncTask<Boolean> {
         return result;
     }
 }
+

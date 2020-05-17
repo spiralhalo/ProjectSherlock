@@ -5,6 +5,7 @@ import org.pushingpixels.flamingo.api.common.JCommandButton;
 import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
+import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserBool;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode;
 import xyz.spiralhalo.sherlock.report.*;
@@ -384,9 +385,9 @@ public class AppView implements AppViewAccessor {
 //            pbBreakRatio.setValue(100);
             lDBreaktime.setVisible(false);
         }
-        if (UserConfig.userGBool(UserNode.VIEW, UserInt.OLD_RATING)) {
+        if (UserConfig.userGBool(UserNode.VIEW, UserBool.OLD_RATING)) {
             int r = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < t ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / t);
-            if(!UserConfig.userGBool(UserNode.VIEW, UserInt.EXCEED_100_PERCENT) && r > 100) r = 100;
+            if(!UserConfig.userGBool(UserNode.VIEW, UserBool.EXCEED_100_PERCENT) && r > 100) r = 100;
             if (UserConfig.userGWDay(s.date.get(ChronoField.DAY_OF_WEEK))) {
                 lDRating.setText(String.format("Rating: %d%%", r));
                 Color ratioFG = interpolateNicely((float) r / 100f, bad, neu, gut);
@@ -397,22 +398,14 @@ public class AppView implements AppViewAccessor {
             }
         } else {
             int r = meta.getWorkDur() * 100 / t;
-            if(!UserConfig.userGBool(UserNode.VIEW, UserInt.EXCEED_100_PERCENT) && r > 100) r = 100;
-            if (r < 20) {
-                lDRating.setText("BREAK DAY");
-//                Color ratioFG = new Color(0xff77aa);
-//                lDRating.setForeground(Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
+            if(!UserConfig.userGBool(UserNode.VIEW, UserBool.EXCEED_100_PERCENT) && r > 100) r = 100;
+            StaticRankDecider.Rank rank = StaticRankDecider.decide(r);
+            if (rank == StaticRankDecider.Rank.BREAK_DAY) {
+                lDRating.setText(rank.label.toUpperCase());
                 lDRating.setForeground(new Color(0x77000000 | Main.currentTheme.foreground, true));
-            } else if (r < 40) {
-                lDRating.setText(String.format("LIGHT WORK (%d)", r));
-                lDRating.setForeground(Main.currentTheme.dark ? lite : multiply(gray, lite));
-            } else if (r < 90) {
-                lDRating.setText(String.format("WELL DONE (%d)", r));
-                lDRating.setForeground(Main.currentTheme.dark ? med : multiply(gray, med));
             } else {
-                lDRating.setText(String.format("EXCELLENT (%d)", r));
-                Color ratioFG = new Color(0x00ffff);
-                lDRating.setForeground(Main.currentTheme.dark ? excel : multiply(gray, excel));
+                lDRating.setText(String.format("%s (%d)", rank.label.toUpperCase(), r));
+                lDRating.setForeground(Main.currentTheme.dark ? rank.color : multiply(gray, rank.color));
             }
         }
     }

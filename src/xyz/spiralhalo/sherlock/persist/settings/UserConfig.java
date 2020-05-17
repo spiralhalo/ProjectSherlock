@@ -13,7 +13,12 @@ public class UserConfig {
     public enum UserInt {
         DAILY_TARGET_SECOND,
         AFK_TIMEOUT_SECOND,
-        WEEKLY_TARGET_DAYS,
+        WEEKLY_TARGET_DAYS
+    }
+
+    public enum UserBool {
+        USE_RANK_MONTH_CHART,
+        LIMIT_MONTH_CHART_UPPER,
         OLD_RATING,
         DISABLE_MONTH_LINE,
         ENABLE_YEAR_LINE,
@@ -54,7 +59,10 @@ public class UserConfig {
         }
     }
 
-    public static boolean userDBool(UserNode node, UserInt key){
+    public static boolean userDBool(UserNode node, UserBool key){
+        if(node==UserNode.VIEW && key==UserBool.LIMIT_MONTH_CHART_UPPER) {
+            return true;
+        }
         return false;
     }
 
@@ -78,11 +86,11 @@ public class UserConfig {
         IniHandler.getInstance().putInt(node.value, key.name(), value);
     }
 
-    public static boolean userGBool(UserNode node, UserInt key){
+    public static boolean userGBool(UserNode node, UserBool key){
         return IniHandler.getInstance().getBoolean(node.value, key.name(), userDBool(node, key));
     }
 
-    public static void userSBool(UserNode node, UserInt key, boolean value){
+    public static void userSBool(UserNode node, UserBool key, boolean value){
         IniHandler.getInstance().putBoolean(node.value, key.name(), value);
     }
 }

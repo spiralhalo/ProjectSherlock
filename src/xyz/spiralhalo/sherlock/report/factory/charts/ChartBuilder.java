@@ -18,12 +18,12 @@ public class ChartBuilder<T extends Temporal> {
     private static final String OTHER = "Other";
     private static final String DELETED = "(Deleted)";
 
-    private static class UnitMap extends HashMap<Long,Integer>{}
+    protected static class UnitMap extends HashMap<Long,Integer>{}
 
-    private final T date;
-    private final UnitMap[] units;
-    private final HashMap<Long,Boolean> productiveMap;
-    private final ChartType type;
+    protected final T date;
+    protected final UnitMap[] units;
+    protected final HashMap<Long,Boolean> productiveMap;
+    protected final ChartType type;
     private final boolean inclTotal;
     private final ZoneId z;
 

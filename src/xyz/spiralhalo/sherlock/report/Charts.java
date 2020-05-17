@@ -40,6 +40,7 @@ import java.time.temporal.ChronoField;
 import java.util.HashMap;
 
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.*;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserBool.*;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.GENERAL;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.VIEW;
 import static xyz.spiralhalo.sherlock.util.ColorUtil.*;
@@ -91,7 +92,15 @@ public class Charts {
                 monthSummary.getMonthChart().getMeta());
 
         final CategoryPlot plot = x.getCategoryPlot();
+        //get config vars
         final int target = UserConfig.userGInt(GENERAL, DAILY_TARGET_SECOND);
+        final boolean useRankChart = UserConfig.userGBool(VIEW, USE_RANK_MONTH_CHART)
+                && !UserConfig.userGBool(VIEW, OLD_RATING);
+
+        //set char upper limit if using rank chart or limit
+        if(useRankChart || UserConfig.userGBool(VIEW, LIMIT_MONTH_CHART_UPPER)) {
+            plot.getRangeAxis().setRange(0, target / 3600 + 1);
+        }
 
         final Color fg = new Color(Main.currentTheme.foreground | 0x88000000, true);
         if(!UserConfig.userGBool(VIEW, DISABLE_MONTH_LINE)) {
@@ -119,79 +128,81 @@ public class Charts {
 
         ZoneId z = ZoneId.systemDefault();
         HashMap<LocalDate, CategoryImageAnnotation> annotations = new HashMap<>();
-        double max = 0;
-
-        CategoryDataset originalDataset = plot.getDataset(0);
-        Color holidayFG = new Color(0x77000000 | Main.currentTheme.foreground, true);
-        for (int i = 0; i < ym.lengthOfMonth(); i++) {
-            LocalDate date = ym.atDay(i+1);
-            ChartData dayChart = monthSummary.getDayCharts().get(date);
-            FlexibleLocale unitLabel = ChartType.DAY_IN_MONTH.unitLabel(ym, i);
-            if(dayChart != null){
-                ChartMeta meta = dayChart.getMeta();
-                if (UserConfig.userGBool(VIEW, OLD_RATING)) {
-                    int ratio = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < target ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / target);
-                    if (UserConfig.userGWDay(date.get(ChronoField.DAY_OF_WEEK))) {
-                        Color ratioFG = interpolateNicely((float) ratio / 100f, bad, neu, gut);
-                        axis.setTickLabelPaint(unitLabel, Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
-                    } else {
-                        axis.setTickLabelPaint(unitLabel, holidayFG);
-                    }
-                } else {
-                    int ratio = meta.getWorkDur() * 100 / target;
-                    if (ratio < 20) {
-                        axis.setTickLabelPaint(unitLabel, holidayFG);
-//                        Color ratioFG = new Color(0xff77aa);
-//                        axis.setTickLabelPaint(unitLabel, Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
-                    } else if (ratio < 40) {
-                        Color ratioFG = new Color(0xff66ff);
-                        axis.setTickLabelPaint(unitLabel, Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
-                    } else if (ratio < 90) {
-                        Color ratioFG = new Color(0x00ff00);
-                        axis.setTickLabelPaint(unitLabel, Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
-                    } else {
-                        Color ratioFG = new Color(0x00ffff);
-                        axis.setTickLabelPaint(unitLabel, Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
-                    }
-                }
-                totalSet.addValue((Number) (meta.getWorkDur() / 3600f), "Work Total", unitLabel);
-            } else {
-                totalSet.addValue((Number)0, "Work Total", unitLabel);
-            }
-            double total = 0;
-            for (int j = 0; j < originalDataset.getRowCount(); j++) {
-                final Number value = originalDataset.getValue(j, i);
-                if(value==null)continue;
-                total = total + value.doubleValue();
-            }
-            if(total>max)max=total;
-        }
+        double visualUpperBound = plot.getRangeAxis().getRange().getUpperBound() * 0.94;
 
         int ij = 0;
+        Color holidayFG = new Color(0x77000000 | Main.currentTheme.foreground, true); //holidayFG shared between old and new rating
         for (int i = 0; i < ym.lengthOfMonth(); i++) {
-            LocalDate date = ym.atDay(i+1);
+            LocalDate date = ym.atDay(i + 1);
+
+            // create "Work Total" if not using rank chart
+            if(!useRankChart) {
+                ChartData dayChart = monthSummary.getDayCharts().get(date);
+                FlexibleLocale unitLabel = ChartType.DAY_IN_MONTH.unitLabel(ym, i);
+                if (dayChart != null) {
+                    ChartMeta meta = dayChart.getMeta();
+                    if (UserConfig.userGBool(VIEW, OLD_RATING)) {
+                        int ratio = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < target ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / target);
+                        if (UserConfig.userGWDay(date.get(ChronoField.DAY_OF_WEEK))) {
+                            Color ratioFG = interpolateNicely((float) ratio / 100f, bad, neu, gut);
+                            axis.setTickLabelPaint(unitLabel, Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
+                        } else {
+                            axis.setTickLabelPaint(unitLabel, holidayFG);
+                        }
+                    } else {
+                        int ratio = meta.getWorkDur() * 100 / target;
+                        if (ratio < 20) {
+                            axis.setTickLabelPaint(unitLabel, holidayFG);
+//                        Color ratioFG = new Color(0xff77aa);
+//                        axis.setTickLabelPaint(unitLabel, Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
+                        } else if (ratio < 40) {
+                            Color ratioFG = new Color(0xff66ff);
+                            axis.setTickLabelPaint(unitLabel, Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
+                        } else if (ratio < 90) {
+                            Color ratioFG = new Color(0x00ff00);
+                            axis.setTickLabelPaint(unitLabel, Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
+                        } else {
+                            Color ratioFG = new Color(0x00ffff);
+                            axis.setTickLabelPaint(unitLabel, Main.currentTheme.dark ? ratioFG : multiply(gray, ratioFG));
+                        }
+                    }
+                    totalSet.addValue((Number) (meta.getWorkDur() / 3600f), "Work Total", unitLabel);
+                } else {
+                    totalSet.addValue((Number) 0, "Work Total", unitLabel);
+                }
+            }
+
             if(YearNotes.getNote(z, date) != null) {
-                CategoryImageAnnotation ann = monthAnnotation(ym, i+1,max);
+                CategoryImageAnnotation ann = monthAnnotation(ym, i+1,visualUpperBound);
                 annotations.put(date, ann);
                 plot.addAnnotation(ann);
             }
 
             if(date.getDayOfWeek().equals(DayOfWeek.MONDAY)){
                 ij++;
-                CategoryTextAnnotation textAnn = new CategoryTextAnnotation(Integer.toString(ij), ChartType.DAY_IN_MONTH.unitLabel(ym, i), max);
+                CategoryTextAnnotation textAnn = new CategoryTextAnnotation("w"+(ij), ChartType.DAY_IN_MONTH.unitLabel(ym, i), visualUpperBound);
                 textAnn.setPaint(fg);
                 plot.addAnnotation(textAnn);
             }
+
+            if(date.isEqual(LocalDate.now())){
+                CategoryTextAnnotation todayAnn = new CategoryTextAnnotation("today", ChartType.DAY_IN_MONTH.unitLabel(ym, i), visualUpperBound*0.7);
+                todayAnn.setPaint(fg);
+                plot.addAnnotation(todayAnn);
+            }
         }
 
-        plot.setDataset(1, plot.getDataset(0));
-        plot.setRenderer(1, plot.getRenderer(0));
+        if(!useRankChart) {
+            // create "Work Total" on the legend if not using rank chart
+            plot.setDataset(1, plot.getDataset(0));
+            plot.setRenderer(1, plot.getRenderer(0));
 
-        plot.setDataset(0, totalSet);
-        plot.setRenderer(0, new LineAndShapeRenderer());
-        plot.getRenderer(0).setDefaultToolTipGenerator(new StandardCategoryToolTipGenerator());
+            plot.setDataset(0, totalSet);
+            plot.setRenderer(0, new LineAndShapeRenderer());
+            plot.getRenderer(0).setDefaultToolTipGenerator(new StandardCategoryToolTipGenerator());
+        }
 
-        return new MonthChartInfo(x, annotations, ym, max);
+        return new MonthChartInfo(x, annotations, ym, visualUpperBound);
     }
 
     public static JFreeChart createYearBarChart(YearSummary ys){
