@@ -18,8 +18,7 @@ public class Application {
     private static final String ORGDIR = "spiralhalo";
     private static final String SAVEDIR = "ProjectLogger2";
     private static String cachedSaveDir;
-    private static String cachedCacheDir;
-    private static String cachedLogDir;
+//    private static String cachedLogDir;
     private static String cachedJarPath;
     private static String cachedJavawPath;
 
@@ -79,19 +78,29 @@ public class Application {
         return cachedSaveDir;
     }
 
+    private static String getSubSaveDir(String dirName)
+    {
+        File subSaveDir = new File(getSaveDir(), dirName);
+        if(subSaveDir.isDirectory()){
+            return subSaveDir.getPath();
+        }
+        if(subSaveDir.exists() && !subSaveDir.isDirectory()) {
+            subSaveDir.delete();
+        }
+        if(!subSaveDir.exists()){
+            subSaveDir.mkdir();
+        }
+        return subSaveDir.getPath();
+    }
+
     public static String getCacheDir()
     {
-        File cacheDir = new File(getSaveDir(), "cache");
-        if(cacheDir.isDirectory() && cachedCacheDir != null){
-            return cachedCacheDir;
-        }
-        if(cacheDir.exists() && !cacheDir.isDirectory()) {
-            cacheDir.delete();
-        }
-        if(!cacheDir.exists()){
-            cacheDir.mkdir();
-        }
-        return cachedCacheDir = cacheDir.getPath();
+        return getSubSaveDir("cache");
+    }
+
+    public static String getThumbsDir()
+    {
+        return getSubSaveDir("thumbs");
     }
 
     private static final String LOCKFILE = "running.lock";
@@ -113,20 +122,20 @@ public class Application {
         return true;
     }
 
-    public static String getLogDir()
-    {
-        File logDir = new File(getSaveDir(), "logs");
-        if(logDir.isDirectory() && cachedLogDir != null){
-            return cachedLogDir;
-        }
-        if(logDir.exists() && !logDir.isDirectory()) {
-            logDir.delete();
-        }
-        if(!logDir.exists()){
-            logDir.mkdir();
-        }
-        return cachedLogDir = logDir.getPath();
-    }
+//    public static String getLogDir()
+//    {
+//        File logDir = new File(getSaveDir(), "logs");
+//        if(logDir.isDirectory() && cachedLogDir != null){
+//            return cachedLogDir;
+//        }
+//        if(logDir.exists() && !logDir.isDirectory()) {
+//            logDir.delete();
+//        }
+//        if(!logDir.exists()){
+//            logDir.mkdir();
+//        }
+//        return cachedLogDir = logDir.getPath();
+//    }
 
     public static boolean isWindows(){
         return (System.getProperty("os.name")).toUpperCase().contains("WIN");

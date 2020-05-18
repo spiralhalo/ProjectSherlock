@@ -1,6 +1,7 @@
 package xyz.spiralhalo.sherlock;
 
 import com.sun.jna.platform.win32.*;
+import xyz.spiralhalo.sherlock.EnumerateWindows.WindowInfo;
 import xyz.spiralhalo.sherlock.Main.Arg;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
@@ -29,7 +30,7 @@ public class Tracker implements TrackerAccessor{
     private final AFKMonitor afkMonitor;
     private final List<TrackerListener> listeners;
     private long last;
-    private String[] tempa;
+    private WindowInfo tempa;
     private Timer timer;
     private ProjectList projectList;
     private RealtimeRecordWriter buffer;
@@ -78,19 +79,20 @@ public class Tracker implements TrackerAccessor{
     private void log(long time){
         if(afkMonitor.isNotAFK()) {
             final ZonedDateTime now = ZonedDateTime.now();
-            tempa = EnumerateWindows.getActiveWindowTitle();
-            lastTracked = projectList.getActiveProjectOf(tempa[0], tempa[1], now);
-            Debug.logVerbose(()->String.format("%18s %s", "[ForegroundWindow]", tempa[0]));
+            tempa = EnumerateWindows.getActiveWindowInfo();
+            lastTracked = projectList.getActiveProjectOf(tempa.title, tempa.exeName, now);
+            Debug.logVerbose(()->String.format("%18s %s", "[ForegroundWindow]", tempa.title));
             if(lastTracked==null) {
-                tempa = EnumerateWindows.getRootWindowTitle();
-                lastTracked = projectList.getActiveProjectOf(tempa[0], tempa[1], now);
-                Debug.logVerbose(()->String.format("%18s %s", "[GW_OWNER]", tempa[0]));
+                WinDef.HWND activeHwnd = tempa.hwndPointer;
+                tempa = EnumerateWindows.getRootWindowInfo(activeHwnd);
+                lastTracked = projectList.getActiveProjectOf(tempa.title, tempa.exeName, now);
+                Debug.logVerbose(()->String.format("%18s %s", "[GW_OWNER]", tempa.title));
             }
             final String pn = String.valueOf(lastTracked);
             Debug.logVerbose(()->String.format("%18s Detected project: %s", "", pn));
             buffer.log(lastTracked);
             for(TrackerListener listener:listeners){
-                listener.onLog(lastTracked, tempa[0], tempa[1]);
+                listener.onTrackerLog(lastTracked, tempa);
             }
         }
         last = time;

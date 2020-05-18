@@ -1,43 +1,26 @@
 package xyz.spiralhalo.sherlock.focus;
 
 import xyz.spiralhalo.sherlock.Debug;
+import xyz.spiralhalo.sherlock.EnumerateWindows;
 import xyz.spiralhalo.sherlock.TrackerAccessor;
+import xyz.spiralhalo.sherlock.TrackerListener;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class FocusMgr {
+public class FocusMgr implements TrackerListener {
     private final ProjectList projectList;
+    private final TrayIcon tray;
+    private final long trackerGranularityMillis;
     private FocusView focusView;
 
     public FocusMgr(ProjectList projectList, TrackerAccessor tracker, TrayIcon tray){
         this.projectList = projectList;
-        tracker.addListener((project, windowTitle, exe) -> {
-            FocusState state = FocusState.getInstance();
-            if(state.isEnabled()){
-                if(project != state.getProject(projectList)) {
-                    getFocusView().setVisible(true);
-                } else {
-                    getFocusView().setVisible(false);
-                    if(state.getDuration() >= 0){
-                        long newDuration = state.getDuration() - tracker.getGranularityMillis();
-                        state.setDuration(newDuration);
-                        if(newDuration <= 0){
-                            turnOff();
-                            if(tray != null) {
-                                tray.displayMessage("Focus time is over",
-                                        String.format("Focus time for \"%s\" is over! [Project Sherlock]",
-                                                project.getName()), TrayIcon.MessageType.INFO);
-                            }
-                        }
-                    }
-                }
-            } else {
-                attemptDisposeView();
-            }
-        });
+        this.tray = tray;
+        trackerGranularityMillis = tracker.getGranularityMillis();
+        tracker.addListener(this);
     }
 
     private FocusView getFocusView(){
@@ -96,5 +79,31 @@ public class FocusMgr {
         state.setProject(-1);
         state.setEnabled(false);
         attemptDisposeView();
+    }
+
+    @Override
+    public void onTrackerLog(Project project, EnumerateWindows.WindowInfo windowInfo) {
+        FocusState state = FocusState.getInstance();
+        if(state.isEnabled()){
+            if(project != state.getProject(projectList)) {
+                getFocusView().setVisible(true);
+            } else {
+                getFocusView().setVisible(false);
+                if(state.getDuration() >= 0){
+                    long newDuration = state.getDuration() - trackerGranularityMillis;
+                    state.setDuration(newDuration);
+                    if(newDuration <= 0){
+                        turnOff();
+                        if(tray != null) {
+                            tray.displayMessage("Focus time is over",
+                                    String.format("Focus time for \"%s\" is over! [Project Sherlock]",
+                                            project.getName()), TrayIcon.MessageType.INFO);
+                        }
+                    }
+                }
+            }
+        } else {
+            attemptDisposeView();
+        }
     }
 }

@@ -11,12 +11,26 @@ import com.sun.jna.platform.win32.WinUser.WNDENUMPROC;
 import com.sun.jna.ptr.IntByReference;
 import xyz.spiralhalo.sherlock.util.jna.DwmApi;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 import static com.sun.jna.platform.win32.WinError.S_OK;
 import static xyz.spiralhalo.sherlock.util.jna.DWMWINDOWATTRIBUTE.DWMWA_CLOAKED;
 
 public class EnumerateWindows {
+
+    public static class WindowInfo {
+        public final HWND hwndPointer;
+        public final String title;
+        public final String exeName;
+
+        public WindowInfo(HWND hwndPointer, String title, String exeName) {
+            this.hwndPointer = hwndPointer;
+            this.title = title;
+            this.exeName = exeName;
+        }
+    }
+
     private static final int MAX_TITLE_LENGTH = 1024;
     private static final DWORD GW_OWNER = new DWORD(4L);
     private static final User32 user32 = User32.INSTANCE;
@@ -24,14 +38,20 @@ public class EnumerateWindows {
     private static final Psapi psapi = Psapi.INSTANCE;
     private static final DwmApi dwmapi = DwmApi.INSTANCE;
 
-    public static String[] getActiveWindowTitle() {
+    public static WindowInfo getActiveWindowInfo() {
         HWND foregroundWindow = user32.GetForegroundWindow();
-        return new String[]{getTitle(foregroundWindow), getExeName(foregroundWindow)};
+        return new WindowInfo(foregroundWindow, getTitle(foregroundWindow), getExeName(foregroundWindow));
     }
 
-    public static String[] getRootWindowTitle() {
-        HWND rootWindow = user32.GetWindow(user32.GetForegroundWindow(), GW_OWNER);
-        return new String[]{getTitle(rootWindow), getExeName(rootWindow)};
+    public static WindowInfo getRootWindowInfo(HWND foregroundWindow) {
+        HWND rootWindow = user32.GetWindow(foregroundWindow, GW_OWNER);
+        return new WindowInfo(rootWindow, getTitle(foregroundWindow), getExeName(foregroundWindow));
+    }
+
+    public static Rectangle getWindowRect(HWND window){
+        WinDef.RECT rect = new WinDef.RECT();
+        user32.GetWindowRect(window, rect);
+        return rect.toRectangle();
     }
 
     public static String[] getOpenWindowTitles(String[] filterOut, boolean includeProcess) {

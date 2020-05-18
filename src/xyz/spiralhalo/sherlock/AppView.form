@@ -1,74 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="xyz.spiralhalo.sherlock.AppView">
-  <grid id="27dc6" binding="rootPane" default-binding="true" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="0">
+  <grid id="27dc6" binding="rootPane" default-binding="true" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="0">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="1074" height="692"/>
+      <xy x="20" y="20" width="1235" height="692"/>
     </constraints>
     <properties>
       <preferredSize width="680" height="680"/>
     </properties>
     <border type="none"/>
     <children>
-      <grid id="9522c" binding="pnlStatus" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="0" left="4" bottom="4" right="4"/>
-        <constraints>
-          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <visible value="true"/>
-        </properties>
-        <border type="none"/>
-        <children>
-          <component id="8faa" class="javax.swing.JLabel" binding="lblTracking">
-            <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-          </component>
-          <component id="2104d" class="javax.swing.JLabel" binding="lblRefresh">
-            <constraints>
-              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties/>
-          </component>
-          <hspacer id="b5d11">
-            <constraints>
-              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-          </hspacer>
-          <grid id="78d98" binding="pnlRefreshing" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-            <margin top="0" left="0" bottom="0" right="0"/>
-            <constraints>
-              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <visible value="false"/>
-            </properties>
-            <border type="none"/>
-            <children>
-              <component id="642d4" class="javax.swing.JLabel">
-                <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="Refreshing..."/>
-                </properties>
-              </component>
-              <component id="d910b" class="javax.swing.JProgressBar" binding="progress" default-binding="true">
-                <constraints>
-                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <indeterminate value="true"/>
-                  <maximumSize width="100" height="4"/>
-                  <preferredSize width="100" height="4"/>
-                </properties>
-              </component>
-            </children>
-          </grid>
-        </children>
-      </grid>
       <toolbar id="b7269" binding="toolbarMain">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
@@ -255,411 +196,518 @@
           </component>
         </children>
       </toolbar>
-      <tabbedpane id="14445" binding="tabr" default-binding="true">
+      <tabbedpane id="49cb8" binding="tabbedPane1" default-binding="true">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="200" height="270"/>
-          </grid>
-        </constraints>
-        <properties/>
-        <border type="none"/>
-        <children>
-          <grid id="e410f" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="0">
-            <margin top="0" left="0" bottom="0" right="0"/>
-            <constraints>
-              <tabbedpane title="Day statistics"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <toolbar id="19e0e">
-                <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="-1" height="20"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <floatable value="false"/>
-                </properties>
-                <border type="none"/>
-                <children>
-                  <component id="feea3" class="javax.swing.JButton" binding="btnFirstD">
-                    <constraints/>
-                    <properties>
-                      <icon value="xyz/spiralhalo/sherlock/res/sm_first.png"/>
-                      <text value=""/>
-                    </properties>
-                  </component>
-                  <component id="8e31d" class="javax.swing.JButton" binding="btnPrevD">
-                    <constraints/>
-                    <properties>
-                      <icon value="xyz/spiralhalo/sherlock/res/sm_left.png"/>
-                      <text value=""/>
-                    </properties>
-                  </component>
-                  <component id="f1da6" class="javax.swing.JComboBox" binding="comboD" custom-create="true">
-                    <constraints/>
-                    <properties/>
-                  </component>
-                  <component id="1e7b6" class="javax.swing.JButton" binding="btnNextD">
-                    <constraints/>
-                    <properties>
-                      <icon value="xyz/spiralhalo/sherlock/res/sm_right.png"/>
-                      <text value=""/>
-                    </properties>
-                  </component>
-                  <component id="e990" class="javax.swing.JButton" binding="btnLastD">
-                    <constraints/>
-                    <properties>
-                      <icon value="xyz/spiralhalo/sherlock/res/sm_last.png"/>
-                      <text value=""/>
-                    </properties>
-                  </component>
-                </children>
-              </toolbar>
-              <grid id="df04b" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="0">
-                <margin top="0" left="4" bottom="0" right="0"/>
-                <constraints>
-                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties/>
-                <border type="none"/>
-                <children>
-                  <grid id="9376d" binding="pnlDChart" layout-manager="BorderLayout" hgap="0" vgap="0">
-                    <constraints>
-                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties/>
-                    <border type="none"/>
-                    <children>
-                      <component id="652d9" class="javax.swing.JLabel" binding="lDNoData">
-                        <constraints border-constraint="Center"/>
-                        <properties>
-                          <horizontalAlignment value="0"/>
-                          <text value="No data. (Try refreshing?)"/>
-                        </properties>
-                      </component>
-                    </children>
-                  </grid>
-                  <grid id="be225" binding="pnlDProgress" layout-manager="BorderLayout" hgap="0" vgap="0">
-                    <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                        <preferred-size width="25" height="-1"/>
-                      </grid>
-                    </constraints>
-                    <properties/>
-                    <border type="none"/>
-                    <children/>
-                  </grid>
-                </children>
-              </grid>
-              <grid id="91f48" layout-manager="GridLayoutManager" row-count="1" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                <margin top="0" left="8" bottom="0" right="8"/>
-                <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties/>
-                <border type="none"/>
-                <children>
-                  <component id="c0b0c" class="javax.swing.JLabel" binding="lDLogged">
-                    <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                        <preferred-size width="210" height="-1"/>
-                        <maximum-size width="210" height="-1"/>
-                      </grid>
-                    </constraints>
-                    <properties>
-                      <text value="Logged"/>
-                    </properties>
-                  </component>
-                  <component id="c7e12" class="javax.swing.JLabel" binding="lDRating">
-                    <constraints>
-                      <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <font style="1"/>
-                      <text value="Ratio"/>
-                    </properties>
-                  </component>
-                  <component id="21fcb" class="javax.swing.JButton" binding="btnDayNote">
-                    <constraints>
-                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <text value="AA"/>
-                      <visible value="false"/>
-                    </properties>
-                  </component>
-                  <component id="cdea5" class="javax.swing.JButton" binding="btnDayAudit">
-                    <constraints>
-                      <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <text value="BB"/>
-                      <visible value="false"/>
-                    </properties>
-                  </component>
-                  <grid id="75d37" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="4">
-                    <constraints>
-                      <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="4" fill="2" indent="0" use-parent-layout="false">
-                        <preferred-size width="210" height="-1"/>
-                        <maximum-size width="210" height="-1"/>
-                      </grid>
-                    </constraints>
-                    <properties/>
-                    <border type="none"/>
-                    <children>
-                      <component id="d96f0" class="javax.swing.JLabel" binding="lDBreaktime">
-                        <constraints/>
-                        <properties>
-                          <foreground color="-16729334"/>
-                          <horizontalAlignment value="11"/>
-                          <text value="Break"/>
-                        </properties>
-                      </component>
-                      <component id="9ce50" class="javax.swing.JLabel" binding="lDWorktime">
-                        <constraints/>
-                        <properties>
-                          <horizontalAlignment value="11"/>
-                          <text value="Project"/>
-                        </properties>
-                      </component>
-                    </children>
-                  </grid>
-                </children>
-              </grid>
-            </children>
-          </grid>
-          <grid id="a297" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-            <margin top="0" left="0" bottom="0" right="0"/>
-            <constraints>
-              <tabbedpane title="Month statistics"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <toolbar id="eb8b">
-                <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="-1" height="20"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <floatable value="false"/>
-                </properties>
-                <border type="none"/>
-                <children>
-                  <component id="ffae4" class="javax.swing.JButton" binding="btnFirstM">
-                    <constraints/>
-                    <properties>
-                      <icon value="xyz/spiralhalo/sherlock/res/sm_first.png"/>
-                      <text value=""/>
-                    </properties>
-                  </component>
-                  <component id="9229d" class="javax.swing.JButton" binding="btnPrevM">
-                    <constraints/>
-                    <properties>
-                      <icon value="xyz/spiralhalo/sherlock/res/sm_left.png"/>
-                      <text value=""/>
-                    </properties>
-                  </component>
-                  <component id="72b4e" class="javax.swing.JComboBox" binding="comboM" custom-create="true">
-                    <constraints/>
-                    <properties/>
-                  </component>
-                  <component id="fa6d2" class="javax.swing.JButton" binding="btnNextM">
-                    <constraints/>
-                    <properties>
-                      <icon value="xyz/spiralhalo/sherlock/res/sm_right.png"/>
-                      <text value=""/>
-                    </properties>
-                  </component>
-                  <component id="2ee3b" class="javax.swing.JButton" binding="btnLastM">
-                    <constraints/>
-                    <properties>
-                      <icon value="xyz/spiralhalo/sherlock/res/sm_last.png"/>
-                      <text value=""/>
-                    </properties>
-                  </component>
-                </children>
-              </toolbar>
-              <grid id="aa634" binding="pnlMChart" layout-manager="BorderLayout" hgap="0" vgap="0">
-                <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties/>
-                <border type="none"/>
-                <children>
-                  <component id="4536" class="javax.swing.JLabel" binding="lMNoData">
-                    <constraints border-constraint="Center"/>
-                    <properties>
-                      <horizontalAlignment value="0"/>
-                      <text value="No data. (Try refreshing?)"/>
-                    </properties>
-                  </component>
-                </children>
-              </grid>
-            </children>
-          </grid>
-          <grid id="4fb9b" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-            <margin top="0" left="0" bottom="0" right="0"/>
-            <constraints>
-              <tabbedpane title="Year statistics"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <toolbar id="19e21">
-                <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="-1" height="20"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <floatable value="false"/>
-                </properties>
-                <border type="none"/>
-                <children>
-                  <component id="6d9c9" class="javax.swing.JButton" binding="btnFirstY">
-                    <constraints/>
-                    <properties>
-                      <icon value="xyz/spiralhalo/sherlock/res/sm_first.png"/>
-                      <text value=""/>
-                    </properties>
-                  </component>
-                  <component id="cf2a2" class="javax.swing.JButton" binding="btnPrevY">
-                    <constraints/>
-                    <properties>
-                      <icon value="xyz/spiralhalo/sherlock/res/sm_left.png"/>
-                      <text value=""/>
-                    </properties>
-                  </component>
-                  <component id="3121b" class="javax.swing.JComboBox" binding="comboY" custom-create="true">
-                    <constraints/>
-                    <properties/>
-                  </component>
-                  <component id="d5438" class="javax.swing.JButton" binding="btnNextY">
-                    <constraints/>
-                    <properties>
-                      <icon value="xyz/spiralhalo/sherlock/res/sm_right.png"/>
-                      <text value=""/>
-                    </properties>
-                  </component>
-                  <component id="b335d" class="javax.swing.JButton" binding="btnLastY">
-                    <constraints/>
-                    <properties>
-                      <icon value="xyz/spiralhalo/sherlock/res/sm_last.png"/>
-                      <text value=""/>
-                    </properties>
-                  </component>
-                </children>
-              </toolbar>
-              <grid id="e9cd8" binding="pnlYChart" layout-manager="BorderLayout" hgap="0" vgap="0">
-                <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties/>
-                <border type="none"/>
-                <children>
-                  <component id="e6dbd" class="javax.swing.JLabel" binding="lYNoData">
-                    <constraints border-constraint="Center"/>
-                    <properties>
-                      <horizontalAlignment value="0"/>
-                      <text value="No data. (Try refreshing?)"/>
-                    </properties>
-                  </component>
-                </children>
-              </grid>
-            </children>
-          </grid>
-        </children>
-      </tabbedpane>
-      <tabbedpane id="a8959" binding="tabs" default-binding="true">
-        <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <preferred-size width="200" height="200"/>
           </grid>
         </constraints>
         <properties/>
         <border type="none"/>
         <children>
-          <grid id="7cbbe" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="9bf22" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
-              <tabbedpane title="Active projects"/>
+              <tabbedpane title="Dashboard"/>
             </constraints>
             <properties/>
             <border type="none"/>
             <children>
-              <scrollpane id="ac37f">
+              <scrollpane id="f2b36">
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
-                <properties/>
+                <properties>
+                  <horizontalScrollBarPolicy value="31"/>
+                </properties>
                 <border type="none"/>
                 <children>
-                  <component id="a7834" class="javax.swing.JTable" binding="tActive">
+                  <grid id="628e6" binding="thumbsPane" custom-create="true" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
                     <constraints/>
-                    <properties>
-                      <autoCreateRowSorter value="true"/>
-                    </properties>
-                  </component>
+                    <properties/>
+                    <border type="none"/>
+                    <children/>
+                  </grid>
                 </children>
               </scrollpane>
             </children>
           </grid>
-          <grid id="99e06" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="331c1" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
-              <tabbedpane title="Finished projects"/>
+              <tabbedpane title="Statistics"/>
             </constraints>
             <properties/>
             <border type="none"/>
             <children>
-              <scrollpane id="8c993">
+              <tabbedpane id="14445" binding="tabr" default-binding="true">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                    <preferred-size width="200" height="270"/>
+                  </grid>
                 </constraints>
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="accb" class="javax.swing.JTable" binding="tFinished">
-                    <constraints/>
-                    <properties>
-                      <autoCreateRowSorter value="true"/>
-                    </properties>
-                  </component>
+                  <grid id="e410f" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="0">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <tabbedpane title="Day statistics"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <toolbar id="19e0e">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="-1" height="20"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <floatable value="false"/>
+                        </properties>
+                        <border type="none"/>
+                        <children>
+                          <component id="feea3" class="javax.swing.JButton" binding="btnFirstD">
+                            <constraints/>
+                            <properties>
+                              <icon value="xyz/spiralhalo/sherlock/res/sm_first.png"/>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                          <component id="8e31d" class="javax.swing.JButton" binding="btnPrevD">
+                            <constraints/>
+                            <properties>
+                              <icon value="xyz/spiralhalo/sherlock/res/sm_left.png"/>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                          <component id="f1da6" class="javax.swing.JComboBox" binding="comboD" custom-create="true">
+                            <constraints/>
+                            <properties/>
+                          </component>
+                          <component id="1e7b6" class="javax.swing.JButton" binding="btnNextD">
+                            <constraints/>
+                            <properties>
+                              <icon value="xyz/spiralhalo/sherlock/res/sm_right.png"/>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                          <component id="e990" class="javax.swing.JButton" binding="btnLastD">
+                            <constraints/>
+                            <properties>
+                              <icon value="xyz/spiralhalo/sherlock/res/sm_last.png"/>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                        </children>
+                      </toolbar>
+                      <grid id="df04b" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="0">
+                        <margin top="0" left="4" bottom="0" right="0"/>
+                        <constraints>
+                          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <grid id="9376d" binding="pnlDChart" layout-manager="BorderLayout" hgap="0" vgap="0">
+                            <constraints>
+                              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                            <border type="none"/>
+                            <children>
+                              <component id="652d9" class="javax.swing.JLabel" binding="lDNoData">
+                                <constraints border-constraint="Center"/>
+                                <properties>
+                                  <horizontalAlignment value="0"/>
+                                  <text value="No data. (Try refreshing?)"/>
+                                </properties>
+                              </component>
+                            </children>
+                          </grid>
+                          <grid id="be225" binding="pnlDProgress" layout-manager="BorderLayout" hgap="0" vgap="0">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                                <preferred-size width="25" height="-1"/>
+                              </grid>
+                            </constraints>
+                            <properties/>
+                            <border type="none"/>
+                            <children/>
+                          </grid>
+                        </children>
+                      </grid>
+                      <grid id="91f48" layout-manager="GridLayoutManager" row-count="1" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="8" bottom="0" right="8"/>
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="c0b0c" class="javax.swing.JLabel" binding="lDLogged">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                                <preferred-size width="210" height="-1"/>
+                                <maximum-size width="210" height="-1"/>
+                              </grid>
+                            </constraints>
+                            <properties>
+                              <text value="Logged"/>
+                            </properties>
+                          </component>
+                          <component id="c7e12" class="javax.swing.JLabel" binding="lDRating">
+                            <constraints>
+                              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <font style="1"/>
+                              <text value="Ratio"/>
+                            </properties>
+                          </component>
+                          <component id="21fcb" class="javax.swing.JButton" binding="btnDayNote">
+                            <constraints>
+                              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text value="AA"/>
+                              <visible value="false"/>
+                            </properties>
+                          </component>
+                          <component id="cdea5" class="javax.swing.JButton" binding="btnDayAudit">
+                            <constraints>
+                              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text value="BB"/>
+                              <visible value="false"/>
+                            </properties>
+                          </component>
+                          <grid id="75d37" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="4">
+                            <constraints>
+                              <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="3" hsize-policy="0" anchor="4" fill="2" indent="0" use-parent-layout="false">
+                                <preferred-size width="210" height="-1"/>
+                                <maximum-size width="210" height="-1"/>
+                              </grid>
+                            </constraints>
+                            <properties/>
+                            <border type="none"/>
+                            <children>
+                              <component id="d96f0" class="javax.swing.JLabel" binding="lDBreaktime">
+                                <constraints/>
+                                <properties>
+                                  <foreground color="-16729334"/>
+                                  <horizontalAlignment value="11"/>
+                                  <text value="Break"/>
+                                </properties>
+                              </component>
+                              <component id="9ce50" class="javax.swing.JLabel" binding="lDWorktime">
+                                <constraints/>
+                                <properties>
+                                  <horizontalAlignment value="11"/>
+                                  <text value="Project"/>
+                                </properties>
+                              </component>
+                            </children>
+                          </grid>
+                        </children>
+                      </grid>
+                    </children>
+                  </grid>
+                  <grid id="a297" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <tabbedpane title="Month statistics"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <toolbar id="eb8b">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="-1" height="20"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <floatable value="false"/>
+                        </properties>
+                        <border type="none"/>
+                        <children>
+                          <component id="ffae4" class="javax.swing.JButton" binding="btnFirstM">
+                            <constraints/>
+                            <properties>
+                              <icon value="xyz/spiralhalo/sherlock/res/sm_first.png"/>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                          <component id="9229d" class="javax.swing.JButton" binding="btnPrevM">
+                            <constraints/>
+                            <properties>
+                              <icon value="xyz/spiralhalo/sherlock/res/sm_left.png"/>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                          <component id="72b4e" class="javax.swing.JComboBox" binding="comboM" custom-create="true">
+                            <constraints/>
+                            <properties/>
+                          </component>
+                          <component id="fa6d2" class="javax.swing.JButton" binding="btnNextM">
+                            <constraints/>
+                            <properties>
+                              <icon value="xyz/spiralhalo/sherlock/res/sm_right.png"/>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                          <component id="2ee3b" class="javax.swing.JButton" binding="btnLastM">
+                            <constraints/>
+                            <properties>
+                              <icon value="xyz/spiralhalo/sherlock/res/sm_last.png"/>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                        </children>
+                      </toolbar>
+                      <grid id="aa634" binding="pnlMChart" layout-manager="BorderLayout" hgap="0" vgap="0">
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="4536" class="javax.swing.JLabel" binding="lMNoData">
+                            <constraints border-constraint="Center"/>
+                            <properties>
+                              <horizontalAlignment value="0"/>
+                              <text value="No data. (Try refreshing?)"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </grid>
+                    </children>
+                  </grid>
+                  <grid id="4fb9b" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <tabbedpane title="Year statistics"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <toolbar id="19e21">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                            <preferred-size width="-1" height="20"/>
+                          </grid>
+                        </constraints>
+                        <properties>
+                          <floatable value="false"/>
+                        </properties>
+                        <border type="none"/>
+                        <children>
+                          <component id="6d9c9" class="javax.swing.JButton" binding="btnFirstY">
+                            <constraints/>
+                            <properties>
+                              <icon value="xyz/spiralhalo/sherlock/res/sm_first.png"/>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                          <component id="cf2a2" class="javax.swing.JButton" binding="btnPrevY">
+                            <constraints/>
+                            <properties>
+                              <icon value="xyz/spiralhalo/sherlock/res/sm_left.png"/>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                          <component id="3121b" class="javax.swing.JComboBox" binding="comboY" custom-create="true">
+                            <constraints/>
+                            <properties/>
+                          </component>
+                          <component id="d5438" class="javax.swing.JButton" binding="btnNextY">
+                            <constraints/>
+                            <properties>
+                              <icon value="xyz/spiralhalo/sherlock/res/sm_right.png"/>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                          <component id="b335d" class="javax.swing.JButton" binding="btnLastY">
+                            <constraints/>
+                            <properties>
+                              <icon value="xyz/spiralhalo/sherlock/res/sm_last.png"/>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                        </children>
+                      </toolbar>
+                      <grid id="e9cd8" binding="pnlYChart" layout-manager="BorderLayout" hgap="0" vgap="0">
+                        <constraints>
+                          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="e6dbd" class="javax.swing.JLabel" binding="lYNoData">
+                            <constraints border-constraint="Center"/>
+                            <properties>
+                              <horizontalAlignment value="0"/>
+                              <text value="No data. (Try refreshing?)"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </grid>
+                    </children>
+                  </grid>
                 </children>
-              </scrollpane>
-            </children>
-          </grid>
-          <grid id="5c1fb" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-            <margin top="0" left="0" bottom="0" right="0"/>
-            <constraints>
-              <tabbedpane title="Activities"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <scrollpane id="ac1f1">
+              </tabbedpane>
+              <tabbedpane id="a8959" binding="tabs" default-binding="true">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                    <preferred-size width="200" height="200"/>
+                  </grid>
                 </constraints>
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="14b35" class="javax.swing.JTable" binding="tUtility">
-                    <constraints/>
-                    <properties>
-                      <autoCreateRowSorter value="true"/>
-                    </properties>
-                  </component>
+                  <grid id="7cbbe" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <tabbedpane title="Active projects"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <scrollpane id="ac37f">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="a7834" class="javax.swing.JTable" binding="tActive">
+                            <constraints/>
+                            <properties>
+                              <autoCreateRowSorter value="true"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </scrollpane>
+                    </children>
+                  </grid>
+                  <grid id="99e06" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <tabbedpane title="Finished projects"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <scrollpane id="8c993">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="accb" class="javax.swing.JTable" binding="tFinished">
+                            <constraints/>
+                            <properties>
+                              <autoCreateRowSorter value="true"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </scrollpane>
+                    </children>
+                  </grid>
+                  <grid id="5c1fb" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
+                    <constraints>
+                      <tabbedpane title="Activities"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <scrollpane id="ac1f1">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="14b35" class="javax.swing.JTable" binding="tUtility">
+                            <constraints/>
+                            <properties>
+                              <autoCreateRowSorter value="true"/>
+                            </properties>
+                          </component>
+                        </children>
+                      </scrollpane>
+                    </children>
+                  </grid>
                 </children>
-              </scrollpane>
+              </tabbedpane>
             </children>
           </grid>
         </children>
       </tabbedpane>
+      <grid id="9522c" binding="pnlStatus" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="4" bottom="4" right="4"/>
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <visible value="true"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="8faa" class="javax.swing.JLabel" binding="lblTracking">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="2104d" class="javax.swing.JLabel" binding="lblRefresh">
+            <constraints>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+          </component>
+          <hspacer id="b5d11">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+          </hspacer>
+          <grid id="78d98" binding="pnlRefreshing" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <visible value="false"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="642d4" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Refreshing..."/>
+                </properties>
+              </component>
+              <component id="d910b" class="javax.swing.JProgressBar" binding="progress" default-binding="true">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <indeterminate value="true"/>
+                  <maximumSize width="100" height="4"/>
+                  <preferredSize width="100" height="4"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+        </children>
+      </grid>
     </children>
   </grid>
 </form>

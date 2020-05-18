@@ -86,6 +86,7 @@ public class AppControl implements ActionListener {
     private final ProjectList projectList;
     private final Tracker tracker;
     private final CacheMgr cache;
+    private final ScrSnapper snapper;
     private final TrayIcon trayIcon;
     private final boolean trayIconUsed;
     private final BookmarkMgr bookmark;
@@ -99,11 +100,12 @@ public class AppControl implements ActionListener {
         AutoImporter3.importRecords(projectList);
         AutoImporter2.importRecord(projectList);
         tracker = new Tracker(projectList);
-        tracker.addListener((project, windowTitle, exe) -> {
+        tracker.addListener((project, windowInfo) -> {
             if(view != null && project != null) {
-                view.refreshTrackingStatus(String.format("Last tracked: %s (%s)", project.getName(), exe));
+                view.refreshTrackingStatus(String.format("Last tracked: %s (%s)", project.getName(), windowInfo.exeName));
             }
         });
+        snapper = new ScrSnapper(tracker);
         tracker.start();
         bookmark = new BookmarkMgr(tracker);
 

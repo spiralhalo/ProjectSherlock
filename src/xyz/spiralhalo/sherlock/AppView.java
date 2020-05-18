@@ -15,9 +15,11 @@ import xyz.spiralhalo.sherlock.report.factory.charts.ChartMeta;
 import xyz.spiralhalo.sherlock.report.factory.summary.MonthSummary;
 import xyz.spiralhalo.sherlock.report.factory.summary.YearList;
 import xyz.spiralhalo.sherlock.report.factory.summary.YearSummary;
+import xyz.spiralhalo.sherlock.report.factory.table.AllReportRow;
 import xyz.spiralhalo.sherlock.report.factory.table.AllReportRows;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 import xyz.spiralhalo.sherlock.util.ImgUtil;
+import xyz.spiralhalo.sherlock.util.swing.WrapLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -86,6 +88,8 @@ public class AppView implements AppViewAccessor {
     private JLabel lDBreaktime;
     private JButton btnDeepRefresh;
     private JButton btnExport;
+    private JTabbedPane tabbedPane1;
+    private JPanel thumbsPane;
     private JProgressBar pbBreakRatio;
     private JCommandButton cmdNew;
     private JCommandButton cmdEdit;
@@ -308,8 +312,38 @@ public class AppView implements AppViewAccessor {
             comboY.setSelectedIndex(comboY.getModel().getSize() - 1);
         }
         today = LocalDate.now();
+        refreshThumbs(cache);
     }
 
+    private ArrayList<Thumb> thumbs = new ArrayList<>();
+    private Thumb.ThumbManager thumbManager = new Thumb.ThumbManager() {
+        @Override
+        public void setSelection(long hash) {
+            for (Thumb t:thumbs) {
+                t.onSelectionChanged(hash);
+            }
+        }
+        @Override
+        public void getSelection(long hash) {
+
+        }
+    };
+
+    private void refreshThumbs(CacheMgr cache) {
+        final AllReportRows activeRows = cache.getObj(AllReportRows.activeCacheId(z), AllReportRows.class);
+        thumbsPane.removeAll();
+        for (int i=0; i<activeRows.size(); i++) {
+            AllReportRow row = activeRows.get(i);
+            if(thumbs.size() <= i){
+                thumbs.add(new Thumb(thumbManager, row.getProjectName(), row.getProjectHash()));
+            } else {
+                thumbs.get(i).set(row.getProjectName(), row.getProjectHash());
+            }
+            thumbsPane.add(thumbs.get(i).getPane());
+        }
+    }
+
+    //TODO: fix this dumb redundant code ????
     public void refreshProjects(CacheMgr cache, int index){
         switch (index){
             case 0:
@@ -574,5 +608,6 @@ public class AppView implements AppViewAccessor {
         comboD = new JComboBox<>();
         comboM = new JComboBox<>();
         comboY = new JComboBox<>();
+        thumbsPane = new JPanel(new WrapLayout(FlowLayout.LEFT, 0, 0));
     }
 }

@@ -3,7 +3,9 @@ package xyz.spiralhalo.sherlock.bookmark;
 import com.tulskiy.keymaster.common.HotKey;
 import com.tulskiy.keymaster.common.HotKeyListener;
 import com.tulskiy.keymaster.common.Provider;
+import xyz.spiralhalo.sherlock.EnumerateWindows;
 import xyz.spiralhalo.sherlock.TrackerAccessor;
+import xyz.spiralhalo.sherlock.TrackerListener;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkInt;
 import xyz.spiralhalo.sherlock.bookmark.persist.BookmarkMap;
 import xyz.spiralhalo.sherlock.bookmark.persist.ProjectBookmarks;
@@ -15,7 +17,7 @@ import java.util.Arrays;
 
 import static java.awt.event.KeyEvent.*;
 
-public class BookmarkMgr implements HotKeyListener {
+public class BookmarkMgr implements HotKeyListener, TrackerListener {
     public static final int[] ALLOWED_VK = new int[]{
             VK_F1, VK_F2, VK_F3, VK_F4, VK_F5, VK_F6, VK_F7, VK_F8, VK_F9, VK_F10, VK_F11, VK_F12 };
 
@@ -29,7 +31,7 @@ public class BookmarkMgr implements HotKeyListener {
 
     public BookmarkMgr(TrackerAccessor tracker) {
         bookmarkMap = BookmarkMap.load();
-        tracker.addListener((project, windowTitle, exe) -> lastTracked = project);
+        tracker.addListener(this);
         reinitHotkeyHook();
     }
 
@@ -87,5 +89,10 @@ public class BookmarkMgr implements HotKeyListener {
             int mask = CTRLmask | SHIFTmask;
             hotKeyProvider.register(KeyStroke.getKeyStroke(hotkeyVK, mask, false), this);
         }
+    }
+
+    @Override
+    public void onTrackerLog(Project project, EnumerateWindows.WindowInfo windowInfo) {
+        lastTracked = project;
     }
 }
