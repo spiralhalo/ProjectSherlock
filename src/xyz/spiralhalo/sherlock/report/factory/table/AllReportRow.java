@@ -1,7 +1,9 @@
 package xyz.spiralhalo.sherlock.report.factory.table;
 
+import xyz.spiralhalo.sherlock.ScrSnapper;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 
+import java.io.File;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,7 +33,12 @@ public class AllReportRow implements Serializable {
         this.days = days;
         this.seconds = seconds;
         this.ptype = pType;
-        this.lastWorkedOnMillis = lastWorkedOnMillis;
+        File thumbFile = ScrSnapper.getThumbFile(projectHash);
+        if(thumbFile.exists()) {
+            this.lastWorkedOnMillis = Math.max(lastWorkedOnMillis, thumbFile.lastModified());
+        } else {
+            this.lastWorkedOnMillis = lastWorkedOnMillis;
+        }
     }
 
     public AllReportRow(long projectHash, int projectColor, String projectName, String category, int pType,
@@ -45,7 +52,12 @@ public class AllReportRow implements Serializable {
         this.days = days;
         this.seconds = seconds;
         this.ptype = pType;
-        this.lastWorkedOnMillis = lastWorkedOnMillis;
+        File thumbFile = ScrSnapper.getThumbFile(projectHash);
+        if(thumbFile.exists()) {
+            this.lastWorkedOnMillis = Math.max(lastWorkedOnMillis, thumbFile.lastModified());
+        } else {
+            this.lastWorkedOnMillis = lastWorkedOnMillis;
+        }
     }
     public long getProjectHash() { return projectHash; }
 

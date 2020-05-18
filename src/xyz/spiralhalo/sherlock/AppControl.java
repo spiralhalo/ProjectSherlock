@@ -172,7 +172,7 @@ public class AppControl implements ActionListener {
         view.frame().setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         view.frame().setIconImages(Arrays.asList(ImgUtil.createImage("icon.png","App Icon Small"),
                 ImgUtil.createImage("med_icon.png","App Icon")));
-        view.refreshOverview(cache);
+        view.refreshOverview(cache, projectList.getCategories().toArray(new String[]{}));
     }
 
     private ComponentAdapter windowAdapter2 = new ComponentAdapter() {
@@ -299,6 +299,28 @@ public class AppControl implements ActionListener {
         btnDown.addActionListener(this);
         btnExport.addActionListener(this);
         btnSettings.addActionListener(this);
+    }
+
+    public void setThumbToolbar(JComboBox comboSort, JComboBox comboCat, JComboBox comboType){
+        ItemListener thumbToolbarListener = itemEvent -> {
+            if(itemEvent.getStateChange() != ItemEvent.SELECTED) return;
+            //save selections
+            if(itemEvent.getSource()==comboCat) {
+                if (comboCat.getSelectedIndex() == 0) {
+                    AppConfig.setFilterCategory("0");
+                } else {
+                    AppConfig.setFilterCategory((String) comboCat.getSelectedItem());
+                }
+            } else if(itemEvent.getSource()==comboType) {
+                AppConfig.setFilterType(comboType.getSelectedIndex());
+            } else if(itemEvent.getSource()==comboSort) {
+                AppConfig.setThumbSort(comboSort.getSelectedIndex());
+            }
+            view.refreshThumbs(cache);
+        };
+        comboSort.addItemListener(thumbToolbarListener);
+        comboCat.addItemListener(thumbToolbarListener);
+        comboType.addItemListener(thumbToolbarListener);
     }
 
     public void setExtras(JButton btnBookmarks, JButton btnFocus) {
@@ -469,16 +491,22 @@ public class AppControl implements ActionListener {
         button.addActionListener(this);
     }
 
+    private JMenuItem finishResumeMenu = null;
     public void setTables(JTable tableActive, JTable tableFinished, JTable tableUtilityTags){
         view.setTablePopUpMenu(new JPopupMenu());
         JMenuItem viewMenu = new JMenuItem("View");
         JMenuItem edit = new JMenuItem("Edit");
         JMenuItem delete = new JMenuItem("Delete");
+        finishResumeMenu = new JMenuItem("Finish");
         viewMenu.addActionListener(e->viewProject());
         edit.addActionListener(e->editProject());
         delete.addActionListener(e->deleteProject());
+        finishResumeMenu.addActionListener(e->{
+            finishOrResumeProject(finishResumeMenu.getText().equals("Finish"));
+        });
         view.getTablePopUpMenu().add(viewMenu);
         view.getTablePopUpMenu().add(edit);
+        view.getTablePopUpMenu().add(finishResumeMenu);
         view.getTablePopUpMenu().addSeparator();
         view.getTablePopUpMenu().add(delete);
 //        tableActive.add(view.getTablePopUpMenu());
@@ -619,6 +647,15 @@ public class AppControl implements ActionListener {
         @Override
         public void mouseReleased(MouseEvent e) {
             if(e.getButton() == 3){
+                if(view.getTabMain().getSelectedIndex() == 0 || view.getTabProjects().getSelectedIndex() == 0){
+                    finishResumeMenu.setText("Finish");
+                    finishResumeMenu.setVisible(true);
+                } else if(view.getTabProjects().getSelectedIndex() == 1){
+                    finishResumeMenu.setText("Resume");
+                    finishResumeMenu.setVisible(true);
+                } else {
+                    finishResumeMenu.setVisible(false);
+                }
                 view.getTablePopUpMenu().show(e.getComponent(), e.getX(), e.getY());
             }
         }
@@ -695,6 +732,13 @@ public class AppControl implements ActionListener {
         }
     }
 
+    private void finishOrResumeProject(boolean finish) {
+        Project p = projectList.findByHash(view.selected());
+        if(p==null) return;
+        projectList.setProjectFinished(view.selected(), finish);
+        refresh();
+    }
+
     private void deleteProject() {
         Project px = projectList.findByHash(view.selected());
         if (px == null) return;
@@ -762,7 +806,7 @@ public class AppControl implements ActionListener {
                 Debug.log(t);
             }
         } else if(result){
-            view.refreshOverview(cache);
+            view.refreshOverview(cache, projectList.getCategories().toArray(new String[]{}));
         }
     }
 

@@ -13,7 +13,8 @@ public interface AppViewAccessor {
     void prePackInit();
     void refreshRefreshStatus(CacheMgr cache);
     void refreshTrackingStatus(String status);
-    void refreshOverview(CacheMgr cache);
+    void refreshOverview(CacheMgr cache, String[] categories);
+    void refreshThumbs(CacheMgr cache);
     void refreshProjects(CacheMgr cache, int index);
     void refreshDayChart(CacheMgr cache, ItemEvent event);
     void refreshMonthChart(CacheMgr cache, ItemEvent event);

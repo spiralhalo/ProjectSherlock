@@ -3,6 +3,7 @@ package xyz.spiralhalo.sherlock.dialog;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.persist.project.UtilityTag;
+import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 
 import javax.swing.*;
 import javax.swing.event.CaretListener;
@@ -119,6 +120,10 @@ public class EditProject extends JDialog {
             if(p.getAppendix(EXE_LIST, String[].class) != null){
                 fieldWhitelist.setText(String.join(", ", p.getAppendix(EXE_LIST, String[].class)));
             }
+        } else {
+            if (AppConfig.getLastCategory() != null) {
+                comboCat.setSelectedItem(AppConfig.getLastCategory());
+            }
         }
 
         CaretListener validator = e -> validateInput();
@@ -218,6 +223,9 @@ public class EditProject extends JDialog {
     }
 
     private void onOK() {
+        //save last category
+        AppConfig.setLastCategory((String)comboCat.getSelectedItem());
+
         Project x;
 
         //create (NEW) or set project (EDIT)

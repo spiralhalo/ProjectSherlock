@@ -205,17 +205,88 @@
         <properties/>
         <border type="none"/>
         <children>
-          <grid id="9bf22" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="9bf22" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
-              <tabbedpane title="Dashboard"/>
+              <tabbedpane title="Overview"/>
             </constraints>
             <properties/>
             <border type="none"/>
             <children>
+              <toolbar id="5c261">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="-1" height="20"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <floatable value="false"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="e075c" class="javax.swing.JLabel">
+                    <constraints/>
+                    <properties>
+                      <text value="Sort: "/>
+                    </properties>
+                  </component>
+                  <component id="b91da" class="javax.swing.JComboBox" binding="comboSort">
+                    <constraints/>
+                    <properties>
+                      <maximumSize width="120" height="32767"/>
+                      <model>
+                        <item value="by Priority"/>
+                        <item value="by Most Recent"/>
+                      </model>
+                      <preferredSize width="120" height="30"/>
+                    </properties>
+                  </component>
+                  <component id="49131" class="javax.swing.JToolBar$Separator">
+                    <constraints/>
+                    <properties/>
+                  </component>
+                  <component id="6e65c" class="javax.swing.JLabel">
+                    <constraints/>
+                    <properties>
+                      <text value="Filter: "/>
+                    </properties>
+                  </component>
+                  <component id="472f7" class="javax.swing.JLabel">
+                    <constraints/>
+                    <properties>
+                      <text value="Category "/>
+                    </properties>
+                  </component>
+                  <component id="386b5" class="javax.swing.JComboBox" binding="comboCate">
+                    <constraints/>
+                    <properties>
+                      <maximumSize width="120" height="32767"/>
+                      <preferredSize width="120" height="30"/>
+                    </properties>
+                  </component>
+                  <component id="2cf47" class="javax.swing.JLabel">
+                    <constraints/>
+                    <properties>
+                      <text value=" Type "/>
+                    </properties>
+                  </component>
+                  <component id="d5f4c" class="javax.swing.JComboBox" binding="comboType">
+                    <constraints/>
+                    <properties>
+                      <maximumSize width="120" height="32767"/>
+                      <model>
+                        <item value="Show All"/>
+                        <item value="Productive only"/>
+                        <item value="Recreational only"/>
+                      </model>
+                      <preferredSize width="120" height="30"/>
+                    </properties>
+                  </component>
+                </children>
+              </toolbar>
               <scrollpane id="f2b36">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <horizontalScrollBarPolicy value="31"/>
@@ -235,7 +306,7 @@
           <grid id="331c1" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
-              <tabbedpane title="Statistics"/>
+              <tabbedpane title="Detailed view"/>
             </constraints>
             <properties/>
             <border type="none"/>

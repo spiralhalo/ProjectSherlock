@@ -91,6 +91,9 @@ public class AppView implements AppViewAccessor {
     private JButton btnExport;
     private JTabbedPane tabMain;
     private JPanel thumbsPane;
+    private JComboBox<String> comboCate;
+    private JComboBox comboSort;
+    private JComboBox comboType;
     private JProgressBar pbBreakRatio;
     private JCommandButton cmdNew;
     private JCommandButton cmdEdit;
@@ -236,6 +239,7 @@ public class AppView implements AppViewAccessor {
     public void prePackInit() {
         createCommandButtons(control);
         control.setThumbs(thumbManager);
+        control.setThumbToolbar(comboSort, comboCate, comboType);
         control.setDayButtons(btnDayNote, btnDayAudit);
         control.setTables(tActive, tFinished, tUtility);
         control.setChart(comboD, btnPrevD, btnNextD, btnFirstD, btnLastD, this::refreshDayChart);
@@ -265,7 +269,7 @@ public class AppView implements AppViewAccessor {
     }
 
     @Override
-    public void refreshOverview(CacheMgr cache) {
+    public void refreshOverview(CacheMgr cache, String[] categories) {
         refreshRefreshStatus(cache);
         if(cache.getCreated(AllReportRows.activeCacheId(z)).equals(CacheMgr.NEVER)){return;}
         refreshProjects(cache, 0);
@@ -315,21 +319,69 @@ public class AppView implements AppViewAccessor {
             comboY.setSelectedIndex(comboY.getModel().getSize() - 1);
         }
         today = LocalDate.now();
+
+        //do thumbs stuff
+        int selectedSort = AppConfig.getThumbSort();
+        if(selectedSort < 0 ||selectedSort > 1){
+            comboSort.setSelectedIndex(0);
+        } else {
+            comboSort.setSelectedIndex(selectedSort);
+        }
+        String selectedCate = AppConfig.getFilterCategory();
+        int selectedCateI=0;
+        comboCate.setModel(new DefaultComboBoxModel<>());
+        comboCate.addItem("Show All");
+        int j = 1;
+        for (String cate:categories) {
+            comboCate.addItem(cate);
+            if(cate.equals(selectedCate))
+                selectedCateI = j;
+            j++;
+        }
+        comboCate.setSelectedIndex(selectedCateI);
+        int selectedType = AppConfig.getFilterType();
+        if(selectedType < 0 || selectedType > 2){
+            comboType.setSelectedIndex(0);
+        } else {
+            comboType.setSelectedIndex(selectedType);
+        }
         refreshThumbs(cache);
     }
 
-    private void refreshThumbs(CacheMgr cache) {
+    @Override
+    public void refreshThumbs(CacheMgr cache) {
         final AllReportRows activeRows = cache.getObj(AllReportRows.activeCacheId(z), AllReportRows.class);
         thumbsPane.removeAll();
-        for (int i=0; i<activeRows.size(); i++) {
-            AllReportRow row = activeRows.get(i);
-            if(thumbManager.size() <= i){
-                thumbManager.newThumb(row.getProjectName(), row.getProjectHash(), row.getLastWorkedOnMillis());
-            } else {
-                thumbManager.getThumb(i).set(row.getProjectName(), row.getProjectHash(), row.getLastWorkedOnMillis());
-            }
-            thumbsPane.add(thumbManager.getThumb(i).getPane());
+        int j=0;
+        ArrayList<AllReportRow> current;
+        //sort
+        if(comboSort.getSelectedIndex() == 0){
+            current = activeRows;
+        } else {
+            current = new ArrayList<>(activeRows);
+            current.sort((allReportRow, t1) -> {
+                long diff = t1.getLastWorkedOnMillis() - allReportRow.getLastWorkedOnMillis();
+                if(diff < 0) return -1;
+                if(diff > 0) return 1;
+                return 0;
+            });
         }
+        //populate thumbs
+        for (int i=0; i<current.size(); i++) {
+            AllReportRow row = current.get(i);
+            //filter
+            if( (comboCate.getSelectedIndex() == 0 || row.getCategory().equals(comboCate.getSelectedItem()))
+                && (comboType.getSelectedIndex() == 0 || ((String)comboType.getSelectedItem()).contains(row.getPTypeLabel())) ) {
+                if (thumbManager.size() <= j) {
+                    thumbManager.newThumb(row.getProjectName(), row.getProjectHash(), row.getLastWorkedOnMillis());
+                } else {
+                    thumbManager.getThumb(j).set(row.getProjectName(), row.getProjectHash(), row.getLastWorkedOnMillis());
+                }
+                thumbsPane.add(thumbManager.getThumb(j).getPane());
+                j++;
+            }
+        }
+        thumbsPane.updateUI();
     }
 
     //TODO: fix this dumb redundant code ????

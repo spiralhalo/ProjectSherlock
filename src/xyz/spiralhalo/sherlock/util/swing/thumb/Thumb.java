@@ -73,13 +73,7 @@ public class Thumb {
             lblThumb.setIcon(defImg);
         }
         lblName.setText(projectName);
-        File thumbFile =  ScrSnapper.getThumbFile(projectHash);
-        if(thumbFile.exists()) {
-            long lastTimeMillis = Math.max(lastWorkedOnMillis, thumbFile.lastModified());
-            lblTime.setText(FormatUtil.vagueTimeAgo(lastTimeMillis));
-        } else {
-            lblTime.setText(FormatUtil.vagueTimeAgo(lastWorkedOnMillis));
-        }
+        lblTime.setText(FormatUtil.vagueTimeAgo(lastWorkedOnMillis));
     }
 
     public JPanel getPane() {

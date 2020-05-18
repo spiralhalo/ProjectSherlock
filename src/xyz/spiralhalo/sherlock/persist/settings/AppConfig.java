@@ -14,6 +14,10 @@ public class AppConfig {
     private static final String KEY_TAB_MAIN_SELECTION = "TAB_MAIN_SELECTION";
     private static final String KEY_TABR_SELECTION = "TABR_SELECTION";
     private static final String KEY_TABS_SELECTION = "TABS_SELECTION";
+    private static final String KEY_LAST_CATEGORY = "LAST_CATEGORY";
+    private static final String KEY_FILTER_CATEGORY = "FILTER_CATEGORY";
+    private static final String KEY_FILTER_TYPE = "FILTER_TYPE";
+    private static final String KEY_THUMB_SORT = "THUMB_SORT";
 
     public enum HMSMode{
         COLON("12:45 30"),
@@ -60,44 +64,25 @@ public class AppConfig {
     public static HMSMode defaultHMSMode() {return HMSMode.STRICT;}
 
     public static int getPreferredWindowWidth() {
-        return IniHandler.getInstance().getInt(NODE, KEY_PREFERRED_WINDOW_WIDTH, 0);
-    }
-
+        return IniHandler.getInstance().getInt(NODE, KEY_PREFERRED_WINDOW_WIDTH, 0);}
     public static void setPreferredWindowWidth(int width) {
-        IniHandler.getInstance().putInt(NODE, KEY_PREFERRED_WINDOW_WIDTH, width);
-    }
-
+        IniHandler.getInstance().putInt(NODE, KEY_PREFERRED_WINDOW_WIDTH, width);}
     public static int getPreferredWindowHeight() {
-        return IniHandler.getInstance().getInt(NODE, KEY_PREFERRED_WINDOW_HEIGHT, 0);
-    }
-
+        return IniHandler.getInstance().getInt(NODE, KEY_PREFERRED_WINDOW_HEIGHT, 0);}
     public static void setPreferredWindowHeight(int height) {
-        IniHandler.getInstance().putInt(NODE, KEY_PREFERRED_WINDOW_HEIGHT, height);
-    }
-
+        IniHandler.getInstance().putInt(NODE, KEY_PREFERRED_WINDOW_HEIGHT, height);}
     public static int getWindowLastLocationX() {
-        return IniHandler.getInstance().getInt(NODE, KEY_WINDOW_LAST_LOCATION_X, -1);
-    }
-
+        return IniHandler.getInstance().getInt(NODE, KEY_WINDOW_LAST_LOCATION_X, -1);}
     public static void setWindowLastLocationX(int x) {
-        IniHandler.getInstance().putInt(NODE, KEY_WINDOW_LAST_LOCATION_X, x);
-    }
-
+        IniHandler.getInstance().putInt(NODE, KEY_WINDOW_LAST_LOCATION_X, x);}
     public static int getWindowLastLocationY() {
-        return IniHandler.getInstance().getInt(NODE, KEY_WINDOW_LAST_LOCATION_Y, -1);
-    }
-
+        return IniHandler.getInstance().getInt(NODE, KEY_WINDOW_LAST_LOCATION_Y, -1);}
     public static void setWindowLastLocationY(int y) {
-        IniHandler.getInstance().putInt(NODE, KEY_WINDOW_LAST_LOCATION_Y, y);
-    }
-
+        IniHandler.getInstance().putInt(NODE, KEY_WINDOW_LAST_LOCATION_Y, y);}
     public static boolean getWindowLastMaximized() {
-        return IniHandler.getInstance().getBoolean(NODE, KEY_WINDOW_LAST_MAXIMIZED, false);
-    }
-
+        return IniHandler.getInstance().getBoolean(NODE, KEY_WINDOW_LAST_MAXIMIZED, false);}
     public static void setWindowLastMaximized(boolean maximized) {
-        IniHandler.getInstance().putBoolean(NODE, KEY_WINDOW_LAST_MAXIMIZED, maximized);
-    }
+        IniHandler.getInstance().putBoolean(NODE, KEY_WINDOW_LAST_MAXIMIZED, maximized);}
 
     public static void setTabMainSelection(int i) { IniHandler.getInstance().putInt(NODE, KEY_TAB_MAIN_SELECTION, i); }
     public static void setTabReportsSelection(int i) { IniHandler.getInstance().putInt(NODE, KEY_TABR_SELECTION, i); }
@@ -105,6 +90,16 @@ public class AppConfig {
     public static int getTabMainSelection() { return IniHandler.getInstance().getInt(NODE, KEY_TAB_MAIN_SELECTION, 0); }
     public static int getTabReportsSelection() { return IniHandler.getInstance().getInt(NODE, KEY_TABR_SELECTION, 0); }
     public static int getTabProjectsSelection() { return IniHandler.getInstance().getInt(NODE, KEY_TABS_SELECTION, 0); }
+
+    public static void setLastCategory(String category) { IniHandler.getInstance().put(NODE, KEY_LAST_CATEGORY, category);}
+    public static String getLastCategory() { return IniHandler.getInstance().get(NODE, KEY_LAST_CATEGORY, null);}
+
+    public static void setFilterCategory(String category) { IniHandler.getInstance().put(NODE, KEY_FILTER_CATEGORY, category);}
+    public static String getFilterCategory() { return IniHandler.getInstance().get(NODE, KEY_FILTER_CATEGORY, null);}
+    public static void setFilterType(int type) { IniHandler.getInstance().putInt(NODE, KEY_FILTER_TYPE, type);}
+    public static int getFilterType() { return IniHandler.getInstance().getInt(NODE, KEY_FILTER_TYPE, 0);}
+    public static void setThumbSort(int sort) { IniHandler.getInstance().putInt(NODE, KEY_THUMB_SORT, sort);}
+    public static int getThumbSort() { return IniHandler.getInstance().getInt(NODE, KEY_THUMB_SORT, 0);}
 
     public static int getSocketPort() {
         return IniHandler.getInstance().getInt(NODE, KEY_SOCKET_PORT, defaultSocketPort());
