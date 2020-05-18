@@ -13,7 +13,8 @@ public class UserConfig {
     public enum UserInt {
         DAILY_TARGET_SECOND,
         AFK_TIMEOUT_SECOND,
-        WEEKLY_TARGET_DAYS
+        WEEKLY_TARGET_DAYS,
+        DOUBLE_CLICK_ACTION
     }
 
     public enum UserBool {
@@ -22,8 +23,7 @@ public class UserConfig {
         OLD_RATING,
         DISABLE_MONTH_LINE,
         ENABLE_YEAR_LINE,
-        EXCEED_100_PERCENT,
-        DOUBLE_CLICK_BOOKMARKS
+        EXCEED_100_PERCENT
     }
 
     public enum UserNode {

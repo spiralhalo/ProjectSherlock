@@ -76,6 +76,7 @@ public class Settings extends JDialog {
     private JCheckBox checkLimitMonthChart;
     private JRadioButton radDblClickView;
     private JRadioButton radDblClkBookmarks;
+    private JRadioButton radDblClkLaunchB;
     private boolean result = false;
 
     private IntSelectorModel vkSelectorModel;
@@ -253,8 +254,9 @@ public class Settings extends JDialog {
         // <start> NEW OPTIONS
 
         String general = "general";
-        bind(radDblClickView, general, ()->!userGBool(GENERAL, DOUBLE_CLICK_BOOKMARKS), b->userSBool(GENERAL, DOUBLE_CLICK_BOOKMARKS, !b), !userDBool(GENERAL, DOUBLE_CLICK_BOOKMARKS));
-        bind(radDblClkBookmarks, general, ()->userGBool(GENERAL, DOUBLE_CLICK_BOOKMARKS), b->userSBool(GENERAL, DOUBLE_CLICK_BOOKMARKS, b), userDBool(GENERAL, DOUBLE_CLICK_BOOKMARKS));
+        bind(radDblClickView, general, ()->userGInt(GENERAL, DOUBLE_CLICK_ACTION)==0, b->{if(b)userSInt(GENERAL, DOUBLE_CLICK_ACTION, 0);}, userDInt(GENERAL, DOUBLE_CLICK_ACTION)==0);
+        bind(radDblClkBookmarks, general, ()->userGInt(GENERAL, DOUBLE_CLICK_ACTION)==1, b->{if(b)userSInt(GENERAL, DOUBLE_CLICK_ACTION, 1);}, userDInt(GENERAL, DOUBLE_CLICK_ACTION)==1);
+        bind(radDblClkLaunchB, general, ()->userGInt(GENERAL, DOUBLE_CLICK_ACTION)==2, b->{if(b)userSInt(GENERAL, DOUBLE_CLICK_ACTION, 2);}, userDInt(GENERAL, DOUBLE_CLICK_ACTION)==2);
         bind(sliderTimeout, general, ()->userGInt(GENERAL, AFK_TIMEOUT_SECOND), i->userSInt(GENERAL, AFK_TIMEOUT_SECOND, i), userDInt(GENERAL, AFK_TIMEOUT_SECOND));
         bind(sliderTarget, general, ()->userGInt(GENERAL, DAILY_TARGET_SECOND),
                 i->userSInt(GENERAL, DAILY_TARGET_SECOND, i), userDInt(GENERAL, DAILY_TARGET_SECOND));

@@ -14,6 +14,7 @@ import xyz.spiralhalo.sherlock.async.LoaderDialog;
 import xyz.spiralhalo.sherlock.audit.ViewDayAudit;
 import xyz.spiralhalo.sherlock.bookmark.AutoBookmarker;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkMgr;
+import xyz.spiralhalo.sherlock.bookmark.persist.Bookmark;
 import xyz.spiralhalo.sherlock.dialog.*;
 import xyz.spiralhalo.sherlock.focus.FocusConfig;
 import xyz.spiralhalo.sherlock.focus.FocusMgr;
@@ -57,6 +58,7 @@ import java.util.function.BiConsumer;
 import static java.awt.Frame.ICONIFIED;
 import static java.awt.Frame.NORMAL;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserBool.*;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.DOUBLE_CLICK_ACTION;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.*;
 
 public class AppControl implements ActionListener {
@@ -663,13 +665,25 @@ public class AppControl implements ActionListener {
         @Override
         public void mouseClicked(MouseEvent e) {
             if(e.getClickCount()==2 && e.getButton() == 1){
-                if(!UserConfig.userGBool(GENERAL, DOUBLE_CLICK_BOOKMARKS)) {
-                    viewProject();
-                } else {
-                    Project p = projectList.findByHash(view.selected());
-                    if(!p.isUtilityTag()){
-                        bookmark.invoke(p);
-                    }
+                int dblClickAction = UserConfig.userGInt(GENERAL, DOUBLE_CLICK_ACTION);
+                switch (dblClickAction){
+                    case 1:
+                        Project p = projectList.findByHash(view.selected());
+                        if(!p.isUtilityTag()){
+                            bookmark.invoke(p);
+                        }
+                        break;
+                    case 2:
+                        Project q = projectList.findByHash(view.selected());
+                        if(!q.isUtilityTag()){
+                            if(!bookmark.contains(q) || bookmark.getOrAdd(q).size()<1){
+                                bookmark.invoke(q);
+                            } else {
+                                bookmark.getOrAdd(q).get(0).launch(view.frame());
+                            }
+                        }
+                        break;
+                    default: viewProject(); break;
                 }
             }
         }
