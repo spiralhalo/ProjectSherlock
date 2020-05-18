@@ -1,5 +1,6 @@
 package xyz.spiralhalo.sherlock;
 
+import net.coobird.thumbnailator.Thumbnailator;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 
 import javax.swing.*;
@@ -25,6 +26,7 @@ public class Thumb {
     private long thumbsProjectHash;
     private static Color defClr;
     private static final Color selClr = new Color(0,0, 255);
+    private static final Dimension thumbDM = new Dimension(240, 135);
 
     public Thumb(ThumbManager manager, String projectName, long projectHash) {
         if(defImg == null){
@@ -45,6 +47,7 @@ public class Thumb {
                 rootPane.setBackground(selClr);
             }
         };
+        lblThumb.setMinimumSize(thumbDM);
         rootPane.addMouseListener(mouseAdapter);
         set(projectName, projectHash);
     }
@@ -59,12 +62,7 @@ public class Thumb {
         this.thumbsProjectHash = projectHash;
         BufferedImage thumb = ScrSnapper.getThumbImg(projectHash);
         if(thumb != null) {
-            BufferedImage newImage = new BufferedImage(240, 135, BufferedImage.TYPE_INT_RGB);
-
-            Graphics g = newImage.createGraphics();
-            g.drawImage(thumb, 0, 0, 240, 135, null);
-            g.dispose();
-            lblThumb.setIcon(new ImageIcon(newImage));
+            lblThumb.setIcon(new ImageIcon(Thumbnailator.createThumbnail(thumb, thumbDM.width, thumbDM.height)));
         } else {
             lblThumb.setIcon(defImg);
         }

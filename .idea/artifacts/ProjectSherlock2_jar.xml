@@ -12,6 +12,7 @@
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/pushing-pixels/radiance-neon/1.0.0/radiance-neon-1.0.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/pushing-pixels/radiance-trident/1.0.0/radiance-trident-1.0.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/pushing-pixels/radiance-substance/1.0.0/radiance-substance-1.0.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/net/coobird/thumbnailator/0.4.11/thumbnailator-0.4.11.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

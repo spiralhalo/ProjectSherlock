@@ -13,5 +13,6 @@
     <orderEntry type="library" name="net.java.dev.jna:jna-platform:4.5.2" level="project" />
     <orderEntry type="library" name="org.pushing-pixels:radiance-flamingo:1.0.0" level="project" />
     <orderEntry type="module" module-name="jfreechart" />
+    <orderEntry type="library" name="net.coobird:thumbnailator:0.4.11" level="project" />
   </component>
 </module>
