@@ -46,7 +46,7 @@ public class EditBookmark extends JDialog {
     private final JFileChooser fileChooser = new JFileChooser();
 
     private EditBookmark(JFrame parent, Project p, boolean edit, Bookmark old) {
-        super(parent, String.format("%s - force keyword: %s", edit?"Edit bookmark":"Add bookmark", p.getTags()[0]));
+        super(parent, String.format("%s"/* - force keyword: %s"*/, edit?"Edit bookmark":"Add bookmark"/*, p.getTags()[0]*/));
         setContentPane(contentPane);
         setMinimumSize(contentPane.getMinimumSize());
         setModal(true);

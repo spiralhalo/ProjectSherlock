@@ -17,8 +17,8 @@ public class ThumbManager {
         mouseListeners = new ArrayList<>();
     }
 
-    public void newThumb(String projectName, long projectHash){
-        thumbs.add(new Thumb(this, projectName, projectHash));
+    public void newThumb(String projectName, long projectHash, long lastWorkedOnMillis){
+        thumbs.add(new Thumb(this, projectName, projectHash, lastWorkedOnMillis));
     }
     void setSelection(long hash){
         selectedThumbHash = hash;

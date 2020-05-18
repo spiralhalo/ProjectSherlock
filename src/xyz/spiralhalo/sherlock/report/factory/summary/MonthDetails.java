@@ -39,7 +39,7 @@ public class MonthDetails extends ArrayList<DetailsRow> implements Serializable 
         throw new UnsupportedOperationException();
     }
 
-    public HashMap<Long, ArrayList<Integer>> getIndex() {
+    public HashMap<Long, ArrayList<Integer>> getIndices() {
         return index;
     }
 }

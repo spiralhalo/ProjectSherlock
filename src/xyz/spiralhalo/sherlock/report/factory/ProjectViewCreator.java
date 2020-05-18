@@ -20,7 +20,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 
 public class ProjectViewCreator extends AsyncTask<ProjectViewResult> {
-    private static final int MINIMUM_SECOND = 5*60;
+    private static final int MINIMUM_SECOND = 0; //= 5*60; //disabled until a less confusing approach is found
     private ProjectViewResult result;
     private final Project p;
 
@@ -38,7 +38,7 @@ public class ProjectViewCreator extends AsyncTask<ProjectViewResult> {
             throw new Exception("No data.");
         }
         try {
-            seeker.seekFirstOfDay(p.getStartDate().toLocalDate(), ZoneId.systemDefault());
+            seeker.seekFirstOfDay(p.getStartDateTime().toLocalDate(), ZoneId.systemDefault());
         } catch (IOException e) {
             throw new Exception("No data.");
         }

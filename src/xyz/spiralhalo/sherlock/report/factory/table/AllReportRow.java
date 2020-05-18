@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class AllReportRow implements Serializable {
-    public static final long serialVersionUID = 3L;
+    public static final long serialVersionUID = 4L;
 
     private final long projectHash;
     private final int projectColor;
@@ -18,8 +18,10 @@ public class AllReportRow implements Serializable {
     private final int days;
     private final int seconds;
     private final int ptype;
+    private final long lastWorkedOnMillis;
 
-    public AllReportRow(long projectHash, int projectColor, String projectName, String category, int pType, LocalDateTime startDate, LocalDateTime finishDate, int days, int seconds) {
+    public AllReportRow(long projectHash, int projectColor, String projectName, String category, int pType,
+                        LocalDateTime startDate, LocalDateTime finishDate, int days, int seconds, long lastWorkedOnMillis) {
         this.projectHash = projectHash;
         this.projectColor = projectColor;
         this.projectName = projectName;
@@ -29,9 +31,11 @@ public class AllReportRow implements Serializable {
         this.days = days;
         this.seconds = seconds;
         this.ptype = pType;
+        this.lastWorkedOnMillis = lastWorkedOnMillis;
     }
 
-    public AllReportRow(long projectHash, int projectColor, String projectName, String category, int pType, int days, int seconds) {
+    public AllReportRow(long projectHash, int projectColor, String projectName, String category, int pType,
+                        int days, int seconds, long lastWorkedOnMillis) {
         this.projectHash = projectHash;
         this.projectColor = projectColor;
         this.projectName = projectName;
@@ -41,6 +45,7 @@ public class AllReportRow implements Serializable {
         this.days = days;
         this.seconds = seconds;
         this.ptype = pType;
+        this.lastWorkedOnMillis = lastWorkedOnMillis;
     }
     public long getProjectHash() { return projectHash; }
 
@@ -78,5 +83,9 @@ public class AllReportRow implements Serializable {
             case Project.PTYPE_RECREATIONAL: return Project.RECREATIONAL_LABEL;
             default: return Project.NON_PRODUCTIVE_LABEL;
         }
+    }
+
+    public long getLastWorkedOnMillis() {
+        return lastWorkedOnMillis;
     }
 }

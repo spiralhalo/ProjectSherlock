@@ -122,6 +122,9 @@ public class AppControl implements ActionListener {
         autoBookmarker = new AutoBookmarker(bookmark, tracker);
 
         createView();
+        view.getTabMain().setSelectedIndex(AppConfig.getTabMainSelection() % 2);
+        view.getTabReports().setSelectedIndex(AppConfig.getTabReportsSelection() % 3);
+        view.getTabProjects().setSelectedIndex(AppConfig.getTabProjectsSelection() % 3);
         final ActionListener listenerTrayToggle = e -> {
             if(view == null || !view.frame().isVisible()) {
                 showView();
@@ -657,6 +660,14 @@ public class AppControl implements ActionListener {
             view.getButtonBookmarks().setVisible(view.getTabMain().getSelectedIndex()==0 || view.getTabProjects().getSelectedIndex()!=2);
             view.getButtonUp().setVisible(view.getTabMain().getSelectedIndex()==1);
             view.getButtonDown().setVisible(view.getTabMain().getSelectedIndex()==1);
+
+            if(e.getSource() == view.getTabMain()) {
+                AppConfig.setTabMainSelection(view.getTabMain().getSelectedIndex());
+            } else if(e.getSource() == view.getTabReports()) {
+                AppConfig.setTabReportsSelection(view.getTabReports().getSelectedIndex());
+            } else {
+                AppConfig.setTabProjectsSelection(view.getTabProjects().getSelectedIndex());
+            }
         }
     };
 

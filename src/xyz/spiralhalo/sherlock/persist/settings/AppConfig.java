@@ -11,6 +11,9 @@ public class AppConfig {
     private static final String KEY_WINDOW_LAST_MAXIMIZED = "WINDOW_LAST_MAXIMIZED";
     private static final String KEY_WINDOW_LAST_LOCATION_X = "WINDOW_LAST_LOCATION_X";
     private static final String KEY_WINDOW_LAST_LOCATION_Y = "WINDOW_LAST_LOCATION_Y";
+    private static final String KEY_TAB_MAIN_SELECTION = "TAB_MAIN_SELECTION";
+    private static final String KEY_TABR_SELECTION = "TABR_SELECTION";
+    private static final String KEY_TABS_SELECTION = "TABS_SELECTION";
 
     public enum HMSMode{
         COLON("12:45 30"),
@@ -95,6 +98,13 @@ public class AppConfig {
     public static void setWindowLastMaximized(boolean maximized) {
         IniHandler.getInstance().putBoolean(NODE, KEY_WINDOW_LAST_MAXIMIZED, maximized);
     }
+
+    public static void setTabMainSelection(int i) { IniHandler.getInstance().putInt(NODE, KEY_TAB_MAIN_SELECTION, i); }
+    public static void setTabReportsSelection(int i) { IniHandler.getInstance().putInt(NODE, KEY_TABR_SELECTION, i); }
+    public static void setTabProjectsSelection(int i) { IniHandler.getInstance().putInt(NODE, KEY_TABS_SELECTION, i); }
+    public static int getTabMainSelection() { return IniHandler.getInstance().getInt(NODE, KEY_TAB_MAIN_SELECTION, 0); }
+    public static int getTabReportsSelection() { return IniHandler.getInstance().getInt(NODE, KEY_TABR_SELECTION, 0); }
+    public static int getTabProjectsSelection() { return IniHandler.getInstance().getInt(NODE, KEY_TABS_SELECTION, 0); }
 
     public static int getSocketPort() {
         return IniHandler.getInstance().getInt(NODE, KEY_SOCKET_PORT, defaultSocketPort());

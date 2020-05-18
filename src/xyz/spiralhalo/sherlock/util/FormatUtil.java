@@ -2,7 +2,7 @@ package xyz.spiralhalo.sherlock.util;
 
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
@@ -46,6 +46,31 @@ public class FormatUtil {
         int m = (seconds / 60) % 60;
         int h = seconds / 3600;
         return (h > 0 ? h + "h " : "") + (m > 0 ? m + "m " : "") + (s > 0 ? s + "s" : (seconds > 0 ? "" : "0s"));
+    }
+
+    public static String vagueTimeAgo(long epochMillis) {
+        ZonedDateTime time = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), ZoneId.systemDefault());
+        ZonedDateTime now = ZonedDateTime.now();
+        if(now.toEpochSecond() - time.toEpochSecond() < 60){
+            return "just now";
+        }
+        //get num of months since 0 BC
+        int kindaEpochMonthTime = time.getMonthValue() + time.getYear() * 12;
+        int kindaEpochMonthNow = now.getMonthValue() + now.getYear() * 12;
+        int monthDiff = kindaEpochMonthNow - kindaEpochMonthTime;
+        if (monthDiff > 1){
+            int monthAgo = monthDiff % 12;
+            int yearAgo = monthDiff / 12;
+            return String.format("%s%sago", (yearAgo > 0 ? (yearAgo == 1 ? "1 year ":yearAgo+" years ") : ""),
+                    (monthAgo > 0 ? (monthAgo == 1 ? "1 month ":monthAgo+" months ") : ""));
+        } else {
+            int dayDiff = now.getDayOfYear() - time.getDayOfYear();
+            if (dayDiff > 1){
+                return dayDiff + " days ago";
+            } else {
+                return hmsStrict((int)(now.toEpochSecond()-time.toEpochSecond())) + " ago";
+            }
+        }
     }
 
     public static String hmsLong(int seconds) {

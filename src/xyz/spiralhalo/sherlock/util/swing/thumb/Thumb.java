@@ -25,7 +25,7 @@ public class Thumb {
     private static final Color selClr = new Color(0,0, 255);
     private static final Dimension thumbDM = new Dimension(240, 135);
 
-    Thumb(ThumbManager manager, String projectName, long projectHash) {
+    Thumb(ThumbManager manager, String projectName, long projectHash, long lastWorkedOnMillis) {
         if(defImg == null){
             defImg = lblThumb.getIcon();
             defClr = rootPane.getBackground();
@@ -55,7 +55,7 @@ public class Thumb {
         };
         lblThumb.setMinimumSize(thumbDM);
         rootPane.addMouseListener(mouseAdapter);
-        set(projectName, projectHash);
+        set(projectName, projectHash, lastWorkedOnMillis);
     }
 
     void onSelectionChanged(long newHash) {
@@ -64,7 +64,7 @@ public class Thumb {
         }
     }
 
-    public void set(String projectName, long projectHash){
+    public void set(String projectName, long projectHash, long lastWorkedOnMillis){
         this.thumbsProjectHash = projectHash;
         BufferedImage thumb = ScrSnapper.getThumbImg(projectHash);
         if(thumb != null) {
@@ -75,14 +75,10 @@ public class Thumb {
         lblName.setText(projectName);
         File thumbFile =  ScrSnapper.getThumbFile(projectHash);
         if(thumbFile.exists()) {
-            long elapsed = System.currentTimeMillis() - thumbFile.lastModified();
-            if (elapsed < 60000) {
-                lblTime.setText("just now");
-            } else {
-                lblTime.setText(String.format("%s ago", FormatUtil.hmsStrict((int) (elapsed / 1000))));
-            }
+            long lastTimeMillis = Math.max(lastWorkedOnMillis, thumbFile.lastModified());
+            lblTime.setText(FormatUtil.vagueTimeAgo(lastTimeMillis));
         } else {
-            lblTime.setText("a long time ago");
+            lblTime.setText(FormatUtil.vagueTimeAgo(lastWorkedOnMillis));
         }
     }
 

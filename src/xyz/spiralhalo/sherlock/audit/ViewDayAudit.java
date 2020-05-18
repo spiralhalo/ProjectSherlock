@@ -70,7 +70,7 @@ public class ViewDayAudit extends JDialog {
 
         for(Project p : ListUtil.extensiveIterator(projectList.getActiveProjects(), projectList.getFinishedProjects()))
         {
-            if(!p.getStartDate().withZoneSameInstant(z).toLocalDate().isAfter(date)
+            if(!p.getStartDateTime().withZoneSameInstant(z).toLocalDate().isAfter(date)
                     && (!p.isFinished() || !p.getFinishedDate().withZoneSameInstant(z).toLocalDate().isBefore(date))){
                 relevantProjects.add(p);
             }

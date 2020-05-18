@@ -324,9 +324,9 @@ public class AppView implements AppViewAccessor {
         for (int i=0; i<activeRows.size(); i++) {
             AllReportRow row = activeRows.get(i);
             if(thumbManager.size() <= i){
-                thumbManager.newThumb(row.getProjectName(), row.getProjectHash());
+                thumbManager.newThumb(row.getProjectName(), row.getProjectHash(), row.getLastWorkedOnMillis());
             } else {
-                thumbManager.getThumb(i).set(row.getProjectName(), row.getProjectHash());
+                thumbManager.getThumb(i).set(row.getProjectName(), row.getProjectHash(), row.getLastWorkedOnMillis());
             }
             thumbsPane.add(thumbManager.getThumb(i).getPane());
         }

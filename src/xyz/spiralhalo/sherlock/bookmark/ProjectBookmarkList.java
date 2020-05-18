@@ -8,10 +8,7 @@ import xyz.spiralhalo.sherlock.util.ImgUtil;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -33,6 +30,7 @@ public class ProjectBookmarkList extends JFrame {
     private JButton btnMoveUp;
     private JButton btnMoveDown;
     private JButton btnEdit;
+    private JLabel lblProjectName;
 
     private final Project p;
     private final ProjectBookmarks bookmarks;
@@ -42,7 +40,8 @@ public class ProjectBookmarkList extends JFrame {
         super();
         setIconImages(Arrays.asList(ImgUtil.createImage("icon.png","App Icon Small"),
                 ImgUtil.createImage("med_icon.png","App Icon")));
-        setTitle(String.format("Bookmarks for `%s` - force keyword: %s", p.toString(), p.getTags()[0]));
+        setTitle("Bookmarks");//String.format("Bookmarks for `%s` - force keyword: %s", p.toString(), p.getTags()[0]));
+        lblProjectName.setText("Bookmarks for: "+p.toString());
         this.p = p;
         manager = mgr;
         bookmarks = mgr.getOrAdd(p);
@@ -65,6 +64,14 @@ public class ProjectBookmarkList extends JFrame {
         btnMoveUp.addActionListener(e->moveUp());
         btnMoveDown.addActionListener(e->moveDown());
         btnEdit .addActionListener(e->edit ());
+        tblBookmarks.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+                if(mouseEvent.getClickCount() == 2){
+                    launch();
+                }
+            }
+        });
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {

@@ -97,33 +97,52 @@ public class ReportRefresher extends AsyncTask<Boolean> {
         AllReportRows utilityRows = new AllReportRows();
         Iterable<Project> projects = ListUtil.extensiveIterator(projectList.getActiveProjects(), projectList.getFinishedProjects(), projectList.getUtilityTags());
         for (Project p: projects) {
-            YearMonth ym = YearMonth.from(p.getStartDate().withZoneSameInstant(z));
+            ZonedDateTime startDate = p.getStartDateTime().withZoneSameInstant(z);
+            YearMonth ym = YearMonth.from(startDate);
             int seconds = 0;
             int day = 0;
-            YearMonth now = YearMonth.now(z), end = null;
-            if(!p.isUtilityTag() && p.isFinished()) end = YearMonth.from(p.getFinishedDate().withZoneSameInstant(z));
+            LocalDate lastDay = null;
+            YearMonth now = YearMonth.now(z), end;
+            if(!p.isUtilityTag() && p.isFinished()){
+                end = YearMonth.from(p.getFinishedDate().withZoneSameInstant(z));
+            } else {
+                end = null;
+            }
             while (!ym.isAfter(now) && (end == null || !ym.isAfter(end))){
                 MonthSummary x = cache.getObj(MonthSummary.cacheId(ym, z), MonthSummary.class);
                 if(x!=null){
-                    ArrayList<Integer> indices = x.getDetails().getIndex().get(p.getHash());
+                    ArrayList<Integer> indices = x.getDetails().getIndices().get(p.getHash());
                     if(indices != null){
                         for (int i:indices) {
-                            //TODO: add effective day filter
+                            //TO*NOT*DO: add effective day filter //don't do until a less confusing approach is found
                             seconds += x.getDetails().get(i).getSummary().getSeconds();
                             day += 1;
+                            lastDay = x.getDetails().get(i).getDate();
                         }
                     }
                 }
                 ym = ym.plusMonths(1);
             }
+            long lastWorkedOnMillis;
+            long startDateMillis = startDate.toEpochSecond() * 1000;
+            if(lastDay != null){
+                if(p.isFinished() && lastDay.isEqual(p.getFinishedDate().withZoneSameInstant(z).toLocalDate())){
+                    lastWorkedOnMillis = p.getFinishedDate().withZoneSameInstant(z).toEpochSecond() * 1000;
+                } else {
+                    lastWorkedOnMillis = Math.max(lastDay.atStartOfDay(z).toEpochSecond() * 1000, startDateMillis);
+                }
+            } else {
+                lastWorkedOnMillis = startDateMillis;
+            }
             AllReportRow x;
             if(p.isUtilityTag()) {
-                x = new AllReportRow(p.getHash(), p.getColor(), p.getName(), p.getCategory(), p.getPtype(), day, seconds);
+                x = new AllReportRow(p.getHash(), p.getColor(), p.getName(), p.getCategory(), p.getPtype(), day,
+                        seconds, lastWorkedOnMillis);
             } else {
                 x = new AllReportRow(p.getHash(), p.getColor(), p.getName(), p.getCategory(), p.getPtype(),
-                        LocalDateTime.from(p.getStartDate()),
+                        LocalDateTime.from(p.getStartDateTime()),
                         (p.isFinished() ? LocalDateTime.from(p.getFinishedDate()) : null),
-                        day, seconds);
+                        day, seconds, lastWorkedOnMillis);
             }
             if(p.isUtilityTag()){
                 utilityRows.add(x);
