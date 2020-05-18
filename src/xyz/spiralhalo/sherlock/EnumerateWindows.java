@@ -22,12 +22,14 @@ public class EnumerateWindows {
     public static class WindowInfo {
         public final HWND hwndPointer;
         public final String title;
+        public final String exePath;
         public final String exeName;
 
-        public WindowInfo(HWND hwndPointer, String title, String exeName) {
+        public WindowInfo(HWND hwndPointer, String title, String exePath) {
             this.hwndPointer = hwndPointer;
             this.title = title;
-            this.exeName = exeName;
+            this.exePath = exePath.toLowerCase();
+            this.exeName = exePath.substring(exePath.lastIndexOf('\\') + 1).toLowerCase();
         }
     }
 
@@ -40,12 +42,12 @@ public class EnumerateWindows {
 
     public static WindowInfo getActiveWindowInfo() {
         HWND foregroundWindow = user32.GetForegroundWindow();
-        return new WindowInfo(foregroundWindow, getTitle(foregroundWindow), getExeName(foregroundWindow));
+        return new WindowInfo(foregroundWindow, getTitle(foregroundWindow), getExePath(foregroundWindow));
     }
 
     public static WindowInfo getRootWindowInfo(HWND foregroundWindow) {
         HWND rootWindow = user32.GetWindow(foregroundWindow, GW_OWNER);
-        return new WindowInfo(rootWindow, getTitle(foregroundWindow), getExeName(foregroundWindow));
+        return new WindowInfo(rootWindow, getTitle(foregroundWindow), getExePath(foregroundWindow));
     }
 
     public static Rectangle getWindowRect(HWND window){
@@ -77,14 +79,13 @@ public class EnumerateWindows {
         return Native.toString(buffer);
     }
 
-    private static String getExeName(HWND hwnd){
+    private static String getExePath(HWND hwnd){
         IntByReference pidPtr = new IntByReference();
         user32.GetWindowThreadProcessId(hwnd, pidPtr);
         char[] buffer2 = new char[MAX_TITLE_LENGTH * 2];
         HANDLE handle = kernel32.OpenProcess(WinNT.PROCESS_QUERY_INFORMATION, false, pidPtr.getValue());
         psapi.GetModuleFileNameExW(handle, null, buffer2, MAX_TITLE_LENGTH);
-        String path = Native.toString(buffer2);
-        return path.substring(path.lastIndexOf('\\') + 1);
+        return Native.toString(buffer2);
     }
 
     private static class EnumWindowsProc implements WNDENUMPROC {

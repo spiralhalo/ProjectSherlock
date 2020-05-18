@@ -4,5 +4,5 @@ import xyz.spiralhalo.sherlock.EnumerateWindows.WindowInfo;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 
 public interface TrackerListener {
-    void onTrackerLog(Project project, WindowInfo windowInfo);
+    void onTrackerLog(Project projectOrNull, WindowInfo windowInfo);
 }

@@ -12,6 +12,7 @@ import org.pushingpixels.flamingo.api.common.popup.JCommandPopupMenu;
 import xyz.spiralhalo.sherlock.async.Loader;
 import xyz.spiralhalo.sherlock.async.LoaderDialog;
 import xyz.spiralhalo.sherlock.audit.ViewDayAudit;
+import xyz.spiralhalo.sherlock.bookmark.AutoBookmarker;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkMgr;
 import xyz.spiralhalo.sherlock.dialog.*;
 import xyz.spiralhalo.sherlock.focus.FocusConfig;
@@ -90,6 +91,7 @@ public class AppControl implements ActionListener {
     private final TrayIcon trayIcon;
     private final boolean trayIconUsed;
     private final BookmarkMgr bookmark;
+    private final AutoBookmarker autoBookmarker;
     private final FocusMgr focusMgr;
     private LocalDate monthNoteEditing;
     private final ZoneId z = Main.z;
@@ -108,6 +110,7 @@ public class AppControl implements ActionListener {
         snapper = new ScrSnapper(tracker);
         tracker.start();
         bookmark = new BookmarkMgr(tracker);
+        autoBookmarker = new AutoBookmarker(bookmark, tracker);
 
         createView();
         final ActionListener listenerTrayToggle = e -> {

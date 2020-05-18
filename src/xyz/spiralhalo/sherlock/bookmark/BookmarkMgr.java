@@ -95,4 +95,8 @@ public class BookmarkMgr implements HotKeyListener, TrackerListener {
     public void onTrackerLog(Project project, EnumerateWindows.WindowInfo windowInfo) {
         lastTracked = project;
     }
+
+    public boolean contains(Project project) {
+        return bookmarkMap.containsKey(project.getHash());
+    }
 }
