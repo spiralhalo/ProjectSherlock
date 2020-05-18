@@ -38,6 +38,7 @@ import xyz.spiralhalo.sherlock.report.ops.OverviewOps;
 import xyz.spiralhalo.sherlock.report.factory.table.ReportRows;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 import xyz.spiralhalo.sherlock.util.ImgUtil;
+import xyz.spiralhalo.sherlock.util.swing.thumb.ThumbManager;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -62,6 +63,11 @@ public class AppControl implements ActionListener {
     public static void create() {
         if(instance!=null)return;
         instance = new AppControl();
+    }
+
+    public void setThumbs(ThumbManager thumbManager) {
+        thumbManager.addSelectionListener(projectSelectionListener);
+        thumbManager.addMouseListener(projectMouseAdapter);
     }
 
     public enum Action{
@@ -235,7 +241,8 @@ public class AppControl implements ActionListener {
 
     private void setToolbarInternal(JComponent btnNew, JComponent btnView, JComponent btnFinish, JComponent btnResume,
                                     JComponent btnEdit, JComponent btnDelete, JComponent btnUp, JComponent btnDown,
-                                    JComponent btnExport, JComponent btnSettings, JTabbedPane tabs, JTabbedPane tabr){
+                                    JComponent btnExport, JComponent btnSettings,
+                                    JTabbedPane tabMain, JTabbedPane tabs, JTabbedPane tabr){
         btnNew.setName(Action.A_NEW.name());
         btnView.setName(Action.A_VIEW.name());
         btnFinish.setName(Action.A_FINISH.name());
@@ -248,13 +255,14 @@ public class AppControl implements ActionListener {
         btnSettings.setName(Action.A_SETTINGS.name());
         addEnableOnSelect(btnView, btnEdit, btnDelete, btnUp, btnDown, btnFinish, btnResume);
         btnFinish.setEnabled(false);
-        setTabs(btnResume, tabs, tabr);
+        setTabs(btnResume, btnUp, btnDown, tabMain, tabs, tabr);
     }
 
     public void setToolbar(JButton btnNew, JButton btnNewTag, JButton btnView, JButton btnFinish, JButton btnResume,
                            JButton btnEdit, JButton btnDelete, JButton btnUp, JButton btnDown,
-                           JButton btnExport, JButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
-        setToolbarInternal(btnNew, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnUp, btnDown, btnExport, btnSettings, tabs, tabr);
+                           JButton btnExport, JButton btnSettings,
+                           JTabbedPane tabMain, JTabbedPane tabs, JTabbedPane tabr){
+        setToolbarInternal(btnNew, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnUp, btnDown, btnExport, btnSettings, tabMain, tabs, tabr);
         btnNewTag.setName(Action.A_NEW_TAG.name());
         btnNew.addActionListener(this);
         btnNewTag.addActionListener(this);
@@ -271,9 +279,10 @@ public class AppControl implements ActionListener {
 
     public void setToolbar(JCommandButton btnNew, JCommandButton btnView, JCommandButton btnFinish, JCommandButton btnResume,
                            JCommandButton btnEdit, JCommandButton btnDelete, JCommandButton btnUp, JCommandButton btnDown,
-                           JCommandButton btnExport, JCommandButton btnSettings, JTabbedPane tabs, JTabbedPane tabr){
+                           JCommandButton btnExport, JCommandButton btnSettings,
+                           JTabbedPane tabMain, JTabbedPane tabs, JTabbedPane tabr){
         createPopupNew(btnNew);
-        setToolbarInternal(btnNew, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnUp, btnDown, btnExport, btnSettings, tabs, tabr);
+        setToolbarInternal(btnNew, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnUp, btnDown, btnExport, btnSettings, tabMain, tabs, tabr);
         btnNew.addActionListener(this);
         btnView.addActionListener(this);
         btnFinish.addActionListener(this);
@@ -309,10 +318,14 @@ public class AppControl implements ActionListener {
         }
     }
 
-    private void setTabs(JComponent btnResume, JTabbedPane tabs, JTabbedPane tabr){
+    private void setTabs(JComponent btnResume, JComponent btnUp, JComponent btnDown, JTabbedPane tabMain,
+                         JTabbedPane tabs, JTabbedPane tabr){
         tabs.addChangeListener(tabChangeListener);
         tabr.addChangeListener(tabChangeListener);
+        tabMain.addChangeListener(tabChangeListener);
         btnResume.setVisible(false);
+        btnUp.setVisible(false);
+        btnDown.setVisible(false);
     }
 
     public void setDayButtons(JButton btnNote, JButton btnAudit) {
@@ -463,12 +476,12 @@ public class AppControl implements ActionListener {
         view.getTablePopUpMenu().addSeparator();
         view.getTablePopUpMenu().add(delete);
 //        tableActive.add(view.getTablePopUpMenu());
-        tableActive.addMouseListener(tableAdapter);
-        tableFinished.addMouseListener(tableAdapter);
-        tableUtilityTags.addMouseListener(tableAdapter);
-        tableActive.getSelectionModel().addListSelectionListener(tableSelectionListener);
-        tableFinished.getSelectionModel().addListSelectionListener(tableSelectionListener);
-        tableUtilityTags.getSelectionModel().addListSelectionListener(tableSelectionListener);
+        tableActive.addMouseListener(projectMouseAdapter);
+        tableFinished.addMouseListener(projectMouseAdapter);
+        tableUtilityTags.addMouseListener(projectMouseAdapter);
+        tableActive.getSelectionModel().addListSelectionListener(projectSelectionListener);
+        tableFinished.getSelectionModel().addListSelectionListener(projectSelectionListener);
+        tableUtilityTags.getSelectionModel().addListSelectionListener(projectSelectionListener);
     }
 
     public void setChart(JComboBox comboCharts, JButton prev, JButton next, JButton first, JButton last, BiConsumer<CacheMgr, ItemEvent> refreshMethod){
@@ -582,16 +595,18 @@ public class AppControl implements ActionListener {
         }
     }
 
-    private final MouseAdapter tableAdapter = new MouseAdapter() {
+    private final MouseAdapter projectMouseAdapter = new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
             if(e.getButton()==3) {
-                JTable source = (JTable) e.getSource();
-                int row = source.rowAtPoint(e.getPoint());
-                int column = source.columnAtPoint(e.getPoint());
+                if(e.getSource() instanceof JTable) {
+                    JTable source = (JTable) e.getSource();
+                    int row = source.rowAtPoint(e.getPoint());
+                    int column = source.columnAtPoint(e.getPoint());
 
-                if (!source.isRowSelected(row))
-                    source.changeSelection(row, column, false, false);
+                    if (!source.isRowSelected(row))
+                        source.changeSelection(row, column, false, false);
+                }
             }
         }
 
@@ -610,7 +625,7 @@ public class AppControl implements ActionListener {
         }
     };
 
-    private final ListSelectionListener tableSelectionListener = new ListSelectionListener() {
+    private final ListSelectionListener projectSelectionListener = new ListSelectionListener() {
         @Override
         public void valueChanged(ListSelectionEvent e) {
             boolean temp = view.selected()!=-1;
@@ -627,9 +642,11 @@ public class AppControl implements ActionListener {
             for (JComponent x:view.enableOnSelect()) {
                 x.setEnabled(temp);
             }
-            view.getButtonFinish().setVisible(view.getTabProjects().getSelectedIndex()==0);
-            view.getButtonResume().setVisible(view.getTabProjects().getSelectedIndex()==1);
-            view.getButtonBookmarks().setVisible(view.getTabProjects().getSelectedIndex()!=2);
+            view.getButtonFinish().setVisible(view.getTabMain().getSelectedIndex()==0 || view.getTabProjects().getSelectedIndex()==0);
+            view.getButtonResume().setVisible(view.getTabMain().getSelectedIndex()==1 && view.getTabProjects().getSelectedIndex()==1);
+            view.getButtonBookmarks().setVisible(view.getTabMain().getSelectedIndex()==0 || view.getTabProjects().getSelectedIndex()!=2);
+            view.getButtonUp().setVisible(view.getTabMain().getSelectedIndex()==1);
+            view.getButtonDown().setVisible(view.getTabMain().getSelectedIndex()==1);
         }
     };
 

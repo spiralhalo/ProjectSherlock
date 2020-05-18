@@ -2,6 +2,7 @@ package xyz.spiralhalo.sherlock;
 
 import org.jfree.chart.ChartPanel;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
+import xyz.spiralhalo.sherlock.util.swing.thumb.Thumb;
 import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
@@ -20,6 +21,7 @@ import xyz.spiralhalo.sherlock.report.factory.table.AllReportRows;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 import xyz.spiralhalo.sherlock.util.ImgUtil;
 import xyz.spiralhalo.sherlock.util.swing.WrapLayout;
+import xyz.spiralhalo.sherlock.util.swing.thumb.ThumbManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -88,7 +90,7 @@ public class AppView implements AppViewAccessor {
     private JLabel lDBreaktime;
     private JButton btnDeepRefresh;
     private JButton btnExport;
-    private JTabbedPane tabbedPane1;
+    private JTabbedPane tabMain;
     private JPanel thumbsPane;
     private JProgressBar pbBreakRatio;
     private JCommandButton cmdNew;
@@ -111,6 +113,7 @@ public class AppView implements AppViewAccessor {
     private ChartPanel yearPanel;
     private Charts.MonthChartInfo mChartInfo;
     private LocalDate today = LocalDate.now();
+    private ThumbManager thumbManager = new ThumbManager();
 
     private final ZoneId z = Main.z;
     private final AppControl control;
@@ -123,7 +126,7 @@ public class AppView implements AppViewAccessor {
         if(Main.currentTheme == AppConfig.Theme.SYSTEM){
             Main.applyButtonTheme(btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnSettings,
                     btnBookmarks, btnInbox, btnRefresh);
-            control.setToolbar(btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnUp, btnDown, btnExport, btnSettings, tabs, tabr);
+            control.setToolbar(btnNew, btnNewTag, btnView, btnFinish, btnResume, btnEdit, btnDelete, btnUp, btnDown, btnExport, btnSettings, tabMain, tabs, tabr);
             control.setExtras(btnBookmarks, btnFocus);
             control.setRefresh(btnRefresh, btnDeepRefresh);
         } else {
@@ -167,7 +170,7 @@ public class AppView implements AppViewAccessor {
             toolbarMain.add(cmdSettings);
             toolbarMain.add(Box.createHorizontalGlue());
             toolbarMain.add(cmdRefresh);
-            control.setToolbar(cmdNew, cmdView, cmdFinish, cmdResume, cmdEdit, cmdDelete, cmdUp, cmdDown, cmdExport, cmdSettings, tabs, tabr);
+            control.setToolbar(cmdNew, cmdView, cmdFinish, cmdResume, cmdEdit, cmdDelete, cmdUp, cmdDown, cmdExport, cmdSettings, tabMain, tabs, tabr);
             control.setExtras(cmdBookmarks, cmdFocus);
             control.setRefresh(cmdRefresh);
         }
@@ -233,6 +236,7 @@ public class AppView implements AppViewAccessor {
     @Override
     public void prePackInit() {
         createCommandButtons(control);
+        control.setThumbs(thumbManager);
         control.setDayButtons(btnDayNote, btnDayAudit);
         control.setTables(tActive, tFinished, tUtility);
         control.setChart(comboD, btnPrevD, btnNextD, btnFirstD, btnLastD, this::refreshDayChart);
@@ -315,31 +319,17 @@ public class AppView implements AppViewAccessor {
         refreshThumbs(cache);
     }
 
-    private ArrayList<Thumb> thumbs = new ArrayList<>();
-    private Thumb.ThumbManager thumbManager = new Thumb.ThumbManager() {
-        @Override
-        public void setSelection(long hash) {
-            for (Thumb t:thumbs) {
-                t.onSelectionChanged(hash);
-            }
-        }
-        @Override
-        public void getSelection(long hash) {
-
-        }
-    };
-
     private void refreshThumbs(CacheMgr cache) {
         final AllReportRows activeRows = cache.getObj(AllReportRows.activeCacheId(z), AllReportRows.class);
         thumbsPane.removeAll();
         for (int i=0; i<activeRows.size(); i++) {
             AllReportRow row = activeRows.get(i);
-            if(thumbs.size() <= i){
-                thumbs.add(new Thumb(thumbManager, row.getProjectName(), row.getProjectHash()));
+            if(thumbManager.size() <= i){
+                thumbManager.newThumb(row.getProjectName(), row.getProjectHash());
             } else {
-                thumbs.get(i).set(row.getProjectName(), row.getProjectHash());
+                thumbManager.getThumb(i).set(row.getProjectName(), row.getProjectHash());
             }
-            thumbsPane.add(thumbs.get(i).getPane());
+            thumbsPane.add(thumbManager.getThumb(i).getPane());
         }
     }
 
@@ -482,7 +472,10 @@ public class AppView implements AppViewAccessor {
     }
 
     public long selected(){
-        return selected(tabs.getSelectedIndex());
+        if(tabMain.getSelectedIndex()==1)
+            return selected(tabs.getSelectedIndex());
+        else
+            return thumbManager.getSelection();
     }
 
     private long selected(int i){
@@ -547,6 +540,11 @@ public class AppView implements AppViewAccessor {
     }
 
     @Override
+    public JTabbedPane getTabMain() {
+        return tabMain;
+    }
+
+    @Override
     public JTabbedPane getTabProjects() {
         return tabs;
     }
@@ -572,6 +570,18 @@ public class AppView implements AppViewAccessor {
     public JComponent getButtonBookmarks() {
         if(cmdBookmarks != null) return cmdBookmarks;
         return btnBookmarks;
+    }
+
+    @Override
+    public JComponent getButtonUp() {
+        if(cmdUp != null) return cmdUp;
+        return btnUp;
+    }
+
+    @Override
+    public JComponent getButtonDown() {
+        if(cmdDown != null) return cmdDown;
+        return btnDown;
     }
 
     @Override

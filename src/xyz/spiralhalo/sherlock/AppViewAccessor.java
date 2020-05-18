@@ -24,11 +24,14 @@ public interface AppViewAccessor {
     ArrayList<JComponent> enableOnSelect();
     JComponent toHideOnRefresh();
     JComponent getToShowOnRefresh();
+    JTabbedPane getTabMain();
     JTabbedPane getTabProjects();
     JTabbedPane getTabReports();
     JComponent getButtonFinish();
     JComponent getButtonResume();
     JComponent getButtonBookmarks();
+    JComponent getButtonUp();
+    JComponent getButtonDown();
     void setTablePopUpMenu(JPopupMenu popupMenu);
     JPopupMenu getTablePopUpMenu();
     Charts.MonthChartInfo getMonthChartInfo();
