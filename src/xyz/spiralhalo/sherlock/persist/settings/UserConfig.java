@@ -22,7 +22,8 @@ public class UserConfig {
         OLD_RATING,
         DISABLE_MONTH_LINE,
         ENABLE_YEAR_LINE,
-        EXCEED_100_PERCENT
+        EXCEED_100_PERCENT,
+        DOUBLE_CLICK_BOOKMARKS
     }
 
     public enum UserNode {

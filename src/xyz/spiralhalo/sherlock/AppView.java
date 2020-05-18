@@ -2,7 +2,6 @@ package xyz.spiralhalo.sherlock;
 
 import org.jfree.chart.ChartPanel;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
-import xyz.spiralhalo.sherlock.util.swing.thumb.Thumb;
 import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig;

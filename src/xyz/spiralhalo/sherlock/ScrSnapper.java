@@ -22,7 +22,8 @@ public class ScrSnapper implements TrackerListener{
     @Override
     public void onTrackerLog(Project project, WindowInfo windowInfo) {
         if(System.currentTimeMillis() - lastSnapTimeMillis >= SNAP_DELAY_MILLIS
-                && project != null && !project.isUtilityTag() && !project.isFinished()) {
+                && project != null && !project.isUtilityTag() && !project.isFinished()
+                && !windowInfo.title.contains("force keyword")) {
             BufferedImage image;
             try {
                 image = new Robot().createScreenCapture(EnumerateWindows.getWindowRect(windowInfo.hwndPointer));

@@ -51,6 +51,7 @@ public class AutoBookmarker implements TrackerListener {
             }
             if(file.exists()){
                 bookmarkMgr.getOrAdd(project).addOrReplace(new Bookmark(BookmarkType.FILE, file.getPath()));
+                bookmarkMgr.save();
             }
         }
     }

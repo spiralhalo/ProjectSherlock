@@ -27,6 +27,7 @@ import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppBool;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt;
+import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
 import xyz.spiralhalo.sherlock.record.legacy.AutoImporter2;
 import xyz.spiralhalo.sherlock.record.legacy.AutoImporter3;
 import xyz.spiralhalo.sherlock.report.*;
@@ -55,6 +56,8 @@ import java.util.function.BiConsumer;
 
 import static java.awt.Frame.ICONIFIED;
 import static java.awt.Frame.NORMAL;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserBool.*;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.*;
 
 public class AppControl implements ActionListener {
 
@@ -620,7 +623,14 @@ public class AppControl implements ActionListener {
         @Override
         public void mouseClicked(MouseEvent e) {
             if(e.getClickCount()==2 && e.getButton() == 1){
-                viewProject();
+                if(!UserConfig.userGBool(GENERAL, DOUBLE_CLICK_BOOKMARKS)) {
+                    viewProject();
+                } else {
+                    Project p = projectList.findByHash(view.selected());
+                    if(!p.isUtilityTag()){
+                        bookmark.invoke(p);
+                    }
+                }
             }
         }
     };

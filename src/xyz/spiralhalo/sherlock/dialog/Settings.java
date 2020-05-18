@@ -46,7 +46,7 @@ public class Settings extends JDialog {
     private JCheckBox checkAMinimize;
     private JTabbedPane tabbedPane1;
     private JLabel lblTarget;
-    private JButton btnDefTracking;
+    private JButton btnDefGeneral;
     private JButton btnDefApp;
     private JLabel lblTimeout;
     private JSlider sliderTimeout;
@@ -74,6 +74,8 @@ public class Settings extends JDialog {
     private JPanel finHeader;
     private JCheckBox checkUseRankChart;
     private JCheckBox checkLimitMonthChart;
+    private JRadioButton radDblClickView;
+    private JRadioButton radDblClkBookmarks;
     private boolean result = false;
 
     private IntSelectorModel vkSelectorModel;
@@ -225,7 +227,7 @@ public class Settings extends JDialog {
         comboBkmkHotkey.setModel(vkSelectorModel);
 
         // edit for NEW SEGMENTS
-        registerDefaultButton(btnDefTracking, "tracking");
+        registerDefaultButton(btnDefGeneral, "general");
         registerDefaultButton(btnDefView, "view");
         registerDefaultButton(btnDefApp, "app");
         registerDefaultButton(btnDefBookmarks, "bookmarks");
@@ -250,16 +252,17 @@ public class Settings extends JDialog {
 
         // <start> NEW OPTIONS
 
-        String tracking = "tracking";
-        bind(sliderTimeout, tracking, ()->userGInt(GENERAL, AFK_TIMEOUT_SECOND),
-                i->userSInt(GENERAL, AFK_TIMEOUT_SECOND, i), userDInt(GENERAL, AFK_TIMEOUT_SECOND));
-        bind(sliderTarget, tracking, ()->userGInt(GENERAL, DAILY_TARGET_SECOND),
+        String general = "general";
+        bind(radDblClickView, general, ()->!userGBool(GENERAL, DOUBLE_CLICK_BOOKMARKS), b->userSBool(GENERAL, DOUBLE_CLICK_BOOKMARKS, !b), !userDBool(GENERAL, DOUBLE_CLICK_BOOKMARKS));
+        bind(radDblClkBookmarks, general, ()->userGBool(GENERAL, DOUBLE_CLICK_BOOKMARKS), b->userSBool(GENERAL, DOUBLE_CLICK_BOOKMARKS, b), userDBool(GENERAL, DOUBLE_CLICK_BOOKMARKS));
+        bind(sliderTimeout, general, ()->userGInt(GENERAL, AFK_TIMEOUT_SECOND), i->userSInt(GENERAL, AFK_TIMEOUT_SECOND, i), userDInt(GENERAL, AFK_TIMEOUT_SECOND));
+        bind(sliderTarget, general, ()->userGInt(GENERAL, DAILY_TARGET_SECOND),
                 i->userSInt(GENERAL, DAILY_TARGET_SECOND, i), userDInt(GENERAL, DAILY_TARGET_SECOND));
         for (int i = 0; i < days.length; i++) {
             final int z = i;
-            bind(days[z], tracking, ()->userGWDay(z), b->userSWDay(z,b), userDWDay(i));
+            bind(days[z], general, ()->userGWDay(z), b->userSWDay(z,b), userDWDay(i));
         }
-        bind(sliderWeeklyTarget, tracking, ()->userGInt(GENERAL, WEEKLY_TARGET_DAYS, 1, 7, true),
+        bind(sliderWeeklyTarget, general, ()->userGInt(GENERAL, WEEKLY_TARGET_DAYS, 1, 7, true),
                 i->userSInt(GENERAL, WEEKLY_TARGET_DAYS, i), userDInt(GENERAL, WEEKLY_TARGET_DAYS));
 
         String view = "view";
