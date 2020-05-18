@@ -45,10 +45,10 @@ public class Bookmark implements Serializable {
                     case FILE:
                         try {
                             desktop.open(new File(value));
-                        } catch (FileNotFoundException e) {
+                        } catch (IllegalArgumentException | FileNotFoundException e) {
                             JOptionPane.showMessageDialog(origin, String.format("File not found: %s", value),
                                     "Failed to open bookmark", JOptionPane.ERROR_MESSAGE);
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             JOptionPane.showMessageDialog(origin, String.format("Can't open file: %s", value),
                                     "Failed to open bookmark", JOptionPane.ERROR_MESSAGE);
                             Debug.log(e);
@@ -57,10 +57,10 @@ public class Bookmark implements Serializable {
                     case URL:
                         try {
                             desktop.browse(new URI(value));
-                        } catch (URISyntaxException e) {
+                        } catch (IllegalArgumentException | URISyntaxException e) {
                             JOptionPane.showMessageDialog(origin, String.format("Invalid URL: %s", value),
                                     "Failed to open bookmark", JOptionPane.ERROR_MESSAGE);
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             JOptionPane.showMessageDialog(origin, String.format("Can't open URL: %s", value),
                                     "Failed to open bookmark", JOptionPane.ERROR_MESSAGE);
                             Debug.log(e);

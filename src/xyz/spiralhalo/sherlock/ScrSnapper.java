@@ -45,7 +45,7 @@ public class ScrSnapper implements TrackerListener{
             if(!thumbFile.exists())
                 return null;
             return ImageIO.read(thumbFile);
-        } catch (IOException e) {
+        } catch (Exception e) {
             Debug.log(e);
             return null;
         }

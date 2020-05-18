@@ -494,21 +494,27 @@ public class AppControl implements ActionListener {
     }
 
     private JMenuItem finishResumeMenu = null;
+    private JMenuItem bookmarksMenu = null;
     public void setTables(JTable tableActive, JTable tableFinished, JTable tableUtilityTags){
         view.setTablePopUpMenu(new JPopupMenu());
         JMenuItem viewMenu = new JMenuItem("View");
         JMenuItem edit = new JMenuItem("Edit");
         JMenuItem delete = new JMenuItem("Delete");
         finishResumeMenu = new JMenuItem("Finish");
+        bookmarksMenu = new JMenuItem("Bookmarks");
         viewMenu.addActionListener(e->viewProject());
         edit.addActionListener(e->editProject());
         delete.addActionListener(e->deleteProject());
         finishResumeMenu.addActionListener(e->{
             finishOrResumeProject(finishResumeMenu.getText().equals("Finish"));
         });
+        bookmarksMenu.addActionListener(e->{
+            openBookmarks();
+        });
         view.getTablePopUpMenu().add(viewMenu);
         view.getTablePopUpMenu().add(edit);
         view.getTablePopUpMenu().add(finishResumeMenu);
+        view.getTablePopUpMenu().add(bookmarksMenu);
         view.getTablePopUpMenu().addSeparator();
         view.getTablePopUpMenu().add(delete);
 //        tableActive.add(view.getTablePopUpMenu());
@@ -563,12 +569,10 @@ public class AppControl implements ActionListener {
                 viewProject();
                 break;
             case A_FINISH:
-                projectList.setProjectFinished(view.selected(), true);
-                refresh();
+                finishOrResumeProject(true);
                 break;
             case A_RESUME:
-                projectList.setProjectFinished(view.selected(), false);
-                refresh();
+                finishOrResumeProject(false);
                 break;
             case A_EDIT:
                 editProject();
@@ -610,10 +614,7 @@ public class AppControl implements ActionListener {
                 refresh(true);
                 break;
             case A_EXTRA_BOOKMARKS:
-                Project p = projectList.findByHash(view.selected());
-                if(!p.isUtilityTag()){
-                    bookmark.invoke(p);
-                }
+                openBookmarks();
                 break;
             case A_EXTRA_FOCUS:
                 FocusConfig focusConfig = new FocusConfig(view.frame(), focusMgr);
@@ -652,10 +653,13 @@ public class AppControl implements ActionListener {
                 if(view.getTabMain().getSelectedIndex() == 0 || view.getTabProjects().getSelectedIndex() == 0){
                     finishResumeMenu.setText("Finish");
                     finishResumeMenu.setVisible(true);
+                    bookmarksMenu.setVisible(true);
                 } else if(view.getTabProjects().getSelectedIndex() == 1){
                     finishResumeMenu.setText("Resume");
                     finishResumeMenu.setVisible(true);
+                    bookmarksMenu.setVisible(true);
                 } else {
+                    bookmarksMenu.setVisible(false);
                     finishResumeMenu.setVisible(false);
                 }
                 view.getTablePopUpMenu().show(e.getComponent(), e.getX(), e.getY());
@@ -747,10 +751,15 @@ public class AppControl implements ActionListener {
     }
 
     private void finishOrResumeProject(boolean finish) {
-        Project p = projectList.findByHash(view.selected());
-        if(p==null) return;
         projectList.setProjectFinished(view.selected(), finish);
         refresh();
+    }
+
+    private void openBookmarks(){
+        Project p = projectList.findByHash(view.selected());
+        if(!p.isUtilityTag()){
+            bookmark.invoke(p);
+        }
     }
 
     private void deleteProject() {
