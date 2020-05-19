@@ -57,6 +57,12 @@
               <icon value="xyz/spiralhalo/sherlock/res/sm_down.png"/>
             </properties>
           </component>
+          <component id="796fa" class="javax.swing.JCheckBox" binding="checkDelNoConfirm">
+            <constraints/>
+            <properties>
+              <text value="Remove without confirmation"/>
+            </properties>
+          </component>
         </children>
       </toolbar>
       <scrollpane id="41f51">

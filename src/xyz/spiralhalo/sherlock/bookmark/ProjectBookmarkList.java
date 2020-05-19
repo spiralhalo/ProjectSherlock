@@ -31,6 +31,7 @@ public class ProjectBookmarkList extends JFrame {
     private JButton btnMoveDown;
     private JButton btnEdit;
     private JLabel lblProjectName;
+    private JCheckBox checkDelNoConfirm;
 
     private final Project p;
     private final ProjectBookmarks bookmarks;
@@ -72,6 +73,8 @@ public class ProjectBookmarkList extends JFrame {
                 }
             }
         });
+        checkDelNoConfirm.setSelected(BookmarkConfig.bkmkGBool(BookmarkConfig.BookmarkBool.DEL_NO_CONFIRM));
+        checkDelNoConfirm.addActionListener(actionEvent -> BookmarkConfig.bkmkSBool(BookmarkConfig.BookmarkBool.DEL_NO_CONFIRM, checkDelNoConfirm.isSelected()));
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -79,8 +82,9 @@ public class ProjectBookmarkList extends JFrame {
             }
         });
         for (int i = 0; i < 10; i++) {
-            final int z = i;
-            contentPane.registerKeyboardAction(e -> onKeyPress(z), KeyStroke.getKeyStroke(KeyEvent.VK_1+z, 0),
+            final int z = (i+1)%10;
+            final int zz = i;
+            contentPane.registerKeyboardAction(e -> onKeyPress(zz), KeyStroke.getKeyStroke(KeyEvent.VK_0+z, 0),
                     JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         }
         contentPane.registerKeyboardAction(e -> close(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
@@ -146,7 +150,7 @@ public class ProjectBookmarkList extends JFrame {
     private void add(){
         Bookmark x = EditBookmark.add(this, p);
         if(x!=null){
-            bookmarks.addOrReplace(x);
+            bookmarks.addOrReplaceUnsaved(x);
         }
         manager.save();
     }
@@ -162,9 +166,13 @@ public class ProjectBookmarkList extends JFrame {
 
     private void remove(){
         if(getSelectedIndex()==-1)return;
-        if(JOptionPane.showConfirmDialog(this,"Remove bookmark?",
+        if(checkDelNoConfirm.isSelected() || JOptionPane.showConfirmDialog(this,"Remove bookmark?",
                 "Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
-            bookmarks.remove(getSelectedIndex());
+            int selectedIndex = getSelectedIndex();
+            bookmarks.remove(selectedIndex);
+            if(selectedIndex < tblBookmarks.getRowCount()){
+                tblBookmarks.setRowSelectionInterval(selectedIndex, selectedIndex);
+            }
         }
         manager.save();
     }

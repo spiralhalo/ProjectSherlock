@@ -126,7 +126,7 @@ public class ProjectList implements Serializable {
                 boolean exeOK = useExe == null || exeList == null || !useExe || exeList.length == 0;
                 if(!exeOK){
                     for (String exe : exeList) {
-                        if (executable.toLowerCase().equals(exe)) {
+                        if (executable.equalsIgnoreCase(exe)) {
                             exeOK = true;
                             break;
                         }

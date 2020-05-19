@@ -37,7 +37,7 @@ public class ProjectBookmarksModel extends AbstractTableModel {
             default:
             case 0:
                 if(rowIndex >= 0 && rowIndex < 9) return rowIndex+1;
-                if(rowIndex==10) return 0;
+                if(rowIndex==9) return 0;
                 return "";
             case 1:
                 return bookmarks.getType(rowIndex);

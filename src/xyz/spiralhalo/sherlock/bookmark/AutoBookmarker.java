@@ -13,11 +13,106 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkBool.AUTO_INCLUDE_EXISTING;
 import static xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkInt.AUTO_SUBFOLDER;
 
 public class AutoBookmarker implements TrackerListener, Runnable {
 
-    private static final long FAILURE_DELAY_MILLIS = 10000;
+    public static boolean scanOnRefresh(ArrayList<Project> toScan, BookmarkMgr bookmarkMgr) {
+        Debug.logVerbose(()->"Scanning on refresh");
+        for (Project p:toScan) {
+            if(configExclude(p, bookmarkMgr)) continue;
+            int depth = Math.max(BookmarkConfig.bkmkGInt(AUTO_SUBFOLDER), 0);
+            ArrayList<File> toPopulate = new ArrayList<>();
+            for(String tag:p.getTags()) {
+                for (String pf : BookmarkConfig.bkmkGPFList()) {
+                    File dir = new File(pf);
+                    if (!dir.isDirectory()) continue;
+                    recursiveSearchPopulate(tag.toLowerCase(), dir, depth, toPopulate);
+                }
+            }
+            final int x = toPopulate.size();
+            Debug.logVerbose(()->String.format("Found %d file(s) for %s", x, p));
+            if(toPopulate.size()>0){
+                for (File f:toPopulate) {
+                    bookmarkMgr.getOrAdd(p).addOrReplaceUnsaved(new Bookmark(BookmarkType.FILE, f.getPath()));
+                }
+                bookmarkMgr.save();
+            }
+        }
+        return true;
+    }
+
+    private static boolean configExclude(Project project, BookmarkMgr bookmarkMgr){
+        if (!BookmarkConfig.bkmkGBool(AUTO_INCLUDE_EXISTING) && bookmarkMgr.contains(project)) {
+            return bookmarkMgr.getOrAdd(project).size() > 0;
+        }
+        return false;
+    }
+
+    private static boolean configInclExt(String extLowerCase){
+        return BookmarkConfig.bkmkGPFExclExt().indexOf(extLowerCase) == -1;
+    }
+
+    //breadth-first search
+    //search and sort aren't my forte !!
+    private static void recursiveSearchPopulate(String keywordLowerCase, File dir, int depth, ArrayList<File> toPopulate){
+        Debug.logVerbose(()->String.format("Scanning %s for %s... depth: %d", dir.getName(), keywordLowerCase, depth));
+        File[] x = dir.listFiles();
+        if(x == null)return;
+        final ArrayList<File> dirChildren;
+        if(depth > 0) dirChildren = new ArrayList<>(); else dirChildren = null;
+        for (File child:x) {
+            if(child.isDirectory() && dirChildren != null){
+                dirChildren.add(child);
+            } else {
+                String name = child.getName().toLowerCase();
+                int lastIndexOf = name.lastIndexOf('.');
+                String ext = lastIndexOf==-1?"":name.substring(lastIndexOf+1);
+                if(configInclExt(ext) && name.contains(keywordLowerCase)){
+                    toPopulate.add(child);
+                }
+            }
+        }
+        if(depth > 0){
+            for (File dirChild:dirChildren) {
+                recursiveSearchPopulate(keywordLowerCase, dirChild, depth-1, toPopulate);
+            }
+        }
+    }
+
+    //breadth-first search
+    //search and sort aren't my forte !!
+    private static File recursiveSearchReturnOne(String keywordLowerCase, File dir, int depth){
+        Debug.logVerbose(()->String.format("Scanning %s for %s... depth: %d", dir.getName(), keywordLowerCase, depth));
+        File[] x = dir.listFiles();
+        if(x == null)return null;
+        final ArrayList<File> dirChildren;
+        if(depth > 0) dirChildren = new ArrayList<>(); else dirChildren = null;
+        for (File child:x) {
+            if(child.isDirectory() && dirChildren != null){
+                dirChildren.add(child);
+            } else {
+                String name = child.getName().toLowerCase();
+                int lastIndexOf = name.lastIndexOf('.');
+                String ext = lastIndexOf==-1?"":name.substring(lastIndexOf+1);
+                if(configInclExt(ext) && name.contains(keywordLowerCase)){
+                    return child;
+                }
+            }
+        }
+        if(depth > 0){
+            for (File dirChild:dirChildren) {
+                File f = recursiveSearchReturnOne(keywordLowerCase, dirChild, depth-1);
+                if (f!=null) return f;
+            }
+        }
+        return null;
+    }
+
+    private static final long FAILURE_DELAY_MIN_MILLIS = 10000;
+    private static final long FAILURE_DELAY_MAX_MILLIS = 1000000;
+    private long failureDelayMillis = FAILURE_DELAY_MIN_MILLIS;
     private final BookmarkMgr bookmarkMgr;
     private Project pQueue;
     private WindowInfo wQueue;
@@ -36,9 +131,7 @@ public class AutoBookmarker implements TrackerListener, Runnable {
     public void onTrackerLog(Project project, WindowInfo windowInfo) {
 
         if(project == null || project.isUtilityTag()) return;
-        if(bookmarkMgr.contains(project)){
-            if(bookmarkMgr.getOrAdd(project).size() > 0)return;
-        }
+        if(configExclude(project, bookmarkMgr))return;
 
         synchronized (this) {
             if(inProgress) return;
@@ -52,7 +145,7 @@ public class AutoBookmarker implements TrackerListener, Runnable {
         while (true) {
             synchronized (this) {
                 if (pQueue == null || (pQueue.getHash() == lastFailedHash
-                && ((System.currentTimeMillis() - lastFailureMillis) < FAILURE_DELAY_MILLIS))) {
+                && ((System.currentTimeMillis() - lastFailureMillis) < failureDelayMillis))) {
                     continue;
                 } else {
                     inProgress = true;
@@ -91,20 +184,20 @@ public class AutoBookmarker implements TrackerListener, Runnable {
             } else {
                 Matcher findExt = Pattern.compile("(.*)(\\.[a-zA-Z][a-zA-Z0-9]{1,10})").matcher(wQueue.title);
                 if (findExt.find()) {
-                    String ext = findExt.group();
-                    File file = new File(ext);
+                    String wordWithExt = findExt.group();
+                    File file = new File(wordWithExt);
                     if(file.exists()){
                         onSuccess("immediate", pQueue, new Bookmark(BookmarkType.FILE, file.getPath()));
                     } else {
-                        ext = ext.substring(ext.lastIndexOf("\\") + 1);
-                        ext = ext.substring(ext.lastIndexOf("/") + 1).trim().toLowerCase();
+                        wordWithExt = wordWithExt.substring(wordWithExt.lastIndexOf("\\") + 1);
+                        wordWithExt = wordWithExt.substring(wordWithExt.lastIndexOf("/") + 1).trim().toLowerCase();
 //                    String filen = ext.substring(ext.indexOf('-') + 1);
                         boolean success = false;
-                        int depth = Math.max(BookmarkConfig.bkmkDInt(AUTO_SUBFOLDER), 0);
+                        int depth = Math.max(BookmarkConfig.bkmkGInt(AUTO_SUBFOLDER), 0);
                         for (String pf : BookmarkConfig.bkmkGPFList()) {
                             File dir = new File(pf);
                             if (!dir.isDirectory()) continue;
-                            File found = recursiveSearch(ext, dir, depth);
+                            File found = recursiveSearchReturnOne(wordWithExt, dir, depth);
                             if (found != null) {
                                 onSuccess("scanned", pQueue, new Bookmark(BookmarkType.FILE, found.getPath()));
                                 success = true;
@@ -124,34 +217,11 @@ public class AutoBookmarker implements TrackerListener, Runnable {
             }
         }
     }
-
-    //breadth-first search
-    //search and sort aren't my forte !!
-    private File recursiveSearch(String keywordLowerCase, File dir, int depth){
-        File[] x = dir.listFiles();
-        if(x == null)return null;
-        final ArrayList<File> dirChildren;
-        if(depth > 0) dirChildren = new ArrayList<>(); else dirChildren = null;
-        for (File child:x) {
-            if(child.isDirectory() && dirChildren != null){
-                dirChildren.add(child);
-            } else if(child.getName().toLowerCase().contains(keywordLowerCase)){
-                return child;
-            }
-        }
-        if(depth > 0){
-            for (File dirChild:dirChildren) {
-                File f = recursiveSearch(keywordLowerCase, dirChild, depth-1);
-                if (f!=null) return f;
-            }
-        }
-        return null;
-    }
-
     private void onSuccess(String remark, Project p, Bookmark b){
-        bookmarkMgr.getOrAdd(p).addOrReplace(b);
+        bookmarkMgr.getOrAdd(p).addOrReplaceUnsaved(b);
         bookmarkMgr.save();
         Debug.logImportant("Scanning project folder SUCCESS. remark: `"+remark+"` time: "+(System.currentTimeMillis()-scanStartMillis)+"ms found: " + b.getValue());
+        failureDelayMillis = FAILURE_DELAY_MIN_MILLIS;
     }
 
     private void onFailure(){
@@ -160,5 +230,6 @@ public class AutoBookmarker implements TrackerListener, Runnable {
             lastFailedHash = pQueue.getHash();
             lastFailureMillis = System.currentTimeMillis();
         }
+        failureDelayMillis = Math.min(failureDelayMillis * 2, FAILURE_DELAY_MAX_MILLIS);
     }
 }

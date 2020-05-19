@@ -6,12 +6,14 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class BookmarkConfig {
     private static final String NODE = "BOOKMARK";
     private static final String KEY_PFLIST = "PFLIST";
+    private static final String KEY_PFEXCL_EXT = "PFEXCL_EXT";
     public enum BookmarkInt { HOTKEY, AUTO_SUBFOLDER }
-    public enum BookmarkBool { ENABLED, CTRL, SHIFT, CLOSE_WINDOW, AUTO_BOOKMARK }
+    public enum BookmarkBool { ENABLED, CTRL, SHIFT, CLOSE_WINDOW, AUTO_BOOKMARK, AUTO_INCLUDE_EXISTING, DEL_NO_CONFIRM }
 
     public static boolean bkmkDBool(BookmarkBool key){return false;}
 
@@ -42,7 +44,7 @@ public class BookmarkConfig {
     public static ArrayList<String> bkmkGPFList(){
         if(cachedPFList == null) {
             cachedPFList = new ArrayList<>();
-            String x = IniHandler.getInstance().get(NODE, "PFLIST", null);
+            String x = IniHandler.getInstance().get(NODE, KEY_PFLIST, null);
             if (x != null) {
                 for (String s : x.split("\\|")) {
                     File z = new File(s);
@@ -60,9 +62,35 @@ public class BookmarkConfig {
             if (z.isDirectory()) cachedPFList.add(s);
         }
         if(cachedPFList.size() == 0){
-            IniHandler.getInstance().node(NODE).remove("PFLIST");
+            IniHandler.getInstance().node(NODE).remove(KEY_PFLIST);
         } else {
-            IniHandler.getInstance().put(NODE, "PFLIST", String.join("|", cachedPFList.toArray(new String[]{})));
+            IniHandler.getInstance().put(NODE, KEY_PFLIST, String.join("|", cachedPFList.toArray(new String[]{})));
         }
+    }
+
+    private static List<String> cachedPFExclExt;
+    public static List<String> bkmkGPFExclExt() {
+        if(cachedPFExclExt == null){
+            String w = IniHandler.getInstance().get(NODE, KEY_PFEXCL_EXT, null);
+            if(w == null){
+                cachedPFExclExt = bkmkDPFExclExt();
+            } else {
+                String[] x = w.split(",");
+                cachedPFExclExt = new ArrayList<>(x.length);
+                for (int i = 0; i < x.length; i++) {
+                    cachedPFExclExt.add(x[i].toLowerCase().trim());
+                }
+            }
+        }
+        return cachedPFExclExt;
+    }
+
+    public static void bkmkSPFExclExt(String[] exclExts) {
+        cachedPFExclExt = Arrays.asList(exclExts);
+        IniHandler.getInstance().put(NODE, KEY_PFEXCL_EXT, String.join(",",exclExts));
+    }
+
+    public static List<String> bkmkDPFExclExt() {
+        return Arrays.asList("png","jpg","jpeg","meta","db","dat","dll");
     }
 }

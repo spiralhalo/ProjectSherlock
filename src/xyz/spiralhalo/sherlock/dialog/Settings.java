@@ -13,6 +13,8 @@ import xyz.spiralhalo.sherlock.util.swing.IntSelection;
 import xyz.spiralhalo.sherlock.util.swing.IntSelectorModel;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.Component;
 import java.awt.event.*;
 import java.io.File;
@@ -86,6 +88,10 @@ public class Settings extends JDialog {
     private JButton btnPFolderDelete;
     private JLabel lblSubFolder;
     private JSlider sliderSubFolder;
+    private JButton btnPFUp;
+    private JButton btnPFDn;
+    private JCheckBox checkAutoBIgnoreExisting;
+    private JTextField textAutoBExclExt;
     private boolean result = false;
 
     private DefaultListModel<String> pfModel;
@@ -109,6 +115,14 @@ public class Settings extends JDialog {
         }
 
 //        void changed() { if(!adjusting){ futureAdjust(); } }
+
+        void add(JTextField x, Supplier<String> confGetter){
+            sups.put(x::getText, confGetter);
+            x.getDocument().addDocumentListener(new DocumentListener() {
+                public void insertUpdate(DocumentEvent e) { adjust(); }
+                public void removeUpdate(DocumentEvent e) { adjust(); }
+                public void changedUpdate(DocumentEvent e) { adjust(); } });
+        }
 
         void add(JSlider x, Supplier<Integer> confGetter){
             sups.put(x::getValue, confGetter);
@@ -232,17 +246,23 @@ public class Settings extends JDialog {
         buttonOK.addActionListener(e->onOK());
         buttonApply.addActionListener(e->onApply());
         buttonCancel.addActionListener(e->onCancel());
-        btnPFolderAdd.addActionListener(e->addPFolder());
 
         // project folders list
-        Main.applyButtonTheme(btnPFolderAdd, btnPFolderDelete);
+        Main.applyButtonTheme(btnPFUp, btnPFDn, btnPFolderAdd, btnPFolderDelete);
         pfModel = new DefaultListModel<>();
         for (String s:BookmarkConfig.bkmkGPFList()) {
             pfModel.addElement(s);
         }
         listPF.setModel(pfModel);
-        listPF.addListSelectionListener(listSelectionEvent -> {btnPFolderDelete.setEnabled(listPF.getSelectedIndex()!=-1);});
-        btnPFolderDelete.addActionListener(e -> {pfModel.remove(listPF.getSelectedIndex()); enabler.setPermanentEnableApply(true);});
+        listPF.addListSelectionListener(listSelectionEvent -> {
+            btnPFolderDelete.setEnabled(listPF.getSelectedIndex()!=-1);
+            btnPFUp.setEnabled(listPF.getSelectedIndex()!=-1);
+            btnPFDn.setEnabled(listPF.getSelectedIndex()!=-1);
+        });
+        btnPFolderAdd.addActionListener(e->addPFolder());
+        btnPFolderDelete.addActionListener(e -> delPFolder());
+        btnPFUp.addActionListener(e->movePF(-1));
+        btnPFDn.addActionListener(e->movePF(+1));
 
         // <start> EDITABLE
 
@@ -276,6 +296,8 @@ public class Settings extends JDialog {
         Dependency.setChildren(checkAStartup, checkARunMinimized);
         Dependency.setChildren(checkBookmarks, lblHotkey, checkBkmkCtrl, checkBkmkShift, comboBkmkHotkey);
         Dependency.setChildren(radNewRating, checkUseRankChart);
+        Dependency.setChildren(checkAutoBookmark, checkAutoBIgnoreExisting);
+        Dependency.setChildren(checkAutoBookmark, sliderSubFolder);
 //        Dependency.setChildren(radOldRating, checkShowAbove100);
 
         // edit for NEW OPTIONS
@@ -316,6 +338,8 @@ public class Settings extends JDialog {
 
         String bkmk = "bookmarks";
         bind(checkAutoBookmark, bkmk, ()->bkmkGBool(AUTO_BOOKMARK), b->bkmkSBool(AUTO_BOOKMARK, b), bkmkDBool(AUTO_BOOKMARK));
+        bind(checkAutoBIgnoreExisting, bkmk, ()->!bkmkGBool(AUTO_INCLUDE_EXISTING), b->bkmkSBool(AUTO_INCLUDE_EXISTING, !b), !bkmkDBool(AUTO_INCLUDE_EXISTING));
+        bind(textAutoBExclExt, bkmk, ()->String.join(",",bkmkGPFExclExt()), s->bkmkSPFExclExt(s.replace(" ", "").split(",")), String.join(",",bkmkDPFExclExt()));
         bind(sliderSubFolder, bkmk, ()->bkmkGInt(AUTO_SUBFOLDER), i->bkmkSInt(AUTO_SUBFOLDER, i), bkmkDInt(AUTO_SUBFOLDER));
         bind(checkBookmarks, bkmk, ()->bkmkGBool(ENABLED), b->bkmkSBool(ENABLED, b), bkmkDBool(ENABLED));
         bind(checkBkmkCtrl, bkmk, ()->bkmkGBool(CTRL), b->bkmkSBool(CTRL, b), bkmkDBool(CTRL));
@@ -353,6 +377,26 @@ public class Settings extends JDialog {
             }
             enabler.setPermanentEnableApply(true);
         }
+    }
+
+    private void delPFolder() {
+        int selectedIndex = listPF.getSelectedIndex();
+        pfModel.remove(listPF.getSelectedIndex());
+        if(selectedIndex<pfModel.size()) {
+            listPF.setSelectedIndex(selectedIndex);
+        }
+        enabler.setPermanentEnableApply(true);
+    }
+
+    private void movePF(int move) {
+        if(listPF.getSelectedIndex() == -1)return;
+        int newI = listPF.getSelectedIndex() + move;
+        if(newI < 0 || newI >= pfModel.size()) return;
+        //swap
+        String x = listPF.getSelectedValue();
+        pfModel.set(listPF.getSelectedIndex(), pfModel.get(newI));
+        pfModel.set(newI, x);
+        listPF.setSelectedIndex(newI);
     }
 
     private void onApply() {
@@ -393,6 +437,12 @@ public class Settings extends JDialog {
         enabler.add(x, confG);
         x.setValue(confG.get());
         register(defNode, x::getValue, confS, defVal, x::setValue);
+    }
+
+    private void bind(JTextField x, String defNode, Supplier<String> confG, Consumer<String> confS, String defVal){
+        enabler.add(x, confG);
+        x.setText(confG.get());
+        register(defNode, x::getText, confS, defVal, x::setText);
     }
 
     private void resetSlider(JSlider slider, int min, int value, int max, int multiplier){

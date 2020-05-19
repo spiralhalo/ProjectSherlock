@@ -2,7 +2,6 @@ package xyz.spiralhalo.sherlock.report.factory;
 
 import xyz.spiralhalo.sherlock.Application;
 import xyz.spiralhalo.sherlock.Debug;
-import xyz.spiralhalo.sherlock.async.AsyncTask;
 import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
@@ -19,31 +18,8 @@ import java.io.File;
 import java.time.*;
 import java.util.ArrayList;
 
-// Async task for refreshing the charts + project table (AllReportRows). Garbage collected when the task ends.
-// Actual chart creation happens in SummaryBuilder and ChartBuilder classes.
-public class ReportRefresher extends AsyncTask<Boolean> {
-
-    private final CacheMgr cache;
-    private final ProjectList projectList;
-    private final boolean forceReconstruct;
-    private final boolean forceDelete;
-    private final ZoneId z;
-    private Boolean result = false;
-
-    public ReportRefresher(CacheMgr cache, ProjectList projectList) {
-        this(cache, projectList, false, false);
-    }
-
-    public ReportRefresher(CacheMgr cache, ProjectList projectList, boolean forceReconstruct, boolean deleteUnused) {
-        this.cache = cache;
-        this.projectList = projectList;
-        this.forceReconstruct = forceReconstruct;
-        this.forceDelete = deleteUnused;
-        this.z = ZoneId.systemDefault();
-    }
-
-    @Override
-    protected void doRun() throws Exception {
+public class ReportOnRefresh {
+    public static boolean refreshReports(boolean forceReconstruct, boolean forceDelete, CacheMgr cache, ZoneId z, ProjectList projectList){
         if(forceDelete){
             cache.forceDiskCacheCleanup();
         }
@@ -55,7 +31,7 @@ public class ReportRefresher extends AsyncTask<Boolean> {
             YearMonth ym = YearMonth.from(earliest);
             // create missing MonthSummary by reading the record
             while(!seeker.eof()){
-                if(missingMonthSummary(ym)){
+                if(missingMonthSummary(ym,forceReconstruct,cache,z)){
                     SummaryBuilder summaryBuilder = new SummaryBuilder(ym, z, ym.isBefore(YearMonth.now(z)));
                     RecordScanner scanner = new RecordScanner(seeker, ym);
                     while (scanner.hasNext()) {
@@ -71,7 +47,7 @@ public class ReportRefresher extends AsyncTask<Boolean> {
             for (int year = minYear; year <= maxYear; year++) {
                 final Year y = Year.of(year);
                 yearList.add(y);
-                if(missingYearSummary(y)) {
+                if(missingYearSummary(y,forceReconstruct,cache,z)) {
                     final ArrayList<YearMonth> months = new ArrayList<>();
                     final ChartBuilder<Year> chartBuilder = new ChartBuilder<>(y,z,false);
                     for (int month = 1; month <= 12; month++) {
@@ -155,26 +131,20 @@ public class ReportRefresher extends AsyncTask<Boolean> {
         cache.put(AllReportRows.activeCacheId(z), activeRows);
         cache.put(AllReportRows.finishedCacheId(z), finishedRows);
         cache.put(AllReportRows.utilityCacheId(z), utilityRows);
-        result = true;
+        return true;
     }
 
-    private boolean missingMonthSummary(YearMonth month){
+    private static boolean missingMonthSummary(YearMonth month, boolean forceReconstruct, CacheMgr cache, ZoneId z){
         if(forceReconstruct) return true;
         MonthSummary x = cache.getObj(MonthSummary.cacheId(month, z), MonthSummary.class);
         if(x == null) { return true; }
         else { return !x.isComplete(); }
     }
 
-    private boolean missingYearSummary(Year year){
+    private static boolean missingYearSummary(Year year, boolean forceReconstruct, CacheMgr cache, ZoneId z){
         if(forceReconstruct) return true;
         YearSummary x = cache.getObj(YearSummary.cacheId(year, z), YearSummary.class);
         if(x == null) { return true; }
         else { return !x.isComplete(); }
     }
-
-    @Override
-    protected Boolean getResult() {
-        return result;
-    }
 }
-

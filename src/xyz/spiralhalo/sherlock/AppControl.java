@@ -33,7 +33,6 @@ import xyz.spiralhalo.sherlock.record.legacy.AutoImporter3;
 import xyz.spiralhalo.sherlock.report.*;
 import xyz.spiralhalo.sherlock.report.factory.ProjectViewCreator;
 import xyz.spiralhalo.sherlock.report.factory.ProjectViewResult;
-import xyz.spiralhalo.sherlock.report.factory.ReportRefresher;
 import xyz.spiralhalo.sherlock.report.factory.table.AllReportRows;
 import xyz.spiralhalo.sherlock.report.ops.OverviewOps;
 import xyz.spiralhalo.sherlock.report.factory.table.ReportRows;
@@ -794,7 +793,7 @@ public class AppControl implements ActionListener {
             return;
         }
         tracker.flushRecordBuffer();
-        Loader.execute("refresh", new ReportRefresher(cache, projectList, forceReconstructAndDelete, forceReconstructAndDelete), this::refreshCB,
+        Loader.execute("refresh", new Refresher(cache, projectList, bookmark, forceReconstructAndDelete, forceReconstructAndDelete), this::refreshCB,
                 view.getToShowOnRefresh(), view.toHideOnRefresh());
     }
 

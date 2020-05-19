@@ -27,7 +27,7 @@ public class ProjectBookmarks implements Serializable, ModelAccessor {
         return bookmarks.get(i);
     }
 
-    public void addOrReplace(Bookmark bookmark){
+    public void addOrReplaceUnsaved(Bookmark bookmark){
         if(bookmarks.contains(bookmark))return;
         bookmarks.add(bookmark);
         getModel().fireTableRowsInserted(size()-1,size()-1);
