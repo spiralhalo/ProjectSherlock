@@ -946,7 +946,7 @@
               <grid id="70adc" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
-                  <tabbedpane title="Extras"/>
+                  <tabbedpane title="Bookmarks"/>
                 </constraints>
                 <properties/>
                 <border type="none"/>
@@ -958,7 +958,7 @@
                     <properties/>
                     <border type="none"/>
                     <children>
-                      <grid id="187dc" layout-manager="GridLayoutManager" row-count="8" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                      <grid id="187dc" layout-manager="GridLayoutManager" row-count="18" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                         <margin top="6" left="6" bottom="6" right="6"/>
                         <constraints/>
                         <properties/>
@@ -991,7 +991,7 @@
                           </grid>
                           <component id="342e3" class="javax.swing.JLabel" binding="lblHotkey">
                             <constraints>
-                              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+                              <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <enabled value="false"/>
@@ -1000,7 +1000,7 @@
                           </component>
                           <component id="eb7e7" class="javax.swing.JCheckBox" binding="checkBookmarks">
                             <constraints>
-                              <grid row="1" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                              <grid row="10" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <text value="Enable system-wide hotkey"/>
@@ -1008,7 +1008,7 @@
                           </component>
                           <component id="6ec14" class="javax.swing.JCheckBox" binding="checkBkmkCtrl">
                             <constraints>
-                              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                              <grid row="12" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <enabled value="false"/>
@@ -1017,7 +1017,7 @@
                           </component>
                           <component id="8b28c" class="javax.swing.JCheckBox" binding="checkBkmkShift">
                             <constraints>
-                              <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                              <grid row="12" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <enabled value="false"/>
@@ -1026,7 +1026,7 @@
                           </component>
                           <component id="6c6f5" class="javax.swing.JComboBox" binding="comboBkmkHotkey">
                             <constraints>
-                              <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                              <grid row="12" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <enabled value="false"/>
@@ -1034,43 +1034,182 @@
                           </component>
                           <hspacer id="be2d0">
                             <constraints>
-                              <grid row="2" column="4" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                              <grid row="12" column="4" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                             </constraints>
                           </hspacer>
                           <component id="1adbf" class="javax.swing.JButton" binding="btnDefBookmarks">
                             <constraints>
-                              <grid row="6" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                              <grid row="17" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <text value="Restore defaults for 'Bookmarks'"/>
                             </properties>
                           </component>
-                          <vspacer id="e0648">
-                            <constraints>
-                              <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-                            </constraints>
-                          </vspacer>
                           <component id="4722c" class="javax.swing.JSeparator">
                             <constraints>
-                              <grid row="5" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                              <grid row="16" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                             </constraints>
                             <properties/>
                           </component>
                           <component id="293c3" class="javax.swing.JCheckBox" binding="checkBkmkCloseWindow">
                             <constraints>
-                              <grid row="4" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                              <grid row="14" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <text value="Close bookmarks list upon launching a bookmark"/>
                             </properties>
                           </component>
-                          <component id="e8ad8" class="javax.swing.JLabel">
+                          <component id="a3d9c" class="javax.swing.JCheckBox" binding="checkAutoBookmark">
                             <constraints>
-                              <grid row="3" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+                              <grid row="1" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text value="Enable auto-bookmark"/>
+                            </properties>
+                          </component>
+                          <component id="f9f05" class="javax.swing.JLabel">
+                            <constraints>
+                              <grid row="2" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
                             </constraints>
                             <properties>
                               <enabled value="false"/>
-                              <text value="This hotkey opens bookmarks window based on current project."/>
+                              <text value="&lt;html&gt;Auto-bookmark scans project folders to create bookmarks&lt;br/&gt; based on currently open project documents.&lt;br/&gt;&lt;b&gt;Due to performance reasons, auto-bookmark only creates &lt;br/&gt;bookmarks for projects without existing bookmarks.&lt;/html&gt;"/>
+                            </properties>
+                          </component>
+                          <toolbar id="93213">
+                            <constraints>
+                              <grid row="3" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="2" use-parent-layout="false">
+                                <preferred-size width="-1" height="20"/>
+                              </grid>
+                            </constraints>
+                            <properties>
+                              <floatable value="false"/>
+                            </properties>
+                            <border type="none"/>
+                            <children>
+                              <component id="cb9b8" class="javax.swing.JLabel">
+                                <constraints/>
+                                <properties>
+                                  <text value="Project folders:"/>
+                                </properties>
+                              </component>
+                              <hspacer id="8dea0">
+                                <constraints/>
+                              </hspacer>
+                              <component id="e3699" class="javax.swing.JButton" binding="btnPFolderAdd">
+                                <constraints/>
+                                <properties>
+                                  <icon value="xyz/spiralhalo/sherlock/res/sm_add.png"/>
+                                </properties>
+                              </component>
+                              <component id="92c1c" class="javax.swing.JButton" binding="btnPFolderDelete">
+                                <constraints/>
+                                <properties>
+                                  <enabled value="false"/>
+                                  <icon value="xyz/spiralhalo/sherlock/res/sm_remove.png"/>
+                                </properties>
+                              </component>
+                            </children>
+                          </toolbar>
+                          <component id="c6ea1" class="javax.swing.JLabel">
+                            <constraints>
+                              <grid row="5" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <enabled value="false"/>
+                              <text value="Project folders aren't saved until you click OK/Apply."/>
+                            </properties>
+                          </component>
+                          <component id="89b08" class="javax.swing.JLabel">
+                            <constraints>
+                              <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                          <scrollpane id="1894d">
+                            <constraints>
+                              <grid row="4" column="0" row-span="1" col-span="5" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="2" use-parent-layout="false">
+                                <preferred-size width="-1" height="60"/>
+                              </grid>
+                            </constraints>
+                            <properties/>
+                            <border type="none"/>
+                            <children>
+                              <component id="2ed5e" class="javax.swing.JList" binding="listPF">
+                                <constraints/>
+                                <properties/>
+                              </component>
+                            </children>
+                          </scrollpane>
+                          <vspacer id="e0648">
+                            <constraints>
+                              <grid row="15" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                          </vspacer>
+                          <component id="d0078" class="javax.swing.JLabel">
+                            <constraints>
+                              <grid row="8" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <enabled value="false"/>
+                              <text value="Sub-folder scanning may impact performance greatly."/>
+                            </properties>
+                          </component>
+                          <component id="5a78a" class="javax.swing.JLabel">
+                            <constraints>
+                              <grid row="13" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text value=""/>
+                            </properties>
+                          </component>
+                          <component id="e8ad8" class="javax.swing.JLabel">
+                            <constraints>
+                              <grid row="11" column="0" row-span="1" col-span="5" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <enabled value="false"/>
+                              <text value="Opens bookmarks window for the current active project anytime."/>
+                            </properties>
+                          </component>
+                          <grid id="cd4ec" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                            <margin top="0" left="0" bottom="0" right="0"/>
+                            <constraints>
+                              <grid row="7" column="0" row-span="1" col-span="5" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="2" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                            <border type="none"/>
+                            <children>
+                              <component id="2dc91" class="javax.swing.JSlider" binding="sliderSubFolder">
+                                <constraints>
+                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                                    <preferred-size width="240" height="-1"/>
+                                  </grid>
+                                </constraints>
+                                <properties>
+                                  <maximum value="1800"/>
+                                  <minimum value="60"/>
+                                  <value value="600"/>
+                                </properties>
+                              </component>
+                              <component id="9da2c" class="javax.swing.JLabel" binding="lblSubFolder">
+                                <constraints>
+                                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                                </constraints>
+                                <properties>
+                                  <text value="0"/>
+                                </properties>
+                              </component>
+                            </children>
+                          </grid>
+                          <component id="e478" class="javax.swing.JLabel">
+                            <constraints>
+                              <grid row="6" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+                            </constraints>
+                            <properties>
+                              <text value="Sub-folder depth limit:"/>
                             </properties>
                           </component>
                         </children>

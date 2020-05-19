@@ -2,6 +2,7 @@ package xyz.spiralhalo.sherlock.dialog;
 
 import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.Application;
+import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkInt;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkMgr;
 import xyz.spiralhalo.sherlock.persist.settings.*;
@@ -14,12 +15,14 @@ import xyz.spiralhalo.sherlock.util.swing.IntSelectorModel;
 import javax.swing.*;
 import java.awt.Component;
 import java.awt.event.*;
+import java.io.File;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.*;
 import static xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkBool.*;
+import static xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkInt.AUTO_SUBFOLDER;
 import static xyz.spiralhalo.sherlock.persist.settings.AppConfig.*;
 import static xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppBool.*;
 import static xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt.*;
@@ -77,8 +80,15 @@ public class Settings extends JDialog {
     private JRadioButton radDblClickView;
     private JRadioButton radDblClkBookmarks;
     private JRadioButton radDblClkLaunchB;
+    private JCheckBox checkAutoBookmark;
+    private JList<String> listPF;
+    private JButton btnPFolderAdd;
+    private JButton btnPFolderDelete;
+    private JLabel lblSubFolder;
+    private JSlider sliderSubFolder;
     private boolean result = false;
 
+    private DefaultListModel<String> pfModel;
     private IntSelectorModel vkSelectorModel;
 
     private final JCheckBox[] days = new JCheckBox[]{day0,day1,day2,day3,day4,day5,day6};
@@ -89,45 +99,51 @@ public class Settings extends JDialog {
     }
 
     private static class ApplyButtonEnabler{
-        private boolean adjusting = false;
+//        private boolean adjusting = false;
         private final HashMap<Supplier, Supplier> sups = new HashMap<>();
         private final JButton buttonApply;
+        private boolean permanentEnableApply;
 
         ApplyButtonEnabler(JButton buttonApply) {
             this.buttonApply = buttonApply;
         }
 
-        void changed() { if(!adjusting){ futureAdjust(); } }
+//        void changed() { if(!adjusting){ futureAdjust(); } }
 
         void add(JSlider x, Supplier<Integer> confGetter){
             sups.put(x::getValue, confGetter);
-            x.addChangeListener(e -> changed());
+            x.addChangeListener(e -> adjust());
         }
 
         void add(JComboBox x, Supplier<Integer> confGetter){
             sups.put(x::getSelectedIndex, confGetter);
-            x.addItemListener(e -> changed());
+            x.addItemListener(e -> adjust());
         }
 
         void add(JToggleButton x, Supplier<Boolean> confGetter){
             sups.put(x::isSelected, confGetter);
-            x.addItemListener(e -> changed());
+            x.addItemListener(e -> adjust());
         }
 
-        private void futureAdjust(){
-            adjusting = true;
-            adjusting = adjust();
+        void setPermanentEnableApply(boolean permanentEnableApply) {
+            this.permanentEnableApply = permanentEnableApply;
+            buttonApply.setEnabled(permanentEnableApply);
         }
+        //        private void futureAdjust(){
+////            adjusting = true;
+//            adjusting = adjust();
+//        }
 
-        private boolean adjust(){
+        private void adjust(){
+            if(permanentEnableApply) return;
             for (Map.Entry<Supplier, Supplier> x:sups.entrySet()) {
                 if(!x.getKey().get().equals(x.getValue().get())){
                     buttonApply.setEnabled(true);
-                    return false;
+                    return; //false;
                 }
             }
             buttonApply.setEnabled(false);
-            return false;
+//            return false;
         }
     }
 
@@ -216,6 +232,17 @@ public class Settings extends JDialog {
         buttonOK.addActionListener(e->onOK());
         buttonApply.addActionListener(e->onApply());
         buttonCancel.addActionListener(e->onCancel());
+        btnPFolderAdd.addActionListener(e->addPFolder());
+
+        // project folders list
+        Main.applyButtonTheme(btnPFolderAdd, btnPFolderDelete);
+        pfModel = new DefaultListModel<>();
+        for (String s:BookmarkConfig.bkmkGPFList()) {
+            pfModel.addElement(s);
+        }
+        listPF.setModel(pfModel);
+        listPF.addListSelectionListener(listSelectionEvent -> {btnPFolderDelete.setEnabled(listPF.getSelectedIndex()!=-1);});
+        btnPFolderDelete.addActionListener(e -> {pfModel.remove(listPF.getSelectedIndex()); enabler.setPermanentEnableApply(true);});
 
         // <start> EDITABLE
 
@@ -234,14 +261,16 @@ public class Settings extends JDialog {
         registerDefaultButton(btnDefBookmarks, "bookmarks");
 
         // edit for NEW SLIDERS
-        resetSlider(sliderTarget, 4, 5*4, 12*4, 15*60);
-        resetSlider(sliderTimeout, 1, 5, 30, 60);
-        resetSlider(sliderAutoRefresh, 1, 10, 30, 60);
-        resetSlider(sliderWeeklyTarget, 1, 5, 7, 1);
         bindTimeSlider(sliderTarget, lblTarget);
         bindTimeSlider(sliderTimeout, lblTimeout);
         bindTimeSlider(sliderAutoRefresh, lblAutoRefresh);
         bindCustomSlider(sliderWeeklyTarget, lblWeeklyTarget, "day", "days");
+        bindCustomSliderSpecialCase(sliderSubFolder, lblSubFolder, "level", "levels", 0, "Disabled");
+        resetSlider(sliderTarget, 4, 5*4, 12*4, 15*60);
+        resetSlider(sliderTimeout, 1, 5, 30, 60);
+        resetSlider(sliderAutoRefresh, 1, 10, 30, 60);
+        resetSlider(sliderWeeklyTarget, 1, 5, 7, 1);
+        resetSlider(sliderSubFolder, 0, 0, 4, 1);
 
         // edit for NEW CHECK BOXES / RADIO BUTTONS WITH CHILDREN
         Dependency.setChildren(checkAStartup, checkARunMinimized);
@@ -286,6 +315,8 @@ public class Settings extends JDialog {
         bind(comboTheme, app, ()->getTheme().x, AppConfig::setTheme, defaultTheme().x);
 
         String bkmk = "bookmarks";
+        bind(checkAutoBookmark, bkmk, ()->bkmkGBool(AUTO_BOOKMARK), b->bkmkSBool(AUTO_BOOKMARK, b), bkmkDBool(AUTO_BOOKMARK));
+        bind(sliderSubFolder, bkmk, ()->bkmkGInt(AUTO_SUBFOLDER), i->bkmkSInt(AUTO_SUBFOLDER, i), bkmkDInt(AUTO_SUBFOLDER));
         bind(checkBookmarks, bkmk, ()->bkmkGBool(ENABLED), b->bkmkSBool(ENABLED, b), bkmkDBool(ENABLED));
         bind(checkBkmkCtrl, bkmk, ()->bkmkGBool(CTRL), b->bkmkSBool(CTRL, b), bkmkDBool(CTRL));
         bind(checkBkmkShift, bkmk, ()->bkmkGBool(SHIFT), b->bkmkSBool(SHIFT, b), bkmkDBool(SHIFT));
@@ -310,8 +341,30 @@ public class Settings extends JDialog {
         });
     }
 
+    private void addPFolder() {
+        JFileChooser destChooser = new JFileChooser();
+        destChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        destChooser.setMultiSelectionEnabled(false);
+        destChooser.showDialog(this, "Add folder");
+        File dest = destChooser.getSelectedFile();
+        if(dest != null){
+            if(!pfModel.contains(dest.getPath())) {
+                pfModel.addElement(dest.getPath());
+            }
+            enabler.setPermanentEnableApply(true);
+        }
+    }
+
     private void onApply() {
         result = true;
+
+        //pflist
+        String[] pfList = new String[pfModel.size()];
+        for (int i = 0; i < pfList.length; i++) {
+            pfList[i] = pfModel.get(i);
+        }
+        BookmarkConfig.bkmkSPFList(pfList);
+
         applyAll();
         buttonApply.setEnabled(false);
         Application.createOrDeleteStartupRegistry();
@@ -376,7 +429,18 @@ public class Settings extends JDialog {
     }
 
     private void bindCustomSlider(JSlider slider, JLabel label, String unit, String pluralUnit){
-        slider.addChangeListener(e->label.setText(String.format("%d %s", slider.getValue(), (slider.getValue()>1?pluralUnit:unit))));
+        slider.addChangeListener(e->label.setText(String.format("%d %s", slider.getValue(), (slider.getValue()==1?unit:pluralUnit))));
+        label.setText(String.format("%d %s", slider.getValue(), (slider.getValue()>1?pluralUnit:unit)));
+    }
+
+    private void bindCustomSliderSpecialCase(JSlider slider, JLabel label, String unit, String pluralUnit, int special, String specialS){
+        slider.addChangeListener(e-> {
+            if (slider.getValue() == special) {
+                label.setText(specialS);
+            } else {
+                label.setText(String.format("%d %s", slider.getValue(), (slider.getValue() == 1 ? unit : pluralUnit)));
+            }
+        });
         label.setText(String.format("%d %s", slider.getValue(), (slider.getValue()>1?pluralUnit:unit)));
     }
 

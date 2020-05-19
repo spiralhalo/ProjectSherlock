@@ -34,6 +34,7 @@ public class AllReportRow implements Serializable {
         this.seconds = seconds;
         this.ptype = pType;
         File thumbFile = ScrSnapper.getThumbFile(projectHash);
+        // ILLEGAL HAXX
         if(thumbFile.exists()) {
             this.lastWorkedOnMillis = Math.max(lastWorkedOnMillis, thumbFile.lastModified());
         } else {

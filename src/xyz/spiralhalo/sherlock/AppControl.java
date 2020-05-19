@@ -14,7 +14,6 @@ import xyz.spiralhalo.sherlock.async.LoaderDialog;
 import xyz.spiralhalo.sherlock.audit.ViewDayAudit;
 import xyz.spiralhalo.sherlock.bookmark.AutoBookmarker;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkMgr;
-import xyz.spiralhalo.sherlock.bookmark.persist.Bookmark;
 import xyz.spiralhalo.sherlock.dialog.*;
 import xyz.spiralhalo.sherlock.focus.FocusConfig;
 import xyz.spiralhalo.sherlock.focus.FocusMgr;
@@ -57,7 +56,6 @@ import java.util.function.BiConsumer;
 
 import static java.awt.Frame.ICONIFIED;
 import static java.awt.Frame.NORMAL;
-import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserBool.*;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.DOUBLE_CLICK_ACTION;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.*;
 
