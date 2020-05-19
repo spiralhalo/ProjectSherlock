@@ -7,6 +7,7 @@ import java.io.*;
 import java.util.HashMap;
 
 public class BookmarkMap extends HashMap<Long, ProjectBookmarks> {
+    public static final long serialVersionUID = -5783581899062993176L;
     private static String BOOKMARKS_FILE = "bookmarks.dat";
 
     public synchronized static BookmarkMap load() {

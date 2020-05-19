@@ -3,6 +3,7 @@ package xyz.spiralhalo.sherlock.bookmark.persist;
 import xyz.spiralhalo.sherlock.bookmark.ModelAccessor;
 import xyz.spiralhalo.sherlock.bookmark.ProjectBookmarksModel;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -73,7 +74,10 @@ public class ProjectBookmarks implements Serializable, ModelAccessor {
         switch (bookmarks.get(i).getType()){
             default:
             case URL:return "URL";
-            case FILE:return "File";
+            case FILE: {
+                if(new File(bookmarks.get(i).getValue()).isDirectory()) return "Folder";
+                return "File";
+            }
         }
     }
 

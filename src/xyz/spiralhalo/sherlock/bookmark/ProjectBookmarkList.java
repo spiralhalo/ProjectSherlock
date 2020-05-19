@@ -1,16 +1,27 @@
 package xyz.spiralhalo.sherlock.bookmark;
 
+import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.bookmark.persist.Bookmark;
+import xyz.spiralhalo.sherlock.bookmark.persist.BookmarkType;
 import xyz.spiralhalo.sherlock.bookmark.persist.ProjectBookmarks;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.util.ImgUtil;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
 
 public class ProjectBookmarkList extends JFrame {
     private static final HashMap<Project, ProjectBookmarkList> dialogs = new HashMap<>();
@@ -32,6 +43,10 @@ public class ProjectBookmarkList extends JFrame {
     private JButton btnEdit;
     private JLabel lblProjectName;
     private JCheckBox checkDelNoConfirm;
+    private JScrollPane scrollPane;
+    private JPopupMenu tablePopUp;
+    private JMenuItem menuLaunch;
+    private JMenuItem menuOpenFolder;
 
     private final Project p;
     private final ProjectBookmarks bookmarks;
@@ -48,6 +63,10 @@ public class ProjectBookmarkList extends JFrame {
         bookmarks = mgr.getOrAdd(p);
         setContentPane(contentPane);
         setMinimumSize(contentPane.getMinimumSize());
+        tablePopUp = new JPopupMenu();
+        tablePopUp.add(menuLaunch = new JMenuItem("Open"));
+        tablePopUp.add(menuOpenFolder = new JMenuItem("Open file location"));
+        tblBookmarks.addMouseListener(tblAdapter);
         btnLaunch.setEnabled(false);
         btnRemove.setEnabled(false);
         btnMoveUp.setEnabled(false);
@@ -60,6 +79,8 @@ public class ProjectBookmarkList extends JFrame {
         tblBookmarks.getColumnModel().getColumn(1).setMaxWidth(50);
         Main.applyButtonTheme(btnLaunch, btnAdd, btnRemove, btnMoveUp, btnMoveDown, btnEdit);
         btnLaunch.addActionListener(e->launch());
+        menuLaunch.addActionListener(e->launch());
+        menuOpenFolder.addActionListener(e->openFolder());
         btnAdd.addActionListener(e->add());
         btnRemove.addActionListener(e->remove());
         btnMoveUp.addActionListener(e->moveUp());
@@ -73,6 +94,33 @@ public class ProjectBookmarkList extends JFrame {
                 }
             }
         });
+        scrollPane.setDropTarget(new DropTarget(scrollPane,
+                new DropTargetAdapter() {
+                    @Override
+                    public void drop(DropTargetDropEvent dtde) {
+                        try {
+                            dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+                            //intended for Windows only
+                            java.util.List<File> dropppedFiles = (List<File>)dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                            File f = dropppedFiles.get(0);
+                            String path = f.getPath();
+                            BookmarkType type;
+                            String value;
+                            if(path.toLowerCase().endsWith(".url")){
+                                type = BookmarkType.URL;
+                                String content = new Scanner(f).useDelimiter("\\Z").next();
+                                value = content.substring(content.indexOf("=")+1);
+                            } else {
+                                type = BookmarkType.FILE;
+                                value = path;
+                            }
+                            bookmarks.addOrReplaceUnsaved(new Bookmark(type, value));
+                            manager.save();
+                        } catch (Exception e) {
+                            Debug.log(e);
+                        }
+                    }
+                }));
         checkDelNoConfirm.setSelected(BookmarkConfig.bkmkGBool(BookmarkConfig.BookmarkBool.DEL_NO_CONFIRM));
         checkDelNoConfirm.addActionListener(actionEvent -> BookmarkConfig.bkmkSBool(BookmarkConfig.BookmarkBool.DEL_NO_CONFIRM, checkDelNoConfirm.isSelected()));
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -92,6 +140,32 @@ public class ProjectBookmarkList extends JFrame {
         pack();
         setLocationRelativeTo(null);
     }
+
+    private final MouseAdapter tblAdapter = new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            if(e.getButton()==3) {
+                int row = tblBookmarks.rowAtPoint(e.getPoint());
+                int column = tblBookmarks.columnAtPoint(e.getPoint());
+
+                if (!tblBookmarks.isRowSelected(row))
+                    tblBookmarks.changeSelection(row, column, false, false);
+            }
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            if(e.getButton() == 3){
+                int selected = tblBookmarks.getSelectedRow();
+                if(selected >= 0 && selected < bookmarks.size() && bookmarks.get(selected).getType() == BookmarkType.FILE){
+                    menuOpenFolder.setEnabled(true);
+                } else {
+                    menuOpenFolder.setEnabled(false);
+                }
+                tablePopUp.show(e.getComponent(), e.getX(), e.getY());
+            }
+        }
+    };
 
     private void onKeyPress(int i) {
         if(i>=0 && i<tblBookmarks.getRowCount()){
@@ -141,9 +215,29 @@ public class ProjectBookmarkList extends JFrame {
     }
 
     private void launchInternal(Bookmark toLaunch){
-        toLaunch.launch(this);
-        if(BookmarkConfig.bkmkGBool(BookmarkConfig.BookmarkBool.CLOSE_WINDOW)){
+        if(toLaunch.launch(this) && BookmarkConfig.bkmkGBool(BookmarkConfig.BookmarkBool.CLOSE_WINDOW)){
             close();
+        }
+    }
+
+    private void openFolder(){
+        if(getSelected()!=null){
+            Bookmark selected = getSelected();
+            if(selected.getType()==BookmarkType.FILE){
+                String path = selected.getValue();
+                File folder = new File(path).getParentFile();
+                try {
+                    Desktop.getDesktop().open(folder);
+                } catch (IllegalArgumentException | FileNotFoundException e) {
+                    JOptionPane.showMessageDialog(this, String.format("Folder not found: %s", folder.getPath()),
+                            "Failure", JOptionPane.ERROR_MESSAGE);
+                    Debug.log(e);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, String.format("Can't open folder: %s", folder.getPath()),
+                            "Failure", JOptionPane.ERROR_MESSAGE);
+                    Debug.log(e);
+                }
+            }
         }
     }
 

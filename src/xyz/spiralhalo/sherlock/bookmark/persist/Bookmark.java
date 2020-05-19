@@ -38,13 +38,14 @@ public class Bookmark implements Serializable {
         return super.equals(obj);
     }
 
-    public void launch(JFrame origin) {
+    public boolean launch(JFrame origin) {
             if(Desktop.isDesktopSupported()){
                 Desktop desktop = Desktop.getDesktop();
                 switch (type) {
                     case FILE:
                         try {
                             desktop.open(new File(value));
+                            return true;
                         } catch (IllegalArgumentException | FileNotFoundException e) {
                             JOptionPane.showMessageDialog(origin, String.format("File not found: %s", value),
                                     "Failed to open bookmark", JOptionPane.ERROR_MESSAGE);
@@ -57,6 +58,7 @@ public class Bookmark implements Serializable {
                     case URL:
                         try {
                             desktop.browse(new URI(value));
+                            return true;
                         } catch (IllegalArgumentException | URISyntaxException e) {
                             JOptionPane.showMessageDialog(origin, String.format("Invalid URL: %s", value),
                                     "Failed to open bookmark", JOptionPane.ERROR_MESSAGE);
@@ -71,11 +73,13 @@ public class Bookmark implements Serializable {
                 Runtime runtime = Runtime.getRuntime();
                 try {
                     runtime.exec("xdg-open " + value);
+                    return true;
                 } catch (IOException e) {
                     JOptionPane.showMessageDialog(origin, String.format("Can't open: %s", value),
                             "Failed to open bookmark", JOptionPane.ERROR_MESSAGE);
                     Debug.log(e);
                 }
             }
+            return false;
         }
 }

@@ -6,14 +6,12 @@ import xyz.spiralhalo.sherlock.bookmark.persist.BookmarkType;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.*;
 import java.awt.event.*;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
+import java.util.Scanner;
 
 public class EditBookmark extends JDialog {
 
@@ -33,12 +31,10 @@ public class EditBookmark extends JDialog {
     private JButton buttonOK;
     private JButton buttonCancel;
     private JComboBox comboType;
-    private JTextField textFile;
+    private JTextField textPath;
     private JButton btnBrowse;
-    private JTextField textURL;
     private JLabel lblProject;
     private JPanel panelFile;
-    private JLabel lblURL;
     private JLabel lblFile;
     private JPanel panelDrop;
 
@@ -60,15 +56,24 @@ public class EditBookmark extends JDialog {
                     dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
                     //intended for Windows only
                     List<File> dropppedFiles = (List<File>)dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-                    textFile.setText(dropppedFiles.get(0).getPath());
-                } catch (UnsupportedFlavorException | IOException e) {
+                    File f = dropppedFiles.get(0);
+                    String path = f.getPath();
+                    if(path.toLowerCase().endsWith(".url")){
+                        comboType.setSelectedIndex(1);
+                        String content = new Scanner(f).useDelimiter("\\Z").next();
+                        textPath.setText(content.substring(content.indexOf("=")+1));
+                    } else {
+                        comboType.setSelectedIndex(0);
+                        textPath.setText(path);
+                    }
+                } catch (Exception e) {
                     Debug.log(e);
                 }
             }
         }));
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         comboType.addItemListener(e->typeChange());
-        comboType.setModel(new DefaultComboBoxModel(new String[]{"File", "URL"}));
+        comboType.setModel(new DefaultComboBoxModel(new String[]{"File / Folder", "URL"}));
         typeChange();
         buttonOK.addActionListener(e -> onOK());
         buttonCancel.addActionListener(e -> onCancel());
@@ -86,9 +91,9 @@ public class EditBookmark extends JDialog {
         if(edit){
             if(old.getType()==BookmarkType.URL){
                 comboType.setSelectedIndex(1);
-                textURL.setText(old.getValue());
+                textPath.setText(old.getValue());
             } else {
-                textFile.setText(old.getValue());
+                textPath.setText(old.getValue());
             }
         }
     }
@@ -96,25 +101,22 @@ public class EditBookmark extends JDialog {
     private void onBrowse() {
         if(fileChooser.showDialog(this, "Select") == JFileChooser.APPROVE_OPTION) {
             File selected = fileChooser.getSelectedFile();
-            textFile.setText(selected.getPath());
+            textPath.setText(selected.getPath());
         }
     }
 
     private void typeChange(){
         boolean x = comboType.getSelectedIndex()==0;
-        lblFile.setVisible(x);
-        panelFile.setVisible(x);
-        panelDrop.setVisible(x);
-        lblURL.setVisible(!x);
-        textURL.setVisible(!x);
+        lblFile.setText(x?"Path:":"URL:");
+        btnBrowse.setVisible(x);
     }
 
     private void onOK() {
         BookmarkType type = comboType.getSelectedIndex() == 0?BookmarkType.FILE:BookmarkType.URL;
         if(type==BookmarkType.FILE) {
-            result = new Bookmark(BookmarkType.FILE, textFile.getText());
+            result = new Bookmark(BookmarkType.FILE, textPath.getText());
         } else {
-            result = new Bookmark(BookmarkType.URL, textURL.getText());
+            result = new Bookmark(BookmarkType.URL, textPath.getText());
         }
         dispose();
     }
