@@ -56,16 +56,8 @@ public class ProjectBookmarkList extends JFrame {
     }
 
     private static class TrailingLabel extends DefaultTableCellRenderer{
-//        private String textValue = "";
         public TrailingLabel(){
             super();
-//            TrailingLabel thos = this;
-//            addComponentListener(new ComponentAdapter() {
-//                @Override
-//                public void componentResized(ComponentEvent componentEvent) {
-//                    thos.setText(textValue);
-//                }
-//            });
         }
 
         @Override
@@ -100,7 +92,6 @@ public class ProjectBookmarkList extends JFrame {
                     String result2 = inputText.substring(inputLen - newLen/2, inputLen);
                     //try to trim nicely on slashes ??? should probably change this algorithm later
                     int forslashindex1 = result1.lastIndexOf("/");
-//                int forslashindex2 = result2.indexOf("/");
                     if(forslashindex1>0 && forslashindex1 < result1.length()-1){
                         result1 = result1.substring(0, forslashindex1+1);
                     } else {
@@ -109,22 +100,10 @@ public class ProjectBookmarkList extends JFrame {
                             result1 = result1.substring(0, backslashindex1+1);
                         }
                     }
-//                if(forslashindex2>0){
-//                    result2 = result2.substring(forslashindex2);
-//                } else {
-//                    int backslashindex2 = result2.indexOf("\\");
-//                    if(backslashindex2>0){
-//                        result2 = result2.substring(backslashindex2);
-//                    }
-//                }
-//                super.setHorizontalAlignment(TRAILING);
                     super.setText(result1+ellipses+result2);
                 } else {
-//                super.setHorizontalAlignment(LEADING);
                     super.setText(inputText);
                 }
-//            textValue = (String)o;
-//            this.setText(textValue);
                 return this;
             } else {
                 super.getTableCellRendererComponent(jTable, "("+o.toString()+")", b, b1, i, i1);
@@ -196,7 +175,6 @@ public class ProjectBookmarkList extends JFrame {
         tblBookmarks.setModel(bookmarks.getModel());
         tblBookmarks.getSelectionModel().addListSelectionListener(e->tableSelectionChanged());
         tblBookmarks.getColumnModel().getColumn(0).setMaxWidth(50);
-//        System.out.println(tblBookmarks.getDefaultRenderer(String.class));
         tblBookmarks.setDefaultRenderer(Object.class, new TrailingLabel());
         Main.applyButtonTheme(btnLaunch, btnAdd, btnRemove, btnMoveUp, btnMoveDown, btnEdit);
         btnLaunch.addActionListener(e->launch());
