@@ -1,12 +1,11 @@
 package xyz.spiralhalo.sherlock.dialog;
 
+import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.Application;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkInt;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkMgr;
-import xyz.spiralhalo.sherlock.ocr.OCRConfig;
-import xyz.spiralhalo.sherlock.ocr.persist.OCRTargetApp;
 import xyz.spiralhalo.sherlock.persist.settings.*;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.HMSMode;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.Theme;
@@ -17,11 +16,12 @@ import xyz.spiralhalo.sherlock.util.swing.IntSelectorModel;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.DefaultTableModel;
-import java.awt.Component;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -36,7 +36,6 @@ import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.*;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.*;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserBool.*;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.*;
-import static xyz.spiralhalo.sherlock.ocr.OCRConfig.*;
 
 public class Settings extends JDialog {
     private JPanel contentPane;
@@ -97,9 +96,7 @@ public class Settings extends JDialog {
     private JButton btnPFDn;
     private JCheckBox checkAutoBIgnoreExisting;
     private JTextField textAutoBExclExt;
-    private JCheckBox checkOCREnabled;
-    private JTable tblOCRTargetApps;
-    private JButton btnDefOCR;
+    private JLabel lblThemeUrl;
     private boolean result = false;
 
     private DefaultListModel<String> pfModel;
@@ -169,24 +166,24 @@ public class Settings extends JDialog {
         }
     }
 
-    private static class Dependency implements ItemListener {
-        public static void setChildren(JToggleButton y, Component... x){
-            y.addItemListener(new Dependency(x, y));
-        }
-
-        @Override
-        public void itemStateChanged(ItemEvent e) {
-            for (Component x1:x) { x1.setEnabled(y.isSelected()); }
-        }
-
-        private Component[] x;
-        private JToggleButton y;
-
-        private Dependency(Component[] x, JToggleButton y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
+//    private static class Dependency implements ItemListener {
+//        public static void setChildren(JToggleButton y, Component... x){
+//            y.addItemListener(new Dependency(x, y));
+//        }
+//
+//        @Override
+//        public void itemStateChanged(ItemEvent e) {
+//            for (Component x1:x) { x1.setEnabled(y.isSelected()); }
+//        }
+//
+//        private Component[] x;
+//        private JToggleButton y;
+//
+//        private Dependency(Component[] x, JToggleButton y) {
+//            this.x = x;
+//            this.y = y;
+//        }
+//    }
 
     private static class ConfigBinding<T> {
         private final Supplier<T> guiGetter;
@@ -255,6 +252,14 @@ public class Settings extends JDialog {
         buttonApply.addActionListener(e->onApply());
         buttonCancel.addActionListener(e->onCancel());
 
+        // theme credit
+        lblThemeUrl.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        lblThemeUrl.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent mouseEvent) {
+                try { Desktop.getDesktop().browse(new URI("https://www.pushing-pixels.org/"));
+                } catch (IOException | URISyntaxException e) { Debug.log(e); } }
+        });
+        if(Main.currentTheme.dark)lblThemeUrl.setForeground(new Color(0, 167, 230));
+
         // project folders list
         Main.applyButtonTheme(btnPFUp, btnPFDn, btnPFolderAdd, btnPFolderDelete);
         pfModel = new DefaultListModel<>();
@@ -272,11 +277,6 @@ public class Settings extends JDialog {
         btnPFUp.addActionListener(e->movePF(-1));
         btnPFDn.addActionListener(e->movePF(+1));
 
-        // OCRTargetApps list
-        OCRTargetApp ocrTargetApp = OCRgTargetApps().get(0);
-        tblOCRTargetApps.setModel(new DefaultTableModel(new String[][]{{ocrTargetApp.getName(),ocrTargetApp.getExe()}},
-                new String[]{"App name", "Executable name"}));
-
         // <start> EDITABLE
 
         // edit for NEW COMBO BOXES
@@ -292,26 +292,25 @@ public class Settings extends JDialog {
         registerDefaultButton(btnDefView, "view");
         registerDefaultButton(btnDefApp, "app");
         registerDefaultButton(btnDefBookmarks, "bookmarks");
-        registerDefaultButton(btnDefOCR, "ocr");
 
         // edit for NEW SLIDERS
-        bindTimeSlider(sliderTarget, lblTarget);
-        bindTimeSlider(sliderTimeout, lblTimeout);
-        bindTimeSlider(sliderAutoRefresh, lblAutoRefresh);
-        bindCustomSlider(sliderWeeklyTarget, lblWeeklyTarget, "day", "days");
-        bindCustomSliderSpecialCase(sliderSubFolder, lblSubFolder, "level", "levels", 0, "Disabled");
         resetSlider(sliderTarget, 4, 5*4, 12*4, 15*60);
         resetSlider(sliderTimeout, 1, 5, 30, 60);
         resetSlider(sliderAutoRefresh, 1, 10, 30, 60);
         resetSlider(sliderWeeklyTarget, 1, 5, 7, 1);
         resetSlider(sliderSubFolder, 0, 0, 4, 1);
+        bindTimeSlider(sliderTarget, lblTarget);
+        bindTimeSlider(sliderTimeout, lblTimeout);
+        bindTimeSlider(sliderAutoRefresh, lblAutoRefresh);
+        bindCustomSlider(sliderWeeklyTarget, lblWeeklyTarget, "day", "days");
+        bindCustomSliderSpecialCase(sliderSubFolder, lblSubFolder, "level", "levels", 0, "Don't scan");
 
         // edit for NEW CHECK BOXES / RADIO BUTTONS WITH CHILDREN
-        Dependency.setChildren(checkAStartup, checkARunMinimized);
-        Dependency.setChildren(checkBookmarks, lblHotkey, checkBkmkCtrl, checkBkmkShift, comboBkmkHotkey);
-        Dependency.setChildren(radNewRating, checkUseRankChart);
-        Dependency.setChildren(checkAutoBookmark, checkAutoBIgnoreExisting);
-        Dependency.setChildren(checkAutoBookmark, sliderSubFolder);
+        addDependency(checkAStartup, checkARunMinimized);
+        addDependency(checkBookmarks, lblHotkey, checkBkmkCtrl, checkBkmkShift, comboBkmkHotkey);
+        addDependency(radNewRating, checkUseRankChart);
+        addDependency(checkAutoBookmark, checkAutoBIgnoreExisting);
+        addDependency(checkAutoBookmark, sliderSubFolder);
 //        Dependency.setChildren(radOldRating, checkShowAbove100);
 
         // edit for NEW OPTIONS
@@ -363,9 +362,6 @@ public class Settings extends JDialog {
         bind(comboBkmkHotkey, bkmk, ()->vkSelectorModel.getIndexFor(bkmkGInt(BookmarkInt.HOTKEY)),
                 i->bkmkSInt(BookmarkInt.HOTKEY, vkSelectorModel.getElementAt(i).getValue()),
                 vkSelectorModel.getIndexFor(bkmkDInt(BookmarkInt.HOTKEY)));
-
-        String ocr = "ocr";
-        bind(checkOCREnabled, ocr, OCRConfig::OCRgEnabled, OCRConfig::OCRsEnabled, OCRdEnabled());
 
         // <end> NEW OPTIONS
 
@@ -428,14 +424,21 @@ public class Settings extends JDialog {
 
         applyAll();
         buttonApply.setEnabled(false);
+        bookmarkMgr.reinitHotkeyHook();
         Application.createOrDeleteStartupRegistry();
         if(Main.currentTheme != getTheme()){
             if(JOptionPane.showConfirmDialog(this, "Theme has been changed. Restart the app?",
             "Confirm restart", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-                Application.restartApp();
+                Application.restartApp(false);
             }
         }
-        bookmarkMgr.reinitHotkeyHook();
+    }
+
+    public static void addDependency(JToggleButton y, Component... x){
+        y.addItemListener(e->{
+            for(Component x1:x) { x1.setEnabled(y.isSelected()); }
+        });
+        for(Component x1:x) { x1.setEnabled(y.isSelected()); }
     }
 
     private void bind(JComboBox x, String defNode, Supplier<Integer> confG, Consumer<Integer> confS, Integer defVal){
@@ -462,7 +465,7 @@ public class Settings extends JDialog {
         register(defNode, x::getText, confS, defVal, x::setText);
     }
 
-    private void resetSlider(JSlider slider, int min, int value, int max, int multiplier){
+    public static void resetSlider(JSlider slider, int min, int value, int max, int multiplier){
         slider.setMinimum(min*multiplier);
         slider.setMaximum(max*multiplier);
         slider.setValue(value*multiplier);
@@ -489,18 +492,18 @@ public class Settings extends JDialog {
         slider.setPaintTicks(true);
     }
 
-    private void bindTimeSlider(JSlider slider, JLabel label){
+    public static void bindTimeSlider(JSlider slider, JLabel label){
         slider.addChangeListener(e->label.setText(String.format("%s",
                 FormatUtil.hmsLong(slider.getMinorTickSpacing()*Math.round(slider.getValue()*1f/slider.getMinorTickSpacing())))));
         label.setText(String.format("%s", FormatUtil.hmsLong(slider.getMinorTickSpacing()*Math.round(slider.getValue()*1f/slider.getMinorTickSpacing()))));
     }
 
-    private void bindCustomSlider(JSlider slider, JLabel label, String unit, String pluralUnit){
+    public static void bindCustomSlider(JSlider slider, JLabel label, String unit, String pluralUnit){
         slider.addChangeListener(e->label.setText(String.format("%d %s", slider.getValue(), (slider.getValue()==1?unit:pluralUnit))));
-        label.setText(String.format("%d %s", slider.getValue(), (slider.getValue()>1?pluralUnit:unit)));
+        label.setText(String.format("%d %s", slider.getValue(), (slider.getValue()==1?unit:pluralUnit)));
     }
 
-    private void bindCustomSliderSpecialCase(JSlider slider, JLabel label, String unit, String pluralUnit, int special, String specialS){
+    public static void bindCustomSliderSpecialCase(JSlider slider, JLabel label, String unit, String pluralUnit, int special, String specialS){
         slider.addChangeListener(e-> {
             if (slider.getValue() == special) {
                 label.setText(specialS);
@@ -508,7 +511,11 @@ public class Settings extends JDialog {
                 label.setText(String.format("%d %s", slider.getValue(), (slider.getValue() == 1 ? unit : pluralUnit)));
             }
         });
-        label.setText(String.format("%d %s", slider.getValue(), (slider.getValue()>1?pluralUnit:unit)));
+        if (slider.getValue() == special) {
+            label.setText(specialS);
+        } else {
+            label.setText(String.format("%d %s", slider.getValue(), (slider.getValue() == 1 ? unit : pluralUnit)));
+        }
     }
 
     public boolean getResult(){

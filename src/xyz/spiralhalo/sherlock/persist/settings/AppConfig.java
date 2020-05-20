@@ -1,5 +1,7 @@
 package xyz.spiralhalo.sherlock.persist.settings;
 
+import xyz.spiralhalo.sherlock.Main;
+
 public class AppConfig {
     private static final String NODE = Nodes.NODE_APPLICATION.v;
 
@@ -18,6 +20,7 @@ public class AppConfig {
     private static final String KEY_FILTER_CATEGORY = "FILTER_CATEGORY";
     private static final String KEY_FILTER_TYPE = "FILTER_TYPE";
     private static final String KEY_THUMB_SORT = "THUMB_SORT";
+    private static final String KEY_WIZARD_LAST_VERSION = "WIZARD_LAST_VERSION";
 
     public enum HMSMode{
         COLON("12:45 30"),
@@ -100,6 +103,9 @@ public class AppConfig {
     public static int getFilterType() { return IniHandler.getInstance().getInt(NODE, KEY_FILTER_TYPE, 0);}
     public static void setThumbSort(int sort) { IniHandler.getInstance().putInt(NODE, KEY_THUMB_SORT, sort);}
     public static int getThumbSort() { return IniHandler.getInstance().getInt(NODE, KEY_THUMB_SORT, 0);}
+
+    public static boolean wizardLastVersionIsOutdated() { return IniHandler.getInstance().getInt(NODE, KEY_WIZARD_LAST_VERSION, 0) < Main.VERSION;}
+    public static void setWizardLastVersion () { IniHandler.getInstance().putInt(NODE, KEY_WIZARD_LAST_VERSION, Main.VERSION);}
 
     public static int getSocketPort() {
         return IniHandler.getInstance().getInt(NODE, KEY_SOCKET_PORT, defaultSocketPort());

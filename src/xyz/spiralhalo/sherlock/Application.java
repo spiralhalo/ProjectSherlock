@@ -4,6 +4,7 @@ import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 import xyz.spiralhalo.sherlock.util.ImgUtil;
 import xyz.spiralhalo.sherlock.util.WinRegistry;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -214,7 +215,7 @@ public class Application {
         }
     }
 
-    public static void restartApp(){
+    public static void restartApp(boolean silent){
         String command;
         if(Application.isJar()) {
             command = String.format("%s -jar \"%s\" %s",
@@ -224,6 +225,10 @@ public class Application {
         } else if(Application.isExe()) {
             command = String.format("%s %s", Application.getJarPath(), Main.Arg.Delayed);
         } else {
+            if(!silent) {
+                JOptionPane.showMessageDialog(null, "Unable to restart. Manual restart might be required.",
+                        "Failed to restart", JOptionPane.ERROR_MESSAGE);
+            }
             return;
         }
         try {

@@ -29,8 +29,16 @@ public class Main {
 
         Arg.setArgs(args);
 
+        if(Arg.Delayed.isEnabled()) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Debug.log(e);
+            }
+        }
+
         if(Application.isAlreadyRunning() && !Arg.Sandbox.isEnabled()) {
-            JOptionPane.showMessageDialog(null, "Another instance of Project Sherlock is already running. Exiting...",
+            JOptionPane.showMessageDialog(null, "Another instance of Project Sherlock is already running. Please close the other instance and wait for awhile before reopening.",
                     APP_NAME, JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -45,14 +53,6 @@ public class Main {
 
         if(Arg.Sandbox.isEnabled()) {
             Debug.log("Sandbox mode is enabled.");
-        }
-
-        if(Arg.Delayed.isEnabled()) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Debug.log(e);
-            }
         }
 
         SwingUtilities.invokeLater(() -> {
