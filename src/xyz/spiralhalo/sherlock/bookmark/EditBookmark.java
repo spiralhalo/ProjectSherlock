@@ -90,7 +90,7 @@ public class EditBookmark extends JDialog {
                 }
             }
         }));
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         comboType.addItemListener(e->typeChange());
         comboType.setModel(new DefaultComboBoxModel(new String[]{"File / Folder", "URL"}));
         typeChange();

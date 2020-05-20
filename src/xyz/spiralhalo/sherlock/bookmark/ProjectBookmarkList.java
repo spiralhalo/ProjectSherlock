@@ -25,9 +25,12 @@ import xyz.spiralhalo.sherlock.bookmark.persist.Bookmark;
 import xyz.spiralhalo.sherlock.bookmark.persist.BookmarkType;
 import xyz.spiralhalo.sherlock.bookmark.persist.ProjectBookmarks;
 import xyz.spiralhalo.sherlock.persist.project.Project;
+import xyz.spiralhalo.sherlock.res.Res;
 import xyz.spiralhalo.sherlock.util.ImgUtil;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
@@ -52,6 +55,86 @@ public class ProjectBookmarkList extends JFrame {
         return dialogs.get(p);
     }
 
+    private static class TrailingLabel extends DefaultTableCellRenderer{
+//        private String textValue = "";
+        public TrailingLabel(){
+            super();
+//            TrailingLabel thos = this;
+//            addComponentListener(new ComponentAdapter() {
+//                @Override
+//                public void componentResized(ComponentEvent componentEvent) {
+//                    thos.setText(textValue);
+//                }
+//            });
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable jTable, Object o, boolean b, boolean b1, int i, int i1) {
+            if(o instanceof Bookmark){
+                super.getTableCellRendererComponent(jTable, ((Bookmark) o).getValue(), b, b1, i, i1);
+                this.setHorizontalAlignment(LEADING);
+                BookmarkType type = ((Bookmark) o).getType();
+                if(type == BookmarkType.URL){
+                    this.setIcon(iconURL);
+                } else {
+                    if (new File(((Bookmark) o).getValue()).isDirectory()){
+                        this.setIcon(iconFolder);
+                    } else {
+                        this.setIcon(iconFile);
+                    }
+                }
+                if(this.getFont() == null){
+                    return this;
+                }
+                String inputText = ((Bookmark) o).getValue();
+                String ellipses = "...";
+                FontMetrics fm = this.getFontMetrics(this.getFont());
+                int labelWidth = jTable.getColumnModel().getColumn(i1).getWidth() - 26;
+                int inputWidth = fm.stringWidth(inputText);
+                int ellipsesWidth = fm.stringWidth(ellipses);
+                //super weird ellipses hax
+                if(inputWidth > labelWidth && ellipsesWidth < labelWidth){
+                    int inputLen = inputText.length();
+                    int newLen = Math.round((float)inputLen * (float)(labelWidth - ellipsesWidth) / (float)inputWidth)-1;
+                    String result1 = inputText.substring(0, newLen/2);
+                    String result2 = inputText.substring(inputLen - newLen/2, inputLen);
+                    //try to trim nicely on slashes ??? should probably change this algorithm later
+                    int forslashindex1 = result1.lastIndexOf("/");
+//                int forslashindex2 = result2.indexOf("/");
+                    if(forslashindex1>0 && forslashindex1 < result1.length()-1){
+                        result1 = result1.substring(0, forslashindex1+1);
+                    } else {
+                        int backslashindex1 = result1.lastIndexOf("\\");
+                        if(backslashindex1>0 && backslashindex1 < result1.length()-1){
+                            result1 = result1.substring(0, backslashindex1+1);
+                        }
+                    }
+//                if(forslashindex2>0){
+//                    result2 = result2.substring(forslashindex2);
+//                } else {
+//                    int backslashindex2 = result2.indexOf("\\");
+//                    if(backslashindex2>0){
+//                        result2 = result2.substring(backslashindex2);
+//                    }
+//                }
+//                super.setHorizontalAlignment(TRAILING);
+                    super.setText(result1+ellipses+result2);
+                } else {
+//                super.setHorizontalAlignment(LEADING);
+                    super.setText(inputText);
+                }
+//            textValue = (String)o;
+//            this.setText(textValue);
+                return this;
+            } else {
+                super.getTableCellRendererComponent(jTable, "("+o.toString()+")", b, b1, i, i1);
+                this.setHorizontalAlignment(CENTER);
+                this.setIcon(null);
+                return this;
+            }
+        }
+    }
+
     private JPanel contentPane;
     private JTable tblBookmarks;
     private JButton btnLaunch;
@@ -71,17 +154,35 @@ public class ProjectBookmarkList extends JFrame {
     private final ProjectBookmarks bookmarks;
     private final BookmarkMgr manager;
 
+    private static ImageIcon iconFile;
+    private static ImageIcon iconFolder;
+    private static ImageIcon iconURL;
+
     private ProjectBookmarkList(BookmarkMgr mgr, Project p) {
         super();
+        setTitle("Bookmarks");//String.format("Bookmarks for `%s` - force keyword: %s", p.toString(), p.getTags()[0]));
+
         setIconImages(Arrays.asList(ImgUtil.createImage("icon.png","App Icon Small"),
                 ImgUtil.createImage("med_icon.png","App Icon")));
-        setTitle("Bookmarks");//String.format("Bookmarks for `%s` - force keyword: %s", p.toString(), p.getTags()[0]));
+
+        //load bookmark icons
+        if(iconFile==null) {
+            try {
+                iconFile = ImgUtil.createTintedIcon(ImageIO.read(Res.class.getResource("sm_file.png")), Main.currentTheme.foreground);
+                iconFolder = ImgUtil.createTintedIcon(ImageIO.read(Res.class.getResource("sm_folder.png")), Main.currentTheme.foreground);
+                iconURL = ImgUtil.createTintedIcon(ImageIO.read(Res.class.getResource("sm_url.png")), Main.currentTheme.foreground);
+            } catch (Exception e) {
+                Debug.log(e);
+            }
+        }
+
         lblProjectName.setText("Bookmarks for: "+p.toString());
         this.p = p;
         manager = mgr;
         bookmarks = mgr.getOrAdd(p);
         setContentPane(contentPane);
         setMinimumSize(contentPane.getMinimumSize());
+        setPreferredSize(new Dimension(BookmarkConfig.bkmkGInt(BookmarkConfig.BookmarkInt.PREFERRED_WINDOW_WIDTH), BookmarkConfig.bkmkGInt(BookmarkConfig.BookmarkInt.PREFERRED_WINDOW_HEIGHT)));
         tablePopUp = new JPopupMenu();
         tablePopUp.add(menuLaunch = new JMenuItem("Open"));
         tablePopUp.add(menuOpenFolder = new JMenuItem("Open file location"));
@@ -95,7 +196,8 @@ public class ProjectBookmarkList extends JFrame {
         tblBookmarks.setModel(bookmarks.getModel());
         tblBookmarks.getSelectionModel().addListSelectionListener(e->tableSelectionChanged());
         tblBookmarks.getColumnModel().getColumn(0).setMaxWidth(50);
-        tblBookmarks.getColumnModel().getColumn(1).setMaxWidth(50);
+//        System.out.println(tblBookmarks.getDefaultRenderer(String.class));
+        tblBookmarks.setDefaultRenderer(Object.class, new TrailingLabel());
         Main.applyButtonTheme(btnLaunch, btnAdd, btnRemove, btnMoveUp, btnMoveDown, btnEdit);
         btnLaunch.addActionListener(e->launch());
         menuLaunch.addActionListener(e->launch());
@@ -214,6 +316,9 @@ public class ProjectBookmarkList extends JFrame {
     }
 
     public void close() {
+        Dimension size = getSize();
+        BookmarkConfig.bkmkSInt(BookmarkConfig.BookmarkInt.PREFERRED_WINDOW_WIDTH, size.width);
+        BookmarkConfig.bkmkSInt(BookmarkConfig.BookmarkInt.PREFERRED_WINDOW_HEIGHT, size.height);
         dispose();
     }
 

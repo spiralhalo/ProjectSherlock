@@ -19,14 +19,16 @@
 
 package xyz.spiralhalo.sherlock.bookmark;
 
+import xyz.spiralhalo.sherlock.bookmark.persist.ProjectBookmarks;
+
 import javax.swing.table.AbstractTableModel;
 
 public class ProjectBookmarksModel extends AbstractTableModel {
-    private static final String[] columns = new String[]{"Hotkey", "Type", "Path"};
+    private static final String[] columns = new String[]{"Hotkey", "Bookmark"};
 
-    private final ModelAccessor bookmarks;
+    private final ProjectBookmarks bookmarks;
 
-    public ProjectBookmarksModel(ModelAccessor bookmarks) {
+    public ProjectBookmarksModel(ProjectBookmarks bookmarks) {
         this.bookmarks = bookmarks;
     }
 
@@ -42,7 +44,7 @@ public class ProjectBookmarksModel extends AbstractTableModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return String.class;
+        return Object.class;
     }
 
     @Override
@@ -52,16 +54,11 @@ public class ProjectBookmarksModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        switch (columnIndex){
-            default:
-            case 0:
-                if(rowIndex >= 0 && rowIndex < 9) return rowIndex+1;
-                if(rowIndex==9) return 0;
-                return "";
-            case 1:
-                return bookmarks.getType(rowIndex);
-            case 2:
-                return bookmarks.getValue(rowIndex);
+        if (columnIndex == 0) {
+            if (rowIndex >= 0 && rowIndex < 9) return rowIndex + 1;
+            if (rowIndex == 9) return 0;
+            return "";
         }
+        return bookmarks.get(rowIndex);
     }
 }

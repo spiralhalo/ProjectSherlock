@@ -31,7 +31,7 @@ public class BookmarkConfig {
     private static final String NODE = "BOOKMARK";
     private static final String KEY_PFLIST = "PFLIST";
     private static final String KEY_PFEXCL_EXT = "PFEXCL_EXT";
-    public enum BookmarkInt { HOTKEY, AUTO_SUBFOLDER }
+    public enum BookmarkInt { HOTKEY, AUTO_SUBFOLDER, PREFERRED_WINDOW_WIDTH, PREFERRED_WINDOW_HEIGHT }
     public enum BookmarkBool { ENABLED, CTRL, SHIFT, CLOSE_WINDOW, AUTO_BOOKMARK, AUTO_INCLUDE_EXISTING, DEL_NO_CONFIRM }
 
     public static boolean bkmkDBool(BookmarkBool key){return false;}

@@ -30,7 +30,7 @@ import java.time.ZoneId;
 public class Main {
 
     public static final int VERSION = 6;
-    public static final int MINOR_VERSION = 0;
+    public static final int MINOR_VERSION = 1;
     public static final String APP_TITLE = String.format("Project Sherlock 2 version %d.%d", VERSION, MINOR_VERSION);
     public static final String APP_NAME = "Project Sherlock 2";
     public static final String REGISTRY_KEY = "ProjectSherlock2"; //don't change ever
