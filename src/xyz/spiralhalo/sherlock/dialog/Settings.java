@@ -96,7 +96,6 @@ public class Settings extends JDialog {
     private JButton btnPFDn;
     private JCheckBox checkAutoBIgnoreExisting;
     private JTextField textAutoBExclExt;
-    private JLabel lblThemeUrl;
     private boolean result = false;
 
     private DefaultListModel<String> pfModel;
@@ -251,14 +250,6 @@ public class Settings extends JDialog {
         buttonOK.addActionListener(e->onOK());
         buttonApply.addActionListener(e->onApply());
         buttonCancel.addActionListener(e->onCancel());
-
-        // theme credit
-        lblThemeUrl.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        lblThemeUrl.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent mouseEvent) {
-                try { Desktop.getDesktop().browse(new URI("https://www.pushing-pixels.org/"));
-                } catch (IOException | URISyntaxException e) { Debug.log(e); } }
-        });
-        if(Main.currentTheme.dark)lblThemeUrl.setForeground(new Color(0, 167, 230));
 
         // project folders list
         Main.applyButtonTheme(btnPFUp, btnPFDn, btnPFolderAdd, btnPFolderDelete);
