@@ -10,3 +10,6 @@ Project Sherlock requires Java version 8 or greater to run. It only works in the
 Project Sherlock requires no installation. Simply download the latest [release](https://github.com/spiralhalo/ProjectSherlock/releases) and extract it somewhere (all the files need to be in the same folder) and run ProjectSherlock2.jar.
 
 Project Sherlock saves its data files in `%appdata%\spiralhalo\ProjectLogger2` which you may backup or delete if you no longer wish to use it.
+
+## Support
+If you have an issue with using the application, please open a new [issue](https://github.com/spiralhalo/ProjectSherlock/issues).
