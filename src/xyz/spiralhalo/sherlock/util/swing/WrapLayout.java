@@ -13,7 +13,7 @@ import javax.swing.SwingUtilities;
 // personal remark :
 //               Of course I'm gonna give credit. When Project Sherlock goes open source, people needs
 //               to know who made this wonderful piece of code!
-//               -Spiralhalo
+//               -spiralhalo
 
 /**
  *  FlowLayout subclass that fully supports wrapping of components.
