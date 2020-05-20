@@ -1,8 +1,13 @@
 package xyz.spiralhalo.sherlock;
 
 import com.sun.jna.platform.win32.*;
+import net.coobird.thumbnailator.Thumbnailator;
+import net.coobird.thumbnailator.Thumbnails;
 import xyz.spiralhalo.sherlock.EnumerateWindows.WindowInfo;
 import xyz.spiralhalo.sherlock.Main.Arg;
+import xyz.spiralhalo.sherlock.ocr.OCRConfig;
+import xyz.spiralhalo.sherlock.ocr.OCREngine;
+import xyz.spiralhalo.sherlock.ocr.persist.OCRTargetApp;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
@@ -10,6 +15,8 @@ import xyz.spiralhalo.sherlock.record.RealtimeRecordWriter;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -80,16 +87,45 @@ public class Tracker implements TrackerAccessor{
         if(afkMonitor.isNotAFK()) {
             final ZonedDateTime now = ZonedDateTime.now();
             tempa = EnumerateWindows.getActiveWindowInfo();
+            // START OCR
+            OCRTargetApp targetApp = null;
+            if(OCRConfig.OCRgEnabled()){
+                for (OCRTargetApp app : OCRConfig.OCRgTargetApps()) {
+                    if (tempa.exeName.equalsIgnoreCase(app.getExe())) {
+                        targetApp = app;
+                        break;
+                    }
+                }
+            }
+            if(targetApp != null){
+                try {
+                    Class.forName( "xyz.spiralhalo.sherlock.ocr.OCREngine" );
+                    Rectangle entireR = EnumerateWindows.getWindowRect(tempa.hwndPointer);
+                    Rectangle titleR = new Rectangle(entireR.x + targetApp.getLeft(), entireR.y + targetApp.getTop(),
+                        entireR.width - targetApp.getLeft() + targetApp.getRight(),
+                        targetApp.getTitleBarHeight() - targetApp.getTop() + targetApp.getBottom());
+                    BufferedImage image = new Robot().createScreenCapture(titleR);
+//                    Thumbnails.of(image).forceSize(image.getWidth()*2+100, image.getHeight()*2).asBufferedImage();
+//                    image = Thumbnailator.createThumbnail(image, image.getWidth()*2, image.getHeight()*2);
+                    String ocrResult = OCREngine.doOCR(image, targetApp.isInvert(), targetApp.getThreshold());
+                    tempa = new WindowInfo(tempa.hwndPointer, ocrResult.trim(), tempa.exePath);
+                } catch (ClassNotFoundException bigException) {
+                    Debug.logVerbose(()->"OCREngine not found");
+                } catch (Throwable e) {
+                    Debug.log(e);
+                }
+            }
+            // END OCR
             lastTracked = projectList.getActiveProjectOf(tempa.title, tempa.exeName, now);
-            Debug.logVerbose(()->String.format("%18s %s", "[ForegroundWindow]", tempa.title));
-            if(lastTracked==null) {
+            Debug.logVerbose(() -> String.format("%18s %s", "[ForegroundWindow]", tempa.title));
+            if (lastTracked == null) {
                 WinDef.HWND activeHwnd = tempa.hwndPointer;
                 tempa = EnumerateWindows.getRootWindowInfo(activeHwnd);
                 lastTracked = projectList.getActiveProjectOf(tempa.title, tempa.exeName, now);
-                Debug.logVerbose(()->String.format("%18s %s", "[GW_OWNER]", tempa.title));
+                Debug.logVerbose(() -> String.format("%18s %s", "[GW_OWNER]", tempa.title));
             }
             final String pn = String.valueOf(lastTracked);
-            Debug.logVerbose(()->String.format("%18s Detected project: %s", "", pn));
+            Debug.logVerbose(() -> String.format("%18s Detected project: %s", "", pn));
             buffer.log(lastTracked);
             for(TrackerListener listener:listeners){
                 listener.onTrackerLog(lastTracked, tempa);

@@ -5,6 +5,8 @@ import xyz.spiralhalo.sherlock.Application;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkInt;
 import xyz.spiralhalo.sherlock.bookmark.BookmarkMgr;
+import xyz.spiralhalo.sherlock.ocr.OCRConfig;
+import xyz.spiralhalo.sherlock.ocr.persist.OCRTargetApp;
 import xyz.spiralhalo.sherlock.persist.settings.*;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.HMSMode;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.Theme;
@@ -15,6 +17,8 @@ import xyz.spiralhalo.sherlock.util.swing.IntSelectorModel;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.DefaultTableModel;
 import java.awt.Component;
 import java.awt.event.*;
 import java.io.File;
@@ -32,6 +36,7 @@ import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.*;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.*;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserBool.*;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.*;
+import static xyz.spiralhalo.sherlock.ocr.OCRConfig.*;
 
 public class Settings extends JDialog {
     private JPanel contentPane;
@@ -92,6 +97,9 @@ public class Settings extends JDialog {
     private JButton btnPFDn;
     private JCheckBox checkAutoBIgnoreExisting;
     private JTextField textAutoBExclExt;
+    private JCheckBox checkOCREnabled;
+    private JTable tblOCRTargetApps;
+    private JButton btnDefOCR;
     private boolean result = false;
 
     private DefaultListModel<String> pfModel;
@@ -264,6 +272,11 @@ public class Settings extends JDialog {
         btnPFUp.addActionListener(e->movePF(-1));
         btnPFDn.addActionListener(e->movePF(+1));
 
+        // OCRTargetApps list
+        OCRTargetApp ocrTargetApp = OCRgTargetApps().get(0);
+        tblOCRTargetApps.setModel(new DefaultTableModel(new String[][]{{ocrTargetApp.getName(),ocrTargetApp.getExe()}},
+                new String[]{"App name", "Executable name"}));
+
         // <start> EDITABLE
 
         // edit for NEW COMBO BOXES
@@ -279,6 +292,7 @@ public class Settings extends JDialog {
         registerDefaultButton(btnDefView, "view");
         registerDefaultButton(btnDefApp, "app");
         registerDefaultButton(btnDefBookmarks, "bookmarks");
+        registerDefaultButton(btnDefOCR, "ocr");
 
         // edit for NEW SLIDERS
         bindTimeSlider(sliderTarget, lblTarget);
@@ -349,6 +363,9 @@ public class Settings extends JDialog {
         bind(comboBkmkHotkey, bkmk, ()->vkSelectorModel.getIndexFor(bkmkGInt(BookmarkInt.HOTKEY)),
                 i->bkmkSInt(BookmarkInt.HOTKEY, vkSelectorModel.getElementAt(i).getValue()),
                 vkSelectorModel.getIndexFor(bkmkDInt(BookmarkInt.HOTKEY)));
+
+        String ocr = "ocr";
+        bind(checkOCREnabled, ocr, OCRConfig::OCRgEnabled, OCRConfig::OCRsEnabled, OCRdEnabled());
 
         // <end> NEW OPTIONS
 

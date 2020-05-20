@@ -1,0 +1,684 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="xyz.spiralhalo.sherlock.dialog.FirstWizard">
+  <grid id="cbd77" binding="contentPane" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="10" left="10" bottom="10" right="10"/>
+    <constraints>
+      <xy x="48" y="54" width="507" height="602"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <grid id="94766" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <hspacer id="98af6">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+          </hspacer>
+          <grid id="9538f" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="e7465" class="javax.swing.JButton" binding="btnNext">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Next"/>
+                </properties>
+              </component>
+              <component id="5723f" class="javax.swing.JButton" binding="buttonCancel">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Cancel"/>
+                </properties>
+              </component>
+              <component id="7150f" class="javax.swing.JButton" binding="btnPrev">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Previous"/>
+                  <visible value="false"/>
+                </properties>
+              </component>
+              <component id="9bdcb" class="javax.swing.JButton" binding="btnFinish">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Finish"/>
+                  <visible value="false"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+        </children>
+      </grid>
+      <grid id="e3588" binding="cardPane" layout-manager="CardLayout" hgap="0" vgap="0">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <grid id="a555a" binding="panel1" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <card name="Card1"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="b37a9" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="&lt;html&gt;&lt;h1&gt;Welcome to Project Sherlock 2 version 6!&lt;/h1&gt;&#10;&lt;p&gt;We've detected that it is your first time running &lt;b&gt;Project Sherlock 2 version 6&lt;/b&gt;.&lt;/p&gt;&#10;&lt;p&gt;We will guide you into setting the application up to better suit your needs.&lt;/p&gt;&#10;&lt;p&gt;&lt;b&gt;Press next to continue.&lt;/b&gt;&lt;/p&gt;&#10;&lt;p&gt;Press `Quit` at any time to keep current configuration and ignore any changes.&lt;/p&gt;&#10;&lt;p&gt;Note: if you've used Project Sherlock before, your current configuration has been &lt;br/&gt;&#10;loaded.&lt;/p&gt;"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="6e53a" binding="panel2" layout-manager="GridLayoutManager" row-count="6" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <card name="Card2"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="650b9" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="&lt;html&gt;&lt;h2&gt;Step 1: Set your target&lt;/h2&gt;&#10;Project Sherlock is designed to help manage your projects as well as keep track of &lt;br/&gt;&#10;your productivity. Please set a daily work-hour target below to let Project Sherlock &lt;br/&gt;&#10;score your daily productivity.&lt;p&gt;&lt;/p&gt;"/>
+                </properties>
+              </component>
+              <component id="66b3c" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font/>
+                  <text value="Daily work target:"/>
+                </properties>
+              </component>
+              <grid id="74f03" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="2" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="21c88" class="javax.swing.JSlider" binding="sliderTarget">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                        <preferred-size width="240" height="-1"/>
+                      </grid>
+                    </constraints>
+                    <properties/>
+                  </component>
+                  <component id="1dc6f" class="javax.swing.JLabel" binding="lblTarget">
+                    <constraints>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="hours"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <component id="ac245" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="&lt;html&gt;&lt;p&gt;&lt;b&gt;Tip:&lt;/b&gt; Set your Project Sherlock work target to about &lt;b&gt;70%&lt;/b&gt; of your real-life work-hour &lt;br/&gt; target. Project Sherlock only tracks time spent on project documents and ignores &lt;br/&gt;  any down time or break time."/>
+                </properties>
+              </component>
+              <vspacer id="9ce48">
+                <constraints>
+                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+              <component id="cbe3" class="javax.swing.JSeparator">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+            </children>
+          </grid>
+          <grid id="e1274" binding="panel3" layout-manager="GridLayoutManager" row-count="7" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <card name="Card3"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="16aa7" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="&lt;html&gt;&lt;h2&gt;Step 2: Choose a rating system&lt;/h2&gt;&#10;The new &quot;ranking&quot; system is designed to quantify your productivity, whilst the old &lt;br/&gt;&#10;&quot;rating&quot; system is more neutral."/>
+                </properties>
+              </component>
+              <vspacer id="288de">
+                <constraints>
+                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+              <grid id="69910" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="c9366" class="javax.swing.JRadioButton" binding="newRankingSystemRadioButton" default-binding="true">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="New &quot;ranking&quot; system"/>
+                    </properties>
+                  </component>
+                  <component id="b33e5" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <icon value="xyz/spiralhalo/sherlock/res/wizard_new_ranking.png"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <grid id="bd62f" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="e4af9" class="javax.swing.JRadioButton" default-binding="true">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Old rating system"/>
+                    </properties>
+                  </component>
+                  <component id="a0d24" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <icon value="xyz/spiralhalo/sherlock/res/wizard_old_rating.png"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <component id="83992" class="javax.swing.JSeparator">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="74b16" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="&lt;html&gt;&lt;p&gt;If you chose the new ranking system, you may optionally choose to show your &lt;br/&gt;&#10;rankings on the monthly statistics charts instead of individual projects."/>
+                </properties>
+              </component>
+              <component id="e1651" class="javax.swing.JCheckBox" binding="checkUseRankChart">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Use ranking-based month chart (hides individual projects)"/>
+                </properties>
+              </component>
+              <component id="fbac5" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <icon value="xyz/spiralhalo/sherlock/res/rank_chart_hint.png"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="63126" binding="panel4" layout-manager="GridLayoutManager" row-count="7" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <card name="Card6"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="c30b8" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="&lt;html&gt;&lt;h2&gt;Step 3: Choose a theme&lt;/h2&gt;&#10;&lt;p&gt;In this page, you can choose a theme for the UI.&lt;/p&gt;&#10;&lt;p&gt;Themes will be applied after a restart.&lt;/p&gt;"/>
+                </properties>
+              </component>
+              <vspacer id="a204a">
+                <constraints>
+                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+              <grid id="c23d1" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="true" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="44b4a" class="javax.swing.JRadioButton" default-binding="true">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Substance Business"/>
+                    </properties>
+                  </component>
+                  <component id="27dc7" class="javax.swing.JRadioButton" default-binding="true">
+                    <constraints>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Substance Graphite"/>
+                    </properties>
+                  </component>
+                  <component id="351ed" class="javax.swing.JRadioButton" default-binding="true">
+                    <constraints>
+                      <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="System"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <component id="224b5" class="javax.swing.JRadioButton" default-binding="true">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Keep my current setting"/>
+                </properties>
+              </component>
+              <component id="10b3a" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <icon value="xyz/spiralhalo/sherlock/res/wizard_theme.png"/>
+                </properties>
+              </component>
+              <component id="b51d0" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="More themes are available in the Settings."/>
+                </properties>
+              </component>
+              <component id="cbdfd" class="javax.swing.JSeparator">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+            </children>
+          </grid>
+          <grid id="c5d79" binding="panel5" layout-manager="GridLayoutManager" row-count="11" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <card name="Card4"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="5725b" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="&lt;html&gt;&lt;h2&gt;Step 4: Configure Auto-Bookmarks&lt;/h2&gt;&#10;&lt;p&gt;Auto-bookmarks is a new feature introduced in &lt;b&gt;version 6&lt;/b&gt; to help manage your &lt;br/&gt;&#10;project documents more easily. It scans your project folders for project-related files &lt;br/&gt;&#10;and automatically creates bookmarks for you.&lt;/p&gt;&#10;&lt;p&gt;Please set your project folders below and let auto-bookmarks do its magic. Optionally &lt;br/&gt;&#10;you may also disable auto-bookmarks altogether.&lt;/p&gt;"/>
+                </properties>
+              </component>
+              <vspacer id="a96af">
+                <constraints>
+                  <grid row="10" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+              <component id="2d7ac" class="javax.swing.JSeparator">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <toolbar id="4617d">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="1" use-parent-layout="false">
+                    <preferred-size width="-1" height="20"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <floatable value="false"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="dbd2b" class="javax.swing.JLabel">
+                    <constraints/>
+                    <properties>
+                      <text value="Project folders:"/>
+                    </properties>
+                  </component>
+                  <hspacer id="484bb">
+                    <constraints/>
+                  </hspacer>
+                  <component id="1a70b" class="javax.swing.JButton" binding="btnPFUp">
+                    <constraints/>
+                    <properties>
+                      <enabled value="false"/>
+                      <icon value="xyz/spiralhalo/sherlock/res/sm_up.png"/>
+                    </properties>
+                  </component>
+                  <component id="7d103" class="javax.swing.JButton" binding="btnPFDn">
+                    <constraints/>
+                    <properties>
+                      <enabled value="false"/>
+                      <icon value="xyz/spiralhalo/sherlock/res/sm_down.png"/>
+                    </properties>
+                  </component>
+                  <component id="57018" class="javax.swing.JButton" binding="btnPFolderAdd">
+                    <constraints/>
+                    <properties>
+                      <icon value="xyz/spiralhalo/sherlock/res/sm_add.png"/>
+                    </properties>
+                  </component>
+                  <component id="aa526" class="javax.swing.JButton" binding="btnPFolderDelete">
+                    <constraints/>
+                    <properties>
+                      <enabled value="false"/>
+                      <icon value="xyz/spiralhalo/sherlock/res/sm_remove.png"/>
+                    </properties>
+                  </component>
+                </children>
+              </toolbar>
+              <scrollpane id="2742d">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="1" use-parent-layout="false">
+                    <preferred-size width="-1" height="60"/>
+                  </grid>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="7cc5f" class="javax.swing.JList" binding="listPF">
+                    <constraints/>
+                    <properties/>
+                  </component>
+                </children>
+              </scrollpane>
+              <component id="5a649" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Sub-folder depth limit:"/>
+                </properties>
+              </component>
+              <component id="7c8d3" class="javax.swing.JCheckBox" binding="checkAutoBIgnoreExisting">
+                <constraints>
+                  <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Ignore projects with existing bookmarks (faster)"/>
+                </properties>
+              </component>
+              <grid id="cdd00" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="9" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="2" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="b9c38" class="javax.swing.JRadioButton" binding="radDblClickView">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="View project"/>
+                    </properties>
+                  </component>
+                  <component id="a0fe4" class="javax.swing.JRadioButton" binding="radDblClkBookmarks">
+                    <constraints>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Open bookmarks"/>
+                    </properties>
+                  </component>
+                  <component id="58897" class="javax.swing.JRadioButton" binding="radDblClkLaunchB">
+                    <constraints>
+                      <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Launch first bookmark"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <component id="8177f" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="8" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Project double-click action:"/>
+                </properties>
+              </component>
+              <component id="71b05" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="&lt;html&gt;&lt;p&gt;If you choose to use Bookmarks to organize your project files, it is recommended &lt;br/&gt;&#10;that you set your double-click action to &quot;open bookmarks&quot; or &quot;launch first bookmark&quot;.&lt;/p&gt;"/>
+                </properties>
+              </component>
+              <component id="c4211" class="javax.swing.JCheckBox">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Enable auto-bookmarks (recommended)"/>
+                </properties>
+              </component>
+              <grid id="cef46" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="2" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="9d988" class="javax.swing.JSlider" binding="sliderSubFolder">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                        <preferred-size width="240" height="-1"/>
+                      </grid>
+                    </constraints>
+                    <properties>
+                      <maximum value="1800"/>
+                      <minimum value="60"/>
+                      <value value="600"/>
+                    </properties>
+                  </component>
+                  <component id="ea86c" class="javax.swing.JLabel" binding="lblSubFolder">
+                    <constraints>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="0"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
+          <grid id="22f05" binding="panel6" layout-manager="GridLayoutManager" row-count="6" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <card name="Card8"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="47400" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="&lt;html&gt;&lt;h2&gt;Step 5: Configure Optical Character Recognition (OCR)&lt;/h2&gt;&#10;&lt;p&gt;Project Sherlock tracks projects by reading the title bar of the current active window.&lt;/p&gt;&#10;&lt;p&gt;Some applications do not expose their title bar on the system level. OCR is required &lt;br/&gt;&#10;to parse the title bar of such applications.&lt;/p&gt;&#10;&lt;p&gt;&lt;b&gt;Note that OCR is not 100% accurate.&lt;/b&gt; OCR won't be used on other applications, &lt;br/&gt;&#10;so disabling it will not affect performance impact significantly.&lt;/p&gt;"/>
+                </properties>
+              </component>
+              <vspacer id="a0a03">
+                <constraints>
+                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+              <component id="8b5d1" class="javax.swing.JSeparator">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="54a11" class="javax.swing.JCheckBox" binding="enableOCRForTheCheckBox" default-binding="true">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Enable OCR for the following applications:"/>
+                </properties>
+              </component>
+              <scrollpane id="2a83b">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                    <preferred-size width="-1" height="60"/>
+                  </grid>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="99e39" class="javax.swing.JTable" binding="table1" default-binding="true">
+                    <constraints/>
+                    <properties/>
+                  </component>
+                </children>
+              </scrollpane>
+              <component id="e849c" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="(If you have suggestions for apps that require OCR, please get in touch with the developer.)"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="56409" binding="panel7" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <card name="Card7"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="fce49" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="&lt;html&gt;&lt;h2&gt;Step 6: Configure System Startup&lt;/h2&gt;&#10;&lt;p&gt;In this page, you can enable Project Sherlock to run on system startup.&lt;/p&gt;"/>
+                </properties>
+              </component>
+              <vspacer id="90b69">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+              <component id="c0da7" class="javax.swing.JCheckBox" binding="checkAStartup">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font style="1"/>
+                  <text value="Run Project Sherlock on system startup (recommended)"/>
+                </properties>
+              </component>
+              <component id="9402" class="javax.swing.JCheckBox" binding="checkARunMinimized">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Run minimized"/>
+                </properties>
+              </component>
+              <component id="3b6c2" class="javax.swing.JSeparator">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+            </children>
+          </grid>
+          <grid id="d2ef6" binding="lastPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <card name="Card5"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="abacf" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="&lt;html&gt;&lt;h1&gt;You're all set!&lt;/h1&gt;&#10;&lt;p&gt;Project Sherlock is fully set up!&lt;/p&gt;&#10;&lt;p&gt;You can change these options later at the Settings menu.&lt;/p&gt;&#10;&lt;p&gt;&lt;b&gt;Click finish to save your options.&lt;/b&gt;&lt;/p&gt;"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>

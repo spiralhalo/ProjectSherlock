@@ -149,6 +149,7 @@ public class AppControl implements ActionListener {
         }
         view.frame().setVisible(true);
         view.frame().setState(NORMAL);
+        new FirstWizard(view.frame()).setVisible(true);
     }
 
     private void createView(){

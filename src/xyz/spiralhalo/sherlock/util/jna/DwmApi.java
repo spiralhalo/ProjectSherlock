@@ -8,7 +8,7 @@ import com.sun.jna.ptr.IntByReference;
 
 public interface DwmApi extends Library {
 
-    DwmApi INSTANCE = Native.loadLibrary("dwmapi", DwmApi.class);
+    DwmApi INSTANCE = (DwmApi)Native.loadLibrary("dwmapi", DwmApi.class);
 
     WinNT.HRESULT DwmGetWindowAttribute(HWND hwnd, int dwAttribute, IntByReference pvAttribute, int cbAttribute);
 }
