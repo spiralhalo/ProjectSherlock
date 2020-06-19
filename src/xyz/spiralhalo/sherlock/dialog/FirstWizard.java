@@ -59,7 +59,6 @@ public class FirstWizard extends JDialog {
     private JPanel lastPanel;
     private JSlider sliderSubFolder;
     private JLabel lblSubFolder;
-    private JCheckBox checkAutoBIgnoreExisting;
     private JPanel panel4;
     private JPanel panel6;
     private JCheckBox checkAStartup;
@@ -131,7 +130,7 @@ public class FirstWizard extends JDialog {
         // checkboxes with dependencies
         addDependency(checkAStartup, checkARunMinimized);
         addDependency(radRatingNew, checkUseRankChart);
-        addDependency(checkAutoBookmark, checkAutoBIgnoreExisting);
+//        addDependency(checkAutoBookmark, checkAutoBIgnoreExisting);
         addDependency(checkAutoBookmark, sliderSubFolder);
 
         // step 1: target
@@ -145,7 +144,7 @@ public class FirstWizard extends JDialog {
         // step 4: auto-bookmarks
         checkAutoBookmark.setSelected(BookmarkConfig.bkmkGBool(BookmarkConfig.BookmarkBool.AUTO_BOOKMARK));
         sliderSubFolder.setValue(BookmarkConfig.bkmkGInt(BookmarkConfig.BookmarkInt.AUTO_SUBFOLDER));
-        checkAutoBIgnoreExisting.setSelected(!BookmarkConfig.bkmkGBool(BookmarkConfig.BookmarkBool.AUTO_INCLUDE_EXISTING));
+//        checkAutoBIgnoreExisting.setSelected(!BookmarkConfig.bkmkGBool(BookmarkConfig.BookmarkBool.AUTO_INCLUDE_EXISTING));
         radDblClickView.setSelected(UserConfig.userGInt(GENERAL, DOUBLE_CLICK_ACTION)==0);
         radDblClkBookmarks.setSelected(UserConfig.userGInt(GENERAL, DOUBLE_CLICK_ACTION)==1);
         radDblClkLaunchB.setSelected(UserConfig.userGInt(GENERAL, DOUBLE_CLICK_ACTION)==2);
@@ -226,7 +225,7 @@ public class FirstWizard extends JDialog {
         }
         // step 4: auto-bookmarks
         BookmarkConfig.bkmkSBool(BookmarkConfig.BookmarkBool.AUTO_BOOKMARK, checkAutoBookmark.isSelected());
-        BookmarkConfig.bkmkSBool(BookmarkConfig.BookmarkBool.AUTO_INCLUDE_EXISTING, !checkAutoBIgnoreExisting.isSelected());
+//        BookmarkConfig.bkmkSBool(BookmarkConfig.BookmarkBool.AUTO_INCLUDE_EXISTING, !checkAutoBIgnoreExisting.isSelected());
         BookmarkConfig.bkmkSInt(BookmarkConfig.BookmarkInt.AUTO_SUBFOLDER, sliderSubFolder.getValue());
         if(radDblClkBookmarks.isSelected()){
             UserConfig.userSInt(GENERAL, DOUBLE_CLICK_ACTION, 1);
