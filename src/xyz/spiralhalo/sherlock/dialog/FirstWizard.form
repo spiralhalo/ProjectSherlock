@@ -87,7 +87,7 @@
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="&lt;html&gt;&lt;h1&gt;Welcome to Project Sherlock 2 version 6!&lt;/h1&gt;&#10;&lt;p&gt;We've detected that it is your first time running &lt;b&gt;Project Sherlock 2 version 6&lt;/b&gt;.&lt;/p&gt;&#10;&lt;p&gt;We will guide you into setting the application up to better suit your needs.&lt;/p&gt;&#10;&lt;br/&gt;&#10;&lt;p&gt;&lt;b&gt;Press next to continue.&lt;/b&gt;&lt;/p&gt;&#10;&lt;br/&gt;&#10;&lt;p&gt;Press `Quit` at any time to keep current configuration and ignore any changes.&lt;/p&gt;&#10;&lt;p&gt;Note: if you've used Project Sherlock before, your current configuration has been &lt;br/&gt;&#10;loaded.&lt;/p&gt;"/>
+                  <text value="&lt;html&gt;&lt;h1&gt;Welcome to Project Sherlock 2 version 6!&lt;/h1&gt;&#10;&lt;p&gt;We've detected that it is your first time running &lt;b&gt;Project Sherlock 2 version 6&lt;/b&gt;.&lt;/p&gt;&#10;&lt;p&gt;We will guide you into setting the application up to better suit your needs.&lt;/p&gt;&#10;&lt;br/&gt;&#10;&lt;p&gt;&lt;b&gt;Press next to continue.&lt;/b&gt;&lt;/p&gt;&#10;&lt;br/&gt;&#10;&lt;p&gt;Press `Cancel` at any time to keep current configuration and ignore any changes.&lt;/p&gt;&#10;&lt;p&gt;Note: if you've used Project Sherlock before, your current configuration has been &lt;br/&gt;&#10;loaded.&lt;/p&gt;"/>
                 </properties>
               </component>
             </children>
@@ -198,7 +198,7 @@
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="New &quot;ranking&quot; system"/>
+                      <text value="Grade system"/>
                     </properties>
                   </component>
                   <component id="b33e5" class="javax.swing.JLabel">
@@ -224,7 +224,7 @@
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Old rating system"/>
+                      <text value="Numerical system"/>
                     </properties>
                   </component>
                   <component id="a0d24" class="javax.swing.JLabel">
@@ -288,7 +288,7 @@
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="&lt;html&gt;&lt;h2&gt;Step 3: Choose a theme&lt;/h2&gt;&#10;&lt;p&gt;In this page, you can choose a theme for the UI.&lt;/p&gt;&#10;&lt;p&gt;Themes will be applied after a restart.&lt;/p&gt;"/>
+                  <text value="&lt;html&gt;&lt;h2&gt;Step 3: Choose a theme&lt;/h2&gt;&#10;&lt;p&gt;In this page, you can choose a theme for the UI.&lt;/p&gt;&#10;&lt;p&gt;&lt;b&gt;Themes will be applied after a restart.&lt;/b&gt;&lt;/p&gt;"/>
                 </properties>
               </component>
               <vspacer id="a204a">
