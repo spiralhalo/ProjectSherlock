@@ -25,11 +25,10 @@ import xyz.spiralhalo.sherlock.util.FormatUtil;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.util.HashMap;
 
 public class Thumb {
 
@@ -37,7 +36,7 @@ public class Thumb {
     private JLabel lblTime;
     private JLabel lblThumb;
     private JPanel rootPane;
-    private static Icon defImg = null;
+    private static Image defImg = null;
     private ThumbManager thumbManager;
     private long thumbsProjectHash;
     private static Color defClr;
@@ -46,7 +45,7 @@ public class Thumb {
 
     Thumb(ThumbManager manager, String projectName, long projectHash, long lastWorkedOnMillis) {
         if(defImg == null){
-            defImg = lblThumb.getIcon();
+            defImg = ((ImageIcon)lblThumb.getIcon()).getImage();
             defClr = rootPane.getBackground();
         }
         this.thumbManager = manager;
@@ -83,13 +82,28 @@ public class Thumb {
         }
     }
 
+    private static HashMap<Long,BufferedImage> thumbCache = new HashMap<>();
+    private static HashMap<Long,Long> thumbCacheTime = new HashMap<>();
+
     public void set(String projectName, long projectHash, long lastWorkedOnMillis){
         this.thumbsProjectHash = projectHash;
-        BufferedImage thumb = ScrSnapper.getThumbImg(projectHash);
-        if(thumb != null) {
-            lblThumb.setIcon(new ImageIcon(Thumbnailator.createThumbnail(thumb, thumbDM.width, thumbDM.height)));
+        BufferedImage thumb;
+        if(thumbCache.containsKey(projectHash) && thumbCacheTime.get(projectHash) == lastWorkedOnMillis){
+            thumb = thumbCache.get(projectHash);
         } else {
-            lblThumb.setIcon(defImg);
+            BufferedImage temp = ScrSnapper.readThumbFile(projectHash);
+            if(temp != null) {
+                thumb = Thumbnailator.createThumbnail(temp, thumbDM.width, thumbDM.height);
+            } else {
+                thumb = null;
+            }
+            thumbCache.put(projectHash, thumb);
+            thumbCacheTime.put(projectHash, lastWorkedOnMillis);
+        }
+        if(thumb != null) {
+            ((ImageIcon)lblThumb.getIcon()).setImage(thumb);
+        } else {
+            ((ImageIcon)lblThumb.getIcon()).setImage(defImg);
         }
         lblName.setText(projectName);
         lblTime.setText(FormatUtil.vagueTimeAgo(lastWorkedOnMillis));

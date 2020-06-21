@@ -58,7 +58,7 @@ public class ScrSnapper implements TrackerListener{
         return new File(Application.getThumbsDir(), Long.toHexString(projectHash));
     }
 
-    public static BufferedImage getThumbImg(long projectHash){
+    public static BufferedImage readThumbFile(long projectHash){
         try {
             File thumbFile = getThumbFile(projectHash);
             if(!thumbFile.exists())

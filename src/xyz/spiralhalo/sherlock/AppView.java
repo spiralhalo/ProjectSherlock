@@ -372,9 +372,10 @@ public class AppView implements AppViewAccessor {
     @Override
     public void refreshThumbs(CacheMgr cache) {
         final AllReportRows activeRows = cache.getObj(AllReportRows.activeCacheId(z), AllReportRows.class);
-        thumbsPane.removeAll();
+//        thumbsPane.removeAll();
         int j=0;
         ArrayList<AllReportRow> current;
+        //sort is surprisingly very fast
         //sort
         if(comboSort.getSelectedIndex() == 0){
             current = activeRows;
@@ -387,21 +388,32 @@ public class AppView implements AppViewAccessor {
                 return 0;
             });
         }
+
+        //on the other hand, populate was very slow. also it cant be async due to swing
+        //UPDATE: the cause of slowness was reloading AND resizing of thumbnail
+        //UPDATE 2: optimized by caching the thumbnails in memory !!
         //populate thumbs
-        //this action will be laggy and there is nothing you can do about it because everything needs to be in the eventdispatcher thread
-        for (int i=0; i<current.size(); i++) {
-            AllReportRow row = current.get(i);
+        boolean showAllCats = comboCate.getSelectedIndex() == 0;
+        boolean showAllTypes = comboType.getSelectedIndex() == 0;
+        Object cat = comboCate.getSelectedItem();
+        String type = (comboType.getSelectedItem() != null ? (String)comboType.getSelectedItem() : "");
+        for (AllReportRow row : current) {
             //filter
-            if( (comboCate.getSelectedIndex() == 0 || row.getCategory().equals(comboCate.getSelectedItem()))
-                && (comboType.getSelectedIndex() == 0 || ((String)comboType.getSelectedItem()).contains(row.getPTypeLabel())) ) {
+            if ((showAllCats || row.getCategory().equals(cat))
+                    && (showAllTypes || type.startsWith(row.getPTypeLabel()))) {
                 if (thumbManager.size() <= j) {
                     thumbManager.newThumb(row.getProjectName(), row.getProjectHash(), row.getLastWorkedOnMillis());
                 } else {
                     thumbManager.getThumb(j).set(row.getProjectName(), row.getProjectHash(), row.getLastWorkedOnMillis());
                 }
-                thumbsPane.add(thumbManager.getThumb(j).getPane());
+                if (j >= thumbsPane.getComponentCount()) {
+                    thumbsPane.add(thumbManager.getThumb(j).getPane());
+                }
                 j++;
             }
+        }
+        for (int i = thumbsPane.getComponentCount() -1; i >= j; i--) {
+            thumbsPane.remove(i);
         }
         thumbsPane.updateUI();
     }
