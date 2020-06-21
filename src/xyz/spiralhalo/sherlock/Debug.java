@@ -32,6 +32,14 @@ public class Debug {
 
     private static Logger logger;
 
+    public static class CustomLogManager extends LogManager {
+        @Override public void reset() { } // prevent reset on shutdown
+    }
+
+    static {
+        System.setProperty("java.util.logging.manager", CustomLogManager.class.getName());
+    }
+
     private static Logger getLogger(){
         if (logger == null) {
             logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);

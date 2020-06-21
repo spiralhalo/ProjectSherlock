@@ -242,6 +242,10 @@ public class EditProject extends JDialog {
     }
 
     private void onOK() {
+        if(comboCat.getSelectedItem() == null){
+            JOptionPane.showMessageDialog(this, "Please choose a category.");
+            return;
+        }
         //save last category
         AppConfig.setLastCategory((String)comboCat.getSelectedItem());
 

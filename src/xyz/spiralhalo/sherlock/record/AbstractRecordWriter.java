@@ -293,6 +293,8 @@ public abstract class AbstractRecordWriter {
         onClosing();
         if(working.timestamp != null) {
             flush(true);
+        } else if(buffer.getTimesWritten() > 0){
+            flushBuffer();
         }
         if(lastFile!=null){
             lastFile.close();

@@ -88,7 +88,7 @@ public class Main {
                 }
             }
 
-            Runtime.getRuntime().addShutdownHook(new Thread(Main::onShutdown));
+            Runtime.getRuntime().addShutdownHook(new Thread(Main::onShutdown, "MainShutdownHook"));
             AppControl.create();
         });
     }

@@ -50,7 +50,7 @@ public abstract class AsyncTask<Y> implements Runnable {
         }
         this.callback = callback;
         this.started = true;
-        new Thread(this).start();
+        new Thread(this, "AsyncTask"+System.currentTimeMillis()).start();
     }
 
     /**

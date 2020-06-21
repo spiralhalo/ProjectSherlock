@@ -132,10 +132,12 @@ public class ProjectList implements Serializable {
 
     private Project getProjectOfInternal(String windowTitle, String executable, ZonedDateTime time, Iterable<Project> toIterate){
         for (Project p : toIterate) {
+//            long start = System.currentTimeMillis();
             if((!p.isFinished() || !time.isAfter(p.getFinishedDate())) && !time.isBefore(p.getStartDateTime())) {
                 boolean foundTag = false;
                 for (String tag : p.getTags()) {
                     if (windowTitle.toLowerCase().contains(tag.toLowerCase())) {
+//                        System.out.println("tag seek time:"+(System.currentTimeMillis() - start));
                         foundTag = true;
                         break;
                     }

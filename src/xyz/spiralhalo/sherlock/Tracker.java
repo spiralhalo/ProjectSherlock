@@ -28,32 +28,25 @@ import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
 import xyz.spiralhalo.sherlock.record.RealtimeRecordWriter;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
 
-import javax.swing.*;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.TimerTask;
 
 public class Tracker implements TrackerAccessor{
     public static final String SPLIT_DIVIDER = "::";
     public static final DateTimeFormatter DTF = FormatUtil.DTF_FULL;
 
     public static final int ONE_SECOND = 1000;
-    public static final int TIMER_DELAY_SECONDS = 1;
-    public static final int TIMER_DELAY_MILLIS = TIMER_DELAY_SECONDS*ONE_SECOND;
+    public static final int TIMER_DELAY_MILLIS = ONE_SECOND; // tracker granularity has to be in unit of seconds (not millisecond) due to record data constraint
 
     private final AFKMonitor afkMonitor;
     private final List<TrackerListener> listeners;
-    private long last;
     private WindowInfo tempa;
-    private Timer timer;
+    private boolean running;
     private ProjectList projectList;
-    private RealtimeRecordWriter buffer;
-    private Project lastTracked;
+    private RealtimeRecordWriter recordWriter;
 
     public Tracker(ProjectList projectList){
         afkMonitor = new AFKMonitor();
@@ -62,7 +55,7 @@ public class Tracker implements TrackerAccessor{
         if(Arg.Sandbox.isEnabled()) {
             Debug.logImportant("[Sandbox mode] Tracking has been set to mode hiatus.");
         } else {
-            Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
+            Runtime.getRuntime().addShutdownHook(new Thread(this::exit, "TrackerShutdownHook"));
         }
     }
 
@@ -70,58 +63,66 @@ public class Tracker implements TrackerAccessor{
         if(Arg.Sandbox.isEnabled()) {
             Debug.logImportant("[Sandbox mode] Starting tracker has been cancelled.");
         } else {
-            buffer = new RealtimeRecordWriter();
-            int seconds = LocalDateTime.now().get(ChronoField.SECOND_OF_MINUTE);
-            timer = new Timer(TIMER_DELAY_MILLIS, e -> log(e.getWhen()));
-            new java.util.Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    Debug.logImportant("Tracker is started");
-                    last = System.currentTimeMillis();
-                    timer.start();
+            recordWriter = new RealtimeRecordWriter();
+            Runnable toRun = () -> {
+                threadSleep();
+                Debug.logImportant("Tracker is started");
+                running = true;
+                while(running) {
+                    log(); // LE IMPORTANT
+                    threadSleep(); //another LE IMPORTANT
                 }
-            }, (seconds % TIMER_DELAY_SECONDS) * ONE_SECOND);
+            };
+            new Thread(toRun, "TrackerThread").start();
+        }
+    }
+
+    private static void threadSleep() {
+        try {
+            Thread.sleep(TIMER_DELAY_MILLIS-(System.currentTimeMillis() % TIMER_DELAY_MILLIS));
+        } catch (InterruptedException e) {
+            Debug.log(e);
         }
     }
 
     private void exit() {
+        running = false;
         Debug.logImportant("Terminating tracker");
         Debug.logImportant("Logging final entry");
-        log(System.currentTimeMillis());
+        log();
         try {
-            buffer.close();
+            recordWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void log(long time){
+    private void log(){
         if(afkMonitor.isNotAFK()) {
             final ZonedDateTime now = ZonedDateTime.now();
             tempa = EnumerateWindows.getActiveWindowInfo();
-            lastTracked = projectList.getActiveProjectOf(tempa.title, tempa.exeName, now);
+            Project tracked = projectList.getActiveProjectOf(tempa.title, tempa.exeName, now);
             Debug.logVerbose(() -> String.format("%18s %s", "[ForegroundWindow]", tempa.title));
-            if (lastTracked == null) {
+            if (tracked == null) {
                 WinDef.HWND activeHwnd = tempa.hwndPointer;
                 tempa = EnumerateWindows.getRootWindowInfo(activeHwnd);
-                lastTracked = projectList.getActiveProjectOf(tempa.title, tempa.exeName, now);
+                tracked = projectList.getActiveProjectOf(tempa.title, tempa.exeName, now);
                 Debug.logVerbose(() -> String.format("%18s %s", "[GW_OWNER]", tempa.title));
             }
-            final String pn = String.valueOf(lastTracked);
+            final String pn = String.valueOf(tracked);
             Debug.logVerbose(() -> String.format("%18s Detected project: %s", "", pn));
-            buffer.log(lastTracked);
+            recordWriter.log(tracked);
             for(TrackerListener listener:listeners){
-                listener.onTrackerLog(lastTracked, tempa);
+                listener.onTrackerLog(tracked, tempa);
             }
         }
-        last = time;
     }
 
     public void flushRecordBuffer() {
         if(Arg.Sandbox.isEnabled()) {
             Debug.logImportant("[Sandbox mode] Flushing buffer has been cancelled.");
         } else {
-            buffer.flushBuffer();
+            recordWriter.flushBuffer();
         }
     }
 

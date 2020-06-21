@@ -69,6 +69,7 @@ public class Application {
 
     public static String getSaveDir()
     {
+//        return "D:\\Temp\\sherlocktest"; //always add a to do comment when using this
         File test = null;
         if(cachedSaveDir != null) {
              test = new File(cachedSaveDir);
