@@ -63,7 +63,7 @@ public abstract class AsyncTask<Y> implements Runnable {
      *
      * @throws Exception to be handled by the callback function
      */
-    abstract protected void doRun() throws Exception;
+    abstract protected void doRun() throws Throwable;
 
     /**
      * Returns the result of this task.
@@ -83,7 +83,7 @@ public abstract class AsyncTask<Y> implements Runnable {
         try {
             doRun();
             finish(getResult(), null);
-        } catch (Exception x){
+        } catch (Throwable x){
             Debug.log(x);
             finish(null, x);
         }

@@ -28,7 +28,6 @@ import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserBool;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode;
 import xyz.spiralhalo.sherlock.report.*;
-import xyz.spiralhalo.sherlock.report.Charts;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartData;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartMeta;
 import xyz.spiralhalo.sherlock.report.factory.summary.MonthSummary;
@@ -43,8 +42,11 @@ import xyz.spiralhalo.sherlock.util.swing.thumb.ThumbManager;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.time.*;
+import java.awt.event.ItemEvent;
+import java.time.LocalDate;
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 
@@ -386,6 +388,7 @@ public class AppView implements AppViewAccessor {
             });
         }
         //populate thumbs
+        //this action will be laggy and there is nothing you can do about it because everything needs to be in the eventdispatcher thread
         for (int i=0; i<current.size(); i++) {
             AllReportRow row = current.get(i);
             //filter
