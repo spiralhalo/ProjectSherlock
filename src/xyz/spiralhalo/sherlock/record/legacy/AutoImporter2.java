@@ -19,17 +19,21 @@
 
 package xyz.spiralhalo.sherlock.record.legacy;
 
-import xyz.spiralhalo.sherlock.Tracker;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.Application;
+import xyz.spiralhalo.sherlock.util.FormatUtil;
 
 import java.io.*;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class AutoImporter2 {
+
+    public static final String SPLIT_DIVIDER = "::";
+    public static final DateTimeFormatter DTF = FormatUtil.DTF_FULL;
     public static final String OLD_LOG_FILENAME = "record2.txt";
     public static void importRecord(ProjectList projectList) {
         File oldRecordTxt = new File(Application.getSaveDir(), OLD_LOG_FILENAME);
@@ -45,8 +49,8 @@ public class AutoImporter2 {
                 final ReconstructorWriter y = new ReconstructorWriter();
                 while (sc.hasNext()){
                     try {
-                        temp = sc.nextLine().split(Tracker.SPLIT_DIVIDER);
-                        d = ZonedDateTime.parse(temp[0], Tracker.DTF);
+                        temp = sc.nextLine().split(SPLIT_DIVIDER);
+                        d = ZonedDateTime.parse(temp[0], DTF);
                         dur = Integer.parseInt(temp[1]);
                         hash = Long.parseLong(temp[2]);
                         p = projectList.findByHash(hash);

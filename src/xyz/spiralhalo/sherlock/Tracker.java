@@ -26,20 +26,13 @@ import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
 import xyz.spiralhalo.sherlock.record.RealtimeRecordWriter;
-import xyz.spiralhalo.sherlock.util.FormatUtil;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Tracker implements TrackerAccessor{
-    public static final String SPLIT_DIVIDER = "::";
-    public static final DateTimeFormatter DTF = FormatUtil.DTF_FULL;
-
-    public static final int ONE_SECOND = 1000;
-    public static final int TIMER_DELAY_MILLIS = ONE_SECOND; // tracker granularity has to be in unit of seconds (not millisecond) due to record data constraint
+class Tracker implements TrackerAccessor{
 
     private final AFKMonitor afkMonitor;
     private final List<TrackerListener> listeners;
@@ -48,7 +41,7 @@ public class Tracker implements TrackerAccessor{
     private ProjectList projectList;
     private RealtimeRecordWriter recordWriter;
 
-    public Tracker(ProjectList projectList){
+    Tracker(ProjectList projectList){
         afkMonitor = new AFKMonitor();
         listeners = new LinkedList<>();
         this.projectList = projectList;
@@ -79,7 +72,7 @@ public class Tracker implements TrackerAccessor{
 
     private static void threadSleep() {
         try {
-            Thread.sleep(TIMER_DELAY_MILLIS-(System.currentTimeMillis() % TIMER_DELAY_MILLIS));
+            Thread.sleep(GConst.TRACKER_DELAY_MILLIS-(System.currentTimeMillis() % GConst.TRACKER_DELAY_MILLIS));
         } catch (InterruptedException e) {
             Debug.log(e);
         }
@@ -133,7 +126,7 @@ public class Tracker implements TrackerAccessor{
 
     @Override
     public long getGranularityMillis() {
-        return TIMER_DELAY_MILLIS;
+        return GConst.TRACKER_DELAY_MILLIS;
     }
 
     private static class AFKMonitor {
