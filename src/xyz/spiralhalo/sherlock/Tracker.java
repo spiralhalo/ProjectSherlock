@@ -52,7 +52,7 @@ class Tracker implements TrackerAccessor{
         }
     }
 
-    public void start(){
+    void start(){
         if(Arg.Sandbox.isEnabled()) {
             Debug.logImportant("[Sandbox mode] Starting tracker has been cancelled.");
         } else {
@@ -111,7 +111,7 @@ class Tracker implements TrackerAccessor{
         }
     }
 
-    public void flushRecordBuffer() {
+    void flushRecordBuffer() {
         if(Arg.Sandbox.isEnabled()) {
             Debug.logImportant("[Sandbox mode] Flushing buffer has been cancelled.");
         } else {
