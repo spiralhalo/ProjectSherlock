@@ -46,6 +46,12 @@ public class Main {
             return;
         }
 
+        if(classPathFail()) {
+            JOptionPane.showMessageDialog(null, String.format("The following file(s) can't be loaded: %s\nMake sure that you obtain the appropriate files\nfrom the latest Project Sherlock distribution.",missingFiles),
+                    APP_NAME, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         Arg.setArgs(args);
 
         if(Arg.Delayed.isEnabled()) {
@@ -121,6 +127,24 @@ public class Main {
             case TWILIGHT:UIManager.setLookAndFeel(new SubstanceTwilightLookAndFeel()); break;
             case SYSTEM:UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); break;
         }
+    }
+
+    private static String missingFiles="";
+    private static boolean classPathFail() {
+        boolean result = false;
+        try {
+            Class.forName("org.jfree.chart.JFreeChart");
+        } catch (ClassNotFoundException e) {
+            result = true;
+            missingFiles+="\n- jfreechart.jar";
+        }
+        try {
+            Class.forName("com.tulskiy.keymaster.common.HotKey");
+        } catch (ClassNotFoundException e) {
+            result = true;
+            missingFiles+="\n- jkeymaster.jar";
+        }
+        return result;
     }
 
     public enum Arg{
