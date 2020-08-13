@@ -112,17 +112,17 @@ public class Charts {
 
         final CategoryPlot plot = x.getCategoryPlot();
         //get config vars
-        final int target = UserConfig.userGInt(GENERAL, DAILY_TARGET_SECOND);
-        final boolean useRankChart = UserConfig.userGBool(VIEW, USE_RANK_MONTH_CHART)
-                && !UserConfig.userGBool(VIEW, OLD_RATING);
+        final int target = DAILY_TARGET_SECOND.get();
+        final boolean useRankChart = USE_RANK_MONTH_CHART.get()
+                && !OLD_RATING.get();
 
         //set char upper limit if using rank chart or limit
-        if(useRankChart || UserConfig.userGBool(VIEW, LIMIT_MONTH_CHART_UPPER)) {
+        if(useRankChart || LIMIT_MONTH_CHART_UPPER.get()) {
             plot.getRangeAxis().setRange(0, target / 3600 + 1);
         }
 
         final Color fg = new Color(Main.currentTheme.foreground | 0x88000000, true);
-        if(!UserConfig.userGBool(VIEW, DISABLE_MONTH_LINE)) {
+        if(!DISABLE_MONTH_LINE.get()) {
             final ValueMarker marker = new ValueMarker(target/3600f, fg, new BasicStroke(
                     1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
                     1.0f, new float[] {6.0f, 6.0f}, 0.0f));
@@ -160,7 +160,7 @@ public class Charts {
                 FlexibleLocale unitLabel = ChartType.DAY_IN_MONTH.unitLabel(ym, i);
                 if (dayChart != null) {
                     ChartMeta meta = dayChart.getMeta();
-                    if (UserConfig.userGBool(VIEW, OLD_RATING)) {
+                    if (OLD_RATING.get()) {
                         int ratio = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < target ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / target);
                         if (UserConfig.userGWDay(date.get(ChronoField.DAY_OF_WEEK))) {
                             Color ratioFG = interpolateNicely((float) ratio / 100f, bad, neu, gut);
@@ -247,10 +247,10 @@ public class Charts {
             totalSet.addValue(total, "Work Total", data.getColumnKey(i));
         }
 
-        if(UserConfig.userGBool(VIEW, ENABLE_YEAR_LINE)) {
+        if(ENABLE_YEAR_LINE.get()) {
             final Color fg = new Color(Main.currentTheme.foreground | 0x88000000, true);
-            final int t = UserConfig.userGInt(GENERAL, DAILY_TARGET_SECOND);
-            final int weeklyT = UserConfig.userGInt(GENERAL, WEEKLY_TARGET_DAYS, 1, 7, true);
+            final int t = DAILY_TARGET_SECOND.get();
+            final int weeklyT = WEEKLY_TARGET_DAYS.get(1, 7, true);
             final ValueMarker marker = new ValueMarker((t/3600f)*4.348f*weeklyT, fg, new BasicStroke(
                     1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
                     1.0f, new float[] {6.0f, 6.0f}, 0.0f));
@@ -346,7 +346,7 @@ public class Charts {
         final BasicStroke thinStroke = new BasicStroke( 2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
                 1.0f, null, 0.0f);
 
-        final int target = UserConfig.userGInt(GENERAL, DAILY_TARGET_SECOND);
+        final int target = DAILY_TARGET_SECOND.get();
         final Color fg = new Color(Main.currentTheme.foreground | 0x88000000, true);
         final ValueMarker marker = new ValueMarker(target/3600f, Color.black, thinStroke);
         ((CategoryPlot)chart.getPlot()).addRangeMarker(marker);

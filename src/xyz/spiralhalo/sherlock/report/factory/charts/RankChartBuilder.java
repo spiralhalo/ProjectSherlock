@@ -73,7 +73,7 @@ public class RankChartBuilder extends ChartBuilder<YearMonth> {
                     meta.addLogDur(s);
                 }
             }
-            int score = (100 * totalProds) / UserConfig.userGInt(UserConfig.UserNode.GENERAL, UserConfig.UserInt.DAILY_TARGET_SECOND);
+            int score = (100 * totalProds) / UserConfig.UserInt.DAILY_TARGET_SECOND.get();
             StaticRankDecider.Rank rank = StaticRankDecider.decide(score);
             dataset.setValue((Number) (totalProds / type.subunitNormalizer()), rank.label, unitLabel);
             dataset.setValue((Number) (totalUnprods / type.subunitNormalizer()), UNPROD, unitLabel);

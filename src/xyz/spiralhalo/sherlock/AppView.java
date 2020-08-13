@@ -483,7 +483,7 @@ public class AppView implements AppViewAccessor {
         pnlDProgress.add(getDayProgressPanel());
         pnlDProgress.updateUI();
         // Create rating label
-        int t = UserConfig.userGInt(UserNode.GENERAL, UserInt.DAILY_TARGET_SECOND);
+        int t = UserInt.DAILY_TARGET_SECOND.get();
         lDLogged.setText(String.format("Logged: %s", FormatUtil.hms(meta.getLogDur())));
         lDWorktime.setText(String.format("Work: %s", FormatUtil.hms(meta.getWorkDur())));
         if(meta.getBreakDur() > 0){
@@ -494,9 +494,9 @@ public class AppView implements AppViewAccessor {
 //            pbBreakRatio.setValue(100);
             lDBreaktime.setVisible(false);
         }
-        if (UserConfig.userGBool(UserNode.VIEW, UserBool.OLD_RATING)) {
+        if (UserBool.OLD_RATING.get()) {
             int r = meta.getLogDur() == 0 ? 0 : (meta.getLogDur() < t ? meta.getWorkDur() * 100 / meta.getLogDur() : meta.getWorkDur() * 100 / t);
-            if(!UserConfig.userGBool(UserNode.VIEW, UserBool.EXCEED_100_PERCENT) && r > 100) r = 100;
+            if(!UserBool.EXCEED_100_PERCENT.get() && r > 100) r = 100;
             if (UserConfig.userGWDay(s.date.get(ChronoField.DAY_OF_WEEK))) {
                 lDRating.setText(String.format("Rating: %d%%", r));
                 Color ratioFG = interpolateNicely((float) r / 100f, bad, neu, gut);
@@ -507,7 +507,7 @@ public class AppView implements AppViewAccessor {
             }
         } else {
             int r = meta.getWorkDur() * 100 / t;
-            if(!UserConfig.userGBool(UserNode.VIEW, UserBool.EXCEED_100_PERCENT) && r > 100) r = 100;
+            if(!UserBool.EXCEED_100_PERCENT.get() && r > 100) r = 100;
             StaticRankDecider.Rank rank = StaticRankDecider.decide(r);
             if (rank == StaticRankDecider.Rank.BREAK_DAY) {
                 lDRating.setText(rank.label.toUpperCase());

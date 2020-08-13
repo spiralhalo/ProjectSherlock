@@ -65,7 +65,7 @@ public class SummaryBuilder {
         this.productiveMap = new HashMap<>();
         this.z = z;
         this.complete = complete;
-        if(UserConfig.userGBool(VIEW, USE_RANK_MONTH_CHART) && ! UserConfig.userGBool(VIEW, OLD_RATING)){
+        if(USE_RANK_MONTH_CHART.get() && ! OLD_RATING.get()){
             this.monthChartBuilder = new RankChartBuilder(month, z, false);
         } else {
             this.monthChartBuilder = new ChartBuilder<>(month, z, false);

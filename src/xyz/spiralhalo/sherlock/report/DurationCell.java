@@ -54,8 +54,7 @@ public class DurationCell extends DefaultTableCellRenderer {
             if(table.getModel() instanceof DayModel && !UserConfig.userGWDay(((DayModel) table.getModel()).getDay(row))){
                 baseColor = light_gray;
             } else {
-                baseColor = interpolateNicely(((float) (int) value) /
-                        UserConfig.userGInt(UserNode.GENERAL, UserInt.DAILY_TARGET_SECOND), bad, neu, gut);
+                baseColor = interpolateNicely(((float) value) / UserInt.DAILY_TARGET_SECOND.get(), bad, neu, gut);
             }
             if(isSelected) {
                 super.setBackground(multiply(super.getBackground(),baseColor));

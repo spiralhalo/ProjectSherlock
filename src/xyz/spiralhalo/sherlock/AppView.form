@@ -282,6 +282,17 @@
                       <preferredSize width="120" height="30"/>
                     </properties>
                   </component>
+                  <component id="bc375" class="javax.swing.JToolBar$Separator">
+                    <constraints/>
+                    <properties/>
+                  </component>
+                  <component id="9322c" class="javax.swing.JLabel">
+                    <constraints/>
+                    <properties>
+                      <font style="2"/>
+                      <text value="Showing active projects only"/>
+                    </properties>
+                  </component>
                 </children>
               </toolbar>
               <scrollpane id="f2b36">

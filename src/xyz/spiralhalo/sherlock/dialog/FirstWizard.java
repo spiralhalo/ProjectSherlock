@@ -134,20 +134,20 @@ public class FirstWizard extends JDialog {
         addDependency(checkAutoBookmark, sliderSubFolder);
 
         // step 1: target
-        sliderTarget.setValue(UserConfig.userGInt(GENERAL, DAILY_TARGET_SECOND));
+        sliderTarget.setValue(DAILY_TARGET_SECOND.get());
         // step 2: rating
-        radRatingNew.setSelected(!UserConfig.userGBool(UserConfig.UserNode.VIEW, OLD_RATING));
-        radRatingOld.setSelected(UserConfig.userGBool(UserConfig.UserNode.VIEW, OLD_RATING));
-        checkUseRankChart.setSelected(UserConfig.userGBool(UserConfig.UserNode.VIEW, UserConfig.UserBool.USE_RANK_MONTH_CHART));
+        radRatingNew.setSelected(!OLD_RATING.get());
+        radRatingOld.setSelected(OLD_RATING.get());
+        checkUseRankChart.setSelected(USE_RANK_MONTH_CHART.get());
         // step 3: theme
         radCurrentTheme.setSelected(true);
         // step 4: auto-bookmarks
         checkAutoBookmark.setSelected(BookmarkConfig.bkmkGBool(BookmarkConfig.BookmarkBool.AUTO_BOOKMARK));
         sliderSubFolder.setValue(BookmarkConfig.bkmkGInt(BookmarkConfig.BookmarkInt.AUTO_SUBFOLDER));
 //        checkAutoBIgnoreExisting.setSelected(!BookmarkConfig.bkmkGBool(BookmarkConfig.BookmarkBool.AUTO_INCLUDE_EXISTING));
-        radDblClickView.setSelected(UserConfig.userGInt(GENERAL, DOUBLE_CLICK_ACTION)==0);
-        radDblClkBookmarks.setSelected(UserConfig.userGInt(GENERAL, DOUBLE_CLICK_ACTION)==1);
-        radDblClkLaunchB.setSelected(UserConfig.userGInt(GENERAL, DOUBLE_CLICK_ACTION)==2);
+        radDblClickView.setSelected(DOUBLE_CLICK_ACTION.get()==0);
+        radDblClkBookmarks.setSelected(DOUBLE_CLICK_ACTION.get()==1);
+        radDblClkLaunchB.setSelected(DOUBLE_CLICK_ACTION.get()==2);
         // step 5: startup
         checkAStartup.setSelected(AppConfig.appGBool(AppConfig.AppBool.RUN_ON_STARTUP));
         checkARunMinimized.setSelected(AppConfig.appGBool(AppConfig.AppBool.RUN_MINIMIZED));
@@ -212,10 +212,10 @@ public class FirstWizard extends JDialog {
         BookmarkConfig.bkmkSPFList(pfList);
 
         // step 1: target
-        UserConfig.userSInt(GENERAL, DAILY_TARGET_SECOND, sliderTarget.getValue());
+        DAILY_TARGET_SECOND.set(sliderTarget.getValue());
         // step 2: rating
-        UserConfig.userSBool(VIEW, OLD_RATING, radRatingOld.isSelected());
-        UserConfig.userSBool(VIEW, USE_RANK_MONTH_CHART, checkUseRankChart.isSelected());
+        OLD_RATING.set(radRatingOld.isSelected());
+        USE_RANK_MONTH_CHART.set(checkUseRankChart.isSelected());
         // step 3: theme
         AppConfig.Theme selectedTheme = radLightTheme.isSelected()? AppConfig.Theme.BUSINESS:
                 (radDarkTheme.isSelected()? AppConfig.Theme.GRAPHITE:
@@ -228,11 +228,11 @@ public class FirstWizard extends JDialog {
 //        BookmarkConfig.bkmkSBool(BookmarkConfig.BookmarkBool.AUTO_INCLUDE_EXISTING, !checkAutoBIgnoreExisting.isSelected());
         BookmarkConfig.bkmkSInt(BookmarkConfig.BookmarkInt.AUTO_SUBFOLDER, sliderSubFolder.getValue());
         if(radDblClkBookmarks.isSelected()){
-            UserConfig.userSInt(GENERAL, DOUBLE_CLICK_ACTION, 1);
+            DOUBLE_CLICK_ACTION.set(1);
         } else if(radDblClkLaunchB.isSelected()){
-            UserConfig.userSInt(GENERAL, DOUBLE_CLICK_ACTION, 2);
+            DOUBLE_CLICK_ACTION.set(2);
         } else {
-            UserConfig.userSInt(GENERAL, DOUBLE_CLICK_ACTION, 0);
+            DOUBLE_CLICK_ACTION.set(0);
         }
         // step 5: startup
         AppConfig.appSBool(AppConfig.AppBool.RUN_ON_STARTUP, checkAStartup.isSelected());

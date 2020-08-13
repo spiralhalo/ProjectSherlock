@@ -22,7 +22,7 @@ package xyz.spiralhalo.sherlock.persist.settings;
 import xyz.spiralhalo.sherlock.Main;
 
 public class AppConfig {
-    private static final String NODE = Nodes.NODE_APPLICATION.v;
+    private static final String NODE = "APPLICATION";
 
     private static final String KEY_HMS_MODE = "HMS_MODE";
     private static final String KEY_THEME = "THEME";

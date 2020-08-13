@@ -37,6 +37,7 @@ import xyz.spiralhalo.sherlock.focus.FocusConfig;
 import xyz.spiralhalo.sherlock.focus.FocusMgr;
 import xyz.spiralhalo.sherlock.notes.EditNote;
 import xyz.spiralhalo.sherlock.notes.YearNotes;
+import xyz.spiralhalo.sherlock.notif.BreakReminder;
 import xyz.spiralhalo.sherlock.persist.cache.CacheId;
 import xyz.spiralhalo.sherlock.persist.cache.CacheMgr;
 import xyz.spiralhalo.sherlock.persist.project.ProjectListIO;
@@ -154,6 +155,9 @@ public class AppControl implements ActionListener {
         };
         trayIcon = Application.createTrayIcon(listenerTrayToggle,listenerTrayExit);
         trayIconUsed = (trayIcon != null);
+        if(trayIconUsed){
+            new BreakReminder(tracker, trayIcon);
+        }
         focusMgr = new FocusMgr(projectList, tracker, trayIcon);
 
         if(!Main.Arg.Minimized.isEnabled()){
@@ -687,7 +691,7 @@ public class AppControl implements ActionListener {
         @Override
         public void mouseClicked(MouseEvent e) {
             if(e.getClickCount()==2 && e.getButton() == 1){
-                int dblClickAction = UserConfig.userGInt(GENERAL, DOUBLE_CLICK_ACTION);
+                int dblClickAction = DOUBLE_CLICK_ACTION.get();
                 switch (dblClickAction){
                     case 1:
                         Project p = projectList.findByHash(view.selected());

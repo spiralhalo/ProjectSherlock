@@ -19,39 +19,89 @@
 
 package xyz.spiralhalo.sherlock.persist.settings;
 
-import static xyz.spiralhalo.sherlock.persist.settings.Nodes.*;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.*;
 
 public class UserConfig {
-    private static final String KEY_WORK_DAY = "WORK_DAY_";
 
+    public enum UserNode {
+        GENERAL("TRACKING"),
+        VIEW("VIEW"),
+        NOTIFICATIONS("NOTIFICATIONS");
+        private String value;
+        UserNode(String value){this.value=value;}
+    }
+
+    public enum UserStr {
+        BREAK_MESSAGE(NOTIFICATIONS, "Remember to stay hydrated!");
+        final UserNode node; public final String def;
+        UserStr(UserNode node, String def){ this.node = node; this.def = def; }
+        public String get(){
+            return IniHandler.getInstance().get(node.value, name(), def);
+        }
+        public void set(String value){
+            IniHandler.getInstance().put(node.value, name(), value);
+        }
+    }
+
+    public enum UserInt {
+        DAILY_TARGET_SECOND(GENERAL, 6 * 3600),
+        AFK_TIMEOUT_SECOND(GENERAL, 5 * 60),
+        WEEKLY_TARGET_DAYS(GENERAL, 5),
+        DOUBLE_CLICK_ACTION(GENERAL),
+        BREAK_MAX_WORKDUR(NOTIFICATIONS, 2 * 3600),
+        BREAK_MIN_BREAKDUR(NOTIFICATIONS, 30 * 60);
+        final UserNode node; public final int def;
+        UserInt(UserNode node){
+            this(node, 0);
+        }
+        UserInt(UserNode node, int def){ this.node = node; this.def = def; }
+        public int get(){
+            return IniHandler.getInstance().getInt(node.value, name(), def);
+        }
+        public int get(int min, int max, boolean useDef) {
+            final int x = IniHandler.getInstance().getInt(node.value, name(), def);
+            if (x < min) {
+                if (useDef) return def;
+                return min;
+            } else if (x > max) {
+                if (useDef) return def;
+                return max;
+            }
+            return x;
+        }
+        public void set(int value){
+            IniHandler.getInstance().putInt(node.value, name(), value);
+        }
+    }
+
+    public enum UserBool {
+        USE_RANK_MONTH_CHART(VIEW),
+        LIMIT_MONTH_CHART_UPPER(VIEW, true),
+        OLD_RATING(VIEW),
+        DISABLE_MONTH_LINE(VIEW),
+        ENABLE_YEAR_LINE(VIEW),
+        EXCEED_100_PERCENT(VIEW),
+        BREAK_REMINDER(NOTIFICATIONS),
+        BREAK_ANY_USAGE(NOTIFICATIONS);
+        final UserNode node; public final boolean def;
+        UserBool(UserNode node){
+            this(node, false);
+        }
+        UserBool(UserNode node, boolean def){ this.node = node; this.def = def; }
+        public boolean get(){
+            return IniHandler.getInstance().getBoolean(node.value, name(), def);
+        }
+        public void set(boolean value){
+            IniHandler.getInstance().putBoolean(node.value, name(), value);
+        }
+    }
+
+    //work day (legacy)
+    private static final String KEY_WORK_DAY = "WORK_DAY_";
     private static final String[] DAY_NAMES = new String[]{
             "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN" };
     private static final boolean[] DEFAULT_WORK_DAYS = new boolean[]{
             false, true, true, true, true, true, false, false };
-
-    public enum UserInt {
-        DAILY_TARGET_SECOND,
-        AFK_TIMEOUT_SECOND,
-        WEEKLY_TARGET_DAYS,
-        DOUBLE_CLICK_ACTION
-    }
-
-    public enum UserBool {
-        USE_RANK_MONTH_CHART,
-        LIMIT_MONTH_CHART_UPPER,
-        OLD_RATING,
-        DISABLE_MONTH_LINE,
-        ENABLE_YEAR_LINE,
-        EXCEED_100_PERCENT
-    }
-
-    public enum UserNode {
-        GENERAL(NODE_TRACKING.v),
-        VIEW(NODE_VIEW.v);
-
-        private String value;
-        UserNode(String value){this.value=value;}
-    }
 
     public static boolean userDWDay(int day){
         return DEFAULT_WORK_DAYS[day];
@@ -59,58 +109,11 @@ public class UserConfig {
 
     public static boolean userGWDay(int day) {
         if(day<0 || day>7) return false;
-        return IniHandler.getInstance().getBoolean(NODE_TRACKING.v, String.format("%s%s", KEY_WORK_DAY,DAY_NAMES[day]),
+        return IniHandler.getInstance().getBoolean(GENERAL.value, String.format("%s%s", KEY_WORK_DAY,DAY_NAMES[day]),
                 userDWDay(day));
     }
 
     public static void userSWDay(int day, boolean isWorkDay){
-        IniHandler.getInstance().putBoolean(NODE_TRACKING.v, String.format("%s%s", KEY_WORK_DAY,DAY_NAMES[day]), isWorkDay);
-    }
-
-    public static int userDInt(UserNode node, UserInt key){
-        switch (node){
-            case GENERAL:
-                switch (key){
-                    case DAILY_TARGET_SECOND: return 6 * 3600;
-                    case AFK_TIMEOUT_SECOND: return 5 * 60;
-                    case WEEKLY_TARGET_DAYS: return 5;
-                }
-            default: return 0;
-        }
-    }
-
-    public static boolean userDBool(UserNode node, UserBool key){
-        if(node==UserNode.VIEW && key==UserBool.LIMIT_MONTH_CHART_UPPER) {
-            return true;
-        }
-        return false;
-    }
-
-    public static int userGInt(UserNode node, UserInt key){
-        return IniHandler.getInstance().getInt(node.value, key.name(), userDInt(node, key));
-    }
-
-    public static int userGInt(UserNode node, UserInt key, int min, int max, boolean useDef){
-        final int x = IniHandler.getInstance().getInt(node.value, key.name(), userDInt(node, key));
-        if (x < min) {
-            if (useDef) return userDInt(node, key);
-            return min;
-        } else if (x > max){
-            if (useDef) return userDInt(node, key);
-            return max;
-        }
-        return x;
-    }
-
-    public static void userSInt(UserNode node, UserInt key, int value){
-        IniHandler.getInstance().putInt(node.value, key.name(), value);
-    }
-
-    public static boolean userGBool(UserNode node, UserBool key){
-        return IniHandler.getInstance().getBoolean(node.value, key.name(), userDBool(node, key));
-    }
-
-    public static void userSBool(UserNode node, UserBool key, boolean value){
-        IniHandler.getInstance().putBoolean(node.value, key.name(), value);
+        IniHandler.getInstance().putBoolean(GENERAL.value, String.format("%s%s", KEY_WORK_DAY,DAY_NAMES[day]), isWorkDay);
     }
 }

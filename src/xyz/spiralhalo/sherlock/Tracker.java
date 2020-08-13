@@ -19,18 +19,21 @@
 
 package xyz.spiralhalo.sherlock;
 
-import com.sun.jna.platform.win32.*;
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.User32;
+import com.sun.jna.platform.win32.WinDef;
 import xyz.spiralhalo.sherlock.EnumerateWindows.WindowInfo;
 import xyz.spiralhalo.sherlock.Main.Arg;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
-import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
 import xyz.spiralhalo.sherlock.record.RealtimeRecordWriter;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
+
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.AFK_TIMEOUT_SECOND;
 
 class Tracker implements TrackerAccessor{
 
@@ -132,8 +135,7 @@ class Tracker implements TrackerAccessor{
     private static class AFKMonitor {
 
         boolean isNotAFK() {
-            return  getIdleTimeMillisWin32() <
-                    UserConfig.userGInt(UserConfig.UserNode.GENERAL, UserConfig.UserInt.AFK_TIMEOUT_SECOND) * 1000;
+            return  getIdleTimeMillisWin32() < AFK_TIMEOUT_SECOND.get() * 1000;
         }
 
         static int getIdleTimeMillisWin32() {
