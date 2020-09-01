@@ -33,18 +33,17 @@ public class ProjectListIO {
     synchronized public static ProjectList load() {
         File file = new File(Application.getSaveDir(), PROJECTS_FILE);
 
+        ProjectList loadedList;
         try (FileInputStream fis = new FileInputStream(file);
              ObjectInputStream ois = new ObjectInputStream(fis)) {
             Object x = ois.readObject();
-            ProjectList loadedList = (x instanceof ProjectList)?(ProjectList) x:legacy(x);
-            loadUtilityTags(loadedList);
-            return loadedList;
+            loadedList = (x instanceof ProjectList)?(ProjectList) x:legacy(x);
         } catch (ClassNotFoundException | IOException e) {
             Debug.log(e);
-            ProjectList newList = createNew();
-            loadUtilityTags(newList);
-            return newList;
+            loadedList = createNew();
         }
+        loadUtilityTags(loadedList);
+        return loadedList;
     }
 
     private static ProjectList createNew(){
