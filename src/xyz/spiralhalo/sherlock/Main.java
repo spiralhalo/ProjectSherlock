@@ -31,7 +31,7 @@ public class Main {
 
     public static final int VERSION = 6;
     public static final int VER_MINOR = 2;
-    public static final String VER_DESC = "hf3 - beta test break reminder with config UI";
+    public static final String VER_DESC = "";
     public static final String APP_TITLE = String.format("Project Sherlock 2 version %d.%d %s", VERSION, VER_MINOR, VER_DESC);
     public static final String APP_NAME = "Project Sherlock 2";
     public static final String REGISTRY_KEY = "ProjectSherlock2"; //don't change ever
