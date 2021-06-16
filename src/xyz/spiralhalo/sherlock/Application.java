@@ -33,6 +33,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.util.Arrays;
+import java.util.List;
 
 public class Application {
     private static final String ORGDIR = "spiralhalo";
@@ -41,6 +43,32 @@ public class Application {
 //    private static String cachedLogDir;
     private static String cachedJarPath;
     private static String cachedJavawPath;
+    private static Image smallAppIcon;
+    private static Image medAppIcon;
+    private static java.util.List<Image> appIcons;
+
+    public static Image getSmallAppIcon() {
+        if (smallAppIcon == null) {
+            final int s = 16;
+            smallAppIcon = ImgUtil.createOrDummy("icon.png","App icon small", s, s, 0xffffffff);
+        }
+        return smallAppIcon;
+    }
+
+    public static Image getMedAppIcon() {
+        if (medAppIcon == null) {
+            final int s = 48;
+            medAppIcon = ImgUtil.createOrDummy("med_icon.png","App icon medium", s, s, 0xffffffff);
+        }
+        return medAppIcon;
+    }
+
+    public static List<Image> getAppIcons() {
+        if (appIcons == null) {
+            appIcons = Arrays.asList(getSmallAppIcon(), getMedAppIcon());
+        }
+        return appIcons;
+    }
 
     public static String getJavawPath()
     {
@@ -174,10 +202,9 @@ public class Application {
         return SystemTray.isSupported();
     }
 
-    public static TrayIcon createTrayIcon(ActionListener toggleAction, ActionListener exitAction){
-        if(!supportsTrayIcon())return null;
+    public static TrayIcon createTrayIcon(ActionListener toggleAction, ActionListener exitAction) {
         final PopupMenu popup = new PopupMenu();
-        final Image image = ImgUtil.createOrDummy("icon.png", "Tray icon", 16, 16, 0xffffffff);
+        final Image image = getSmallAppIcon();
         final TrayIcon trayIcon = new TrayIcon(image);
         final SystemTray tray = SystemTray.getSystemTray();
 
@@ -201,8 +228,7 @@ public class Application {
         try {
             tray.add(trayIcon);
         } catch (AWTException e) {
-            System.out.println("TrayIcon could not be added.");
-            return null;
+            Debug.log(new Exception("TrayIcon could not be added."));
         }
         return trayIcon;
     }

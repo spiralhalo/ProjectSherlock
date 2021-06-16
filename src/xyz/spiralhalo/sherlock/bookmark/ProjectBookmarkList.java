@@ -19,6 +19,7 @@
 
 package xyz.spiralhalo.sherlock.bookmark;
 
+import xyz.spiralhalo.sherlock.Application;
 import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.Main;
 import xyz.spiralhalo.sherlock.bookmark.persist.Bookmark;
@@ -140,8 +141,7 @@ public class ProjectBookmarkList extends JFrame {
         super();
         setTitle("Bookmarks");//String.format("Bookmarks for `%s` - force keyword: %s", p.toString(), p.getTags()[0]));
 
-        setIconImages(Arrays.asList(ImgUtil.create("icon.png","App Icon Small"),
-                ImgUtil.create("med_icon.png","App Icon")));
+        setIconImages(Application.getAppIcons());
 
         //load bookmark icons
         if(iconFile==null) {

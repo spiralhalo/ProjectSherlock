@@ -55,6 +55,7 @@ public class BreakReminder implements TrackerListener {
      * @param appTrayIcon primary app tray icon.
      */
     public BreakReminder(TrackerAccessor tracker, TrayIcon appTrayIcon) {
+        // What happens if tray icon is unsupported? -> shouldn't happen on Windows
         lastLoggedWork = lastBreakOrReminder = System.currentTimeMillis();
         trayIcon = appTrayIcon;
         breakVerboseMsg = new BreakVerbose("On break", "minimum");

@@ -193,8 +193,7 @@ public class AppControl implements ActionListener {
         view.frame().addWindowFocusListener(windowAdapter);
         view.frame().addComponentListener(windowAdapter2);
         view.frame().setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        view.frame().setIconImages(Arrays.asList(ImgUtil.create("icon.png","App Icon Small"),
-                ImgUtil.create("med_icon.png","App Icon")));
+        view.frame().setIconImages(Application.getAppIcons());
         view.refreshOverview(cache, projectList.getCategories().toArray(new String[]{}));
     }
 
