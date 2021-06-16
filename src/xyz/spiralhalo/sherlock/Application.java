@@ -20,7 +20,7 @@
 package xyz.spiralhalo.sherlock;
 
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
-import xyz.spiralhalo.sherlock.util.ImgUtil;
+import xyz.spiralhalo.sherlock.util.img.ImgUtil;
 import xyz.spiralhalo.sherlock.util.WinRegistry;
 
 import javax.swing.*;
@@ -177,8 +177,7 @@ public class Application {
     public static TrayIcon createTrayIcon(ActionListener toggleAction, ActionListener exitAction){
         if(!supportsTrayIcon())return null;
         final PopupMenu popup = new PopupMenu();
-        final Image image = ImgUtil.createImage("icon.png", "tray icon");
-        if(image==null)return null;
+        final Image image = ImgUtil.createOrDummy("icon.png", "Tray icon", 16, 16, 0xffffffff);
         final TrayIcon trayIcon = new TrayIcon(image);
         final SystemTray tray = SystemTray.getSystemTray();
 

@@ -25,7 +25,7 @@ import xyz.spiralhalo.sherlock.focus.ActiveSummaryModel;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
-import xyz.spiralhalo.sherlock.util.ImgUtil;
+import xyz.spiralhalo.sherlock.util.img.IconUtil;
 import xyz.spiralhalo.sherlock.util.ListUtil;
 
 import javax.swing.*;
@@ -81,7 +81,7 @@ public class ViewDayAudit extends JDialog {
         final JButton[] iconButtons = new JButton[]{btnAddFinances, btnAddMilestone, btnAddNote, btnDeleteMilestone,
                 btnDeleteNote, btnEditMilestone, btnEditNote, btnEditFinances, btnDeleteFinances};
         for (JButton btn : iconButtons) {
-            btn.setIcon(ImgUtil.autoColorIcon(btn.getIcon()));
+            btn.setIcon(IconUtil.autoColor(btn.getIcon()));
         }
 
         ZoneId z = ZoneId.systemDefault();

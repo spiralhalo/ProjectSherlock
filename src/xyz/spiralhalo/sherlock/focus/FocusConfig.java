@@ -19,16 +19,14 @@
 
 package xyz.spiralhalo.sherlock.focus;
 
-import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.persist.project.Project;
-import xyz.spiralhalo.sherlock.util.ImgUtil;
+import xyz.spiralhalo.sherlock.util.img.ImgUtil;
 import xyz.spiralhalo.sherlock.util.swing.DurationSelection;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 
 public class FocusConfig extends JDialog {
     private JPanel contentPane;
@@ -76,13 +74,11 @@ public class FocusConfig extends JDialog {
         if(FocusState.getInstance().isEnabled()){
             Project p = FocusState.getInstance().getProject(mgr.getProjectList());
             if(p!=null){
-                lblStatus.setText(String.format("Focus mode is currently active for %s", p.toString()));
-                try {
-                    lblStatus.setIcon(new ImageIcon(ImgUtil.outlineImage(ImgUtil.colorImage(ImgUtil.loadImage("circle.png"), p.getColor()), lblStatus.getForeground().getRGB(), 1)));
-                } catch (IOException e) {
-                    Debug.log(e);
-                }
-//                ImgUtil.createTintedIcon("circle.png", p.getColor()));
+                final ImgUtil circleIcon = ImgUtil.create("solid_circle.png", "Focus active indicator");
+                circleIcon.tint(p.getColor()).outline(lblStatus.getForeground().getRGB(), 1);
+
+                lblStatus.setText(String.format("Focus mode is currently active for %s", p));
+                lblStatus.setIcon(new ImageIcon(circleIcon));
             } else {
                 lblStatus.setText("Focus mode status is unknown. Please deactivate and reconfigure.");
             }

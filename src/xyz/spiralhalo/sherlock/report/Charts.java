@@ -46,38 +46,27 @@ import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
 import xyz.spiralhalo.sherlock.report.factory.charts.*;
 import xyz.spiralhalo.sherlock.report.factory.summary.MonthSummary;
 import xyz.spiralhalo.sherlock.report.factory.summary.YearSummary;
-import xyz.spiralhalo.sherlock.util.ImgUtil;
+import xyz.spiralhalo.sherlock.util.img.ImgUtil;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.time.*;
 import java.time.temporal.ChronoField;
 import java.util.HashMap;
 
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.*;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserBool.*;
-import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.GENERAL;
-import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.VIEW;
 import static xyz.spiralhalo.sherlock.util.ColorUtil.*;
 
 public class Charts {
     private static Image noteImg = null;
     private static BufferedImage zzzImg = null;
     static {
-        try {
-            noteImg = ImgUtil.loadImage("sm_note.png");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            zzzImg = ImgUtil.loadImage("sm_zzz.png");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        noteImg = ImgUtil.create("sm_note.png", "Note icon");
+        zzzImg = ImgUtil.create("sm_zzz.png", "Sleep overlay");
     }
 
     public static CategoryImageAnnotation monthAnnotation(YearMonth ym, int dayOfMonth, double max){

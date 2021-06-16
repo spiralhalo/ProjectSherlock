@@ -26,7 +26,6 @@ import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserBool;
 import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt;
-import xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode;
 import xyz.spiralhalo.sherlock.report.*;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartData;
 import xyz.spiralhalo.sherlock.report.factory.charts.ChartMeta;
@@ -36,7 +35,7 @@ import xyz.spiralhalo.sherlock.report.factory.summary.YearSummary;
 import xyz.spiralhalo.sherlock.report.factory.table.AllReportRow;
 import xyz.spiralhalo.sherlock.report.factory.table.AllReportRows;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
-import xyz.spiralhalo.sherlock.util.ImgUtil;
+import xyz.spiralhalo.sherlock.util.img.IconUtil;
 import xyz.spiralhalo.sherlock.util.swing.WrapLayout;
 import xyz.spiralhalo.sherlock.util.swing.thumb.ThumbManager;
 
@@ -173,7 +172,7 @@ public class AppView implements AppViewAccessor {
                     cmdNew, cmdView, cmdFinish, cmdResume, cmdEdit, cmdDelete, cmdUp, cmdDown, cmdBookmarks, cmdInbox, cmdFocus, cmdExport, cmdSettings, cmdRefresh
             };
             for (JCommandButton btn : iconButtons) {
-                btn.setIcon(ImgUtil.autoColorIcon(btn.getText().toLowerCase() + ".png", 24, 24));
+                btn.setIcon(IconUtil.createResizeableAutoColor(btn.getText().toLowerCase() + ".png", 24, 24));
             }
 
             toolbarMain.add(cmdNew);

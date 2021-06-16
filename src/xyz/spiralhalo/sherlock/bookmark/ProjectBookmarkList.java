@@ -25,10 +25,9 @@ import xyz.spiralhalo.sherlock.bookmark.persist.Bookmark;
 import xyz.spiralhalo.sherlock.bookmark.persist.BookmarkType;
 import xyz.spiralhalo.sherlock.bookmark.persist.ProjectBookmarks;
 import xyz.spiralhalo.sherlock.persist.project.Project;
-import xyz.spiralhalo.sherlock.res.Res;
-import xyz.spiralhalo.sherlock.util.ImgUtil;
+import xyz.spiralhalo.sherlock.util.img.IconUtil;
+import xyz.spiralhalo.sherlock.util.img.ImgUtil;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
@@ -141,18 +140,14 @@ public class ProjectBookmarkList extends JFrame {
         super();
         setTitle("Bookmarks");//String.format("Bookmarks for `%s` - force keyword: %s", p.toString(), p.getTags()[0]));
 
-        setIconImages(Arrays.asList(ImgUtil.createImage("icon.png","App Icon Small"),
-                ImgUtil.createImage("med_icon.png","App Icon")));
+        setIconImages(Arrays.asList(ImgUtil.create("icon.png","App Icon Small"),
+                ImgUtil.create("med_icon.png","App Icon")));
 
         //load bookmark icons
         if(iconFile==null) {
-            try {
-                iconFile = ImgUtil.createTintedIcon(ImageIO.read(Res.class.getResource("sm_file.png")), Main.currentTheme.foreground);
-                iconFolder = ImgUtil.createTintedIcon(ImageIO.read(Res.class.getResource("sm_folder.png")), Main.currentTheme.foreground);
-                iconURL = ImgUtil.createTintedIcon(ImageIO.read(Res.class.getResource("sm_url.png")), Main.currentTheme.foreground);
-            } catch (Exception e) {
-                Debug.log(e);
-            }
+            iconFile = IconUtil.createAutoColor("sm_file.png");
+            iconFolder = IconUtil.createAutoColor("sm_folder.png");
+            iconURL = IconUtil.createAutoColor("sm_url.png");
         }
 
         lblProjectName.setText("Bookmarks for: "+p.toString());

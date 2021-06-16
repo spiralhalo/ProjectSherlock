@@ -46,7 +46,6 @@ import xyz.spiralhalo.sherlock.persist.project.Project;
 import xyz.spiralhalo.sherlock.persist.project.ProjectList;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppBool;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt;
-import xyz.spiralhalo.sherlock.persist.settings.UserConfig;
 import xyz.spiralhalo.sherlock.record.legacy.AutoImporter2;
 import xyz.spiralhalo.sherlock.record.legacy.AutoImporter3;
 import xyz.spiralhalo.sherlock.report.*;
@@ -56,7 +55,8 @@ import xyz.spiralhalo.sherlock.report.factory.table.AllReportRows;
 import xyz.spiralhalo.sherlock.report.ops.OverviewOps;
 import xyz.spiralhalo.sherlock.report.factory.table.ReportRows;
 import xyz.spiralhalo.sherlock.util.FormatUtil;
-import xyz.spiralhalo.sherlock.util.ImgUtil;
+import xyz.spiralhalo.sherlock.util.img.IconUtil;
+import xyz.spiralhalo.sherlock.util.img.ImgUtil;
 import xyz.spiralhalo.sherlock.util.swing.thumb.ThumbManager;
 
 import javax.swing.*;
@@ -75,7 +75,6 @@ import java.util.function.BiConsumer;
 import static java.awt.Frame.ICONIFIED;
 import static java.awt.Frame.NORMAL;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.DOUBLE_CLICK_ACTION;
-import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserNode.*;
 
 public class AppControl implements ActionListener {
 
@@ -194,8 +193,8 @@ public class AppControl implements ActionListener {
         view.frame().addWindowFocusListener(windowAdapter);
         view.frame().addComponentListener(windowAdapter2);
         view.frame().setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        view.frame().setIconImages(Arrays.asList(ImgUtil.createImage("icon.png","App Icon Small"),
-                ImgUtil.createImage("med_icon.png","App Icon")));
+        view.frame().setIconImages(Arrays.asList(ImgUtil.create("icon.png","App Icon Small"),
+                ImgUtil.create("med_icon.png","App Icon")));
         view.refreshOverview(cache, projectList.getCategories().toArray(new String[]{}));
     }
 
@@ -469,8 +468,8 @@ public class AppControl implements ActionListener {
     }
 
     private void createPopupNew(JCommandButton cmdNew){
-        JCommandMenuButton newP = new JCommandMenuButton("New project...", ImgUtil.autoColorIcon("new.png", 16, 16));
-        JCommandMenuButton newT = new JCommandMenuButton("New activity...", ImgUtil.autoColorIcon("new_tag.png", 16, 16));
+        JCommandMenuButton newP = new JCommandMenuButton("New project...", IconUtil.createResizeableAutoColor("new.png", 16, 16));
+        JCommandMenuButton newT = new JCommandMenuButton("New activity...", IconUtil.createResizeableAutoColor("new_tag.png", 16, 16));
 
         newP.setName(Action.A_NEW.name());
         newT.setName(Action.A_NEW_TAG.name());
@@ -485,7 +484,7 @@ public class AppControl implements ActionListener {
     }
 
     private void createPopupRefresh(JCommandButton cmdRefresh){
-        JCommandMenuButton rNorm = new JCommandMenuButton("Refresh", ImgUtil.autoColorIcon("refresh.png", 16, 16));
+        JCommandMenuButton rNorm = new JCommandMenuButton("Refresh", IconUtil.createResizeableAutoColor("refresh.png", 16, 16));
         JCommandMenuButton rForc = new JCommandMenuButton("Deep refresh", null);
 //        JCommandMenuButton rAdvn = new JCommandMenuButton("Advanced...", null);
 
