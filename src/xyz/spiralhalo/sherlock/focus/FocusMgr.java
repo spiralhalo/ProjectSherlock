@@ -55,11 +55,13 @@ public class FocusMgr implements TrackerListener {
                 }
                 focusView = new FocusView(FocusState.getInstance().getProject(projectList));
                 if(changed){
-                    try {
-                        UIManager.setLookAndFeel(current);
-                    } catch (UnsupportedLookAndFeelException e) {
-                        Debug.log(e);
-                    }
+                    SwingUtilities.invokeLater(()->{
+                        try {
+                            UIManager.setLookAndFeel(current);
+                        } catch (UnsupportedLookAndFeelException e) {
+                            Debug.log(e);
+                        }
+                    });
                 }
             }
         }
