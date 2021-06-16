@@ -43,14 +43,10 @@ public class Debug {
     private static Logger getLogger(){
         if (logger == null) {
             logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-            if(Arg.Debug.isEnabled()) {
-                if (Arg.Verbose.isEnabled()) {
-                    logger.setLevel(Level.ALL);
-                } else {
-                    logger.setLevel(Level.CONFIG);
-                }
+            if (Arg.Verbose.isEnabled()) {
+                logger.setLevel(Level.ALL);
             } else {
-                logger.setLevel(Level.WARNING);
+                logger.setLevel(Level.CONFIG);
             }
             try {
                 FileHandler logFile = new FileHandler("%t/sherlock%g_%u.log");
