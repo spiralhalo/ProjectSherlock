@@ -19,6 +19,7 @@
 
 package xyz.spiralhalo.sherlock.notif;
 
+import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.EnumerateWindows;
 import xyz.spiralhalo.sherlock.TrackerAccessor;
 import xyz.spiralhalo.sherlock.TrackerListener;
@@ -26,40 +27,144 @@ import xyz.spiralhalo.sherlock.persist.project.Project;
 
 import java.awt.*;
 import java.awt.TrayIcon.MessageType;
+import java.util.function.Supplier;
 
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserBool.BREAK_ANY_USAGE;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.BREAK_MAX_WORKDUR;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.BREAK_MIN_BREAKDUR;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserStr.BREAK_MESSAGE;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserStr.HALF_BREAK_MESSAGE;
 
+/**
+ * Manager module that tracks for break and work durations and
+ * provides notifications based on user configured parameters.
+ */
 public class BreakReminder implements TrackerListener {
 
-    private long lastBreak;
-    private long lastWork;
-    private TrayIcon trayIcon;
+    private long lastBreakOrReminder;
+    private long lastLoggedWork;
 
-    public BreakReminder(TrackerAccessor tracker, TrayIcon trayIcon) {
-        lastWork = lastBreak = System.currentTimeMillis();
-        this.trayIcon = trayIcon;
+    private final TrayIcon trayIcon;
+    private final BreakVerbose breakVerboseMsg;
+    private final BreakVerbose halfBreakVerboseMsg;
+    private final BreakVerbose workVerboseMsg;
+
+    /**
+     * Break reminder manager.
+     * @param tracker project tracker object.
+     * @param appTrayIcon primary app tray icon.
+     */
+    public BreakReminder(TrackerAccessor tracker, TrayIcon appTrayIcon) {
+        lastLoggedWork = lastBreakOrReminder = System.currentTimeMillis();
+        trayIcon = appTrayIcon;
+        breakVerboseMsg = new BreakVerbose("On break", "minimum");
+        halfBreakVerboseMsg = new BreakVerbose("Reminder shown. On break", "maximum");
+        workVerboseMsg = new BreakVerbose("Reminder shown. Was working", "maximum");
         tracker.addListener(this);
     }
 
     @Override
     public void onTrackerLog(Project projectOrNull, EnumerateWindows.WindowInfo windowInfo) {
-        long current = System.currentTimeMillis();
-        long breakDur = current - lastWork;
-        if(breakDur >= BREAK_MIN_BREAKDUR.get() * 1000){
-            lastBreak = current;
+        final long currentTime = System.currentTimeMillis();
+        final BreakCheckResult breakCheckResult = runBreakCheck(currentTime);
+
+        if (!breakCheckResult.wasOnBreak()) {
+            final boolean isWorking = runWorkCheck(currentTime, projectOrNull);
+
+            if (isWorking) {
+                tryRemind(currentTime, breakCheckResult.breakDuration(), isWorking);
+            }
         }
-        if (BREAK_ANY_USAGE.get() || (projectOrNull != null && projectOrNull.isProductive())) {
-            lastWork = System.currentTimeMillis();
+    }
+
+    /**
+     * Execute during logging. Checks if the user comes back from a break.
+     * @param currentTime the current system time as of the logging in millis.
+     * @return whether the user comes back from a break.
+     */
+    private BreakCheckResult runBreakCheck(long currentTime) {
+        final long breakDuration = currentTime - lastLoggedWork;
+        final long configuredMinDuration = configuredMinBreakDuration();
+
+        if (breakDuration >= configuredMinDuration) {
+            breakVerboseMsg.log(breakDuration, configuredMinDuration);
+            lastBreakOrReminder = currentTime;
+            return BreakCheckResult.set(true, breakDuration);
+        } else {
+            return BreakCheckResult.set(false, breakDuration);
         }
-        long workDur = lastWork - lastBreak;
-        if (workDur >= BREAK_MAX_WORKDUR.get() * 1000) {
-            lastBreak = current;
+    }
+
+    /**
+     * Execute during logging. Checks if the user is working.
+     * @param currentTime the current system time as of the logging in millis.
+     * @param projectOrNull logged project or null.
+     * @return whether the user is working.
+     */
+    private boolean runWorkCheck(long currentTime, Project projectOrNull) {
+        final boolean monitorAny = BREAK_ANY_USAGE.get();
+        final boolean isProductive = projectOrNull != null && projectOrNull.isProductive();
+
+        if (monitorAny || isProductive) {
+            lastLoggedWork = currentTime;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Execute during logging. Attempt to remind the user while they are working.
+     * @param currentTime the current system time as of the logging in millis.
+     * @param calculatedBreakDuration break duration part of break check result.
+     * @param isWorking result of work check.
+     */
+    private void tryRemind(long currentTime, long calculatedBreakDuration, boolean isWorking) {
+        assert isWorking;
+        final long workDur = lastLoggedWork - lastBreakOrReminder;
+        final long configuredMaxWork = configuredMaxWorkDuration();
+
+        if (calculatedBreakDuration >= configuredMinBreakDuration() / 2L) {
+            halfBreakVerboseMsg.log(calculatedBreakDuration, configuredMinBreakDuration());
+            lastBreakOrReminder = currentTime;
+            trayIcon.displayMessage(HALF_BREAK_MESSAGE.get(), "Project Sherlock Reminder", MessageType.INFO);
+        } else if (workDur >= configuredMaxWork) {
+            workVerboseMsg.log(workDur, configuredMaxWork);
+            lastBreakOrReminder = currentTime;
             trayIcon.displayMessage(BREAK_MESSAGE.get(), "Project Sherlock Reminder", MessageType.INFO);
         }
-//        Debug.log("break:"+(breakDur/1000)+",work:"+(workDur/1000));
+    }
+
+    private long configuredMinBreakDuration() {
+        return BREAK_MIN_BREAKDUR.get() * 1000L;
+    }
+
+    private long configuredMaxWorkDuration() {
+        return BREAK_MAX_WORKDUR.get() * 1000L;
+    }
+
+    private static class BreakVerbose implements Supplier<String> {
+        private long duration;
+        private long configured;
+        private final String baseMsg;
+        private final String configMsg;
+
+        private BreakVerbose(String baseMsg, String configMsg) {
+            this.baseMsg = baseMsg;
+            this.configMsg = configMsg;
+        }
+
+        public void log(long duration, long configured) {
+            this.duration = duration;
+            this.configured = configured;
+            Debug.logVerbose(this);
+        }
+
+        @Override
+        public String get() {
+            return String.format("%s for %d s. Configured %s is %d s.",
+                    baseMsg, (duration / 1000L), configMsg, (configured / 1000L));
+        }
     }
 }
 

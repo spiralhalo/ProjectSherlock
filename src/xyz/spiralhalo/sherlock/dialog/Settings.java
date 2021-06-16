@@ -50,7 +50,7 @@ import static xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt.*;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.*;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserInt.*;
 import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserBool.*;
-import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserStr.BREAK_MESSAGE;
+import static xyz.spiralhalo.sherlock.persist.settings.UserConfig.UserStr.*;
 
 public class Settings extends JDialog {
     //region AUTOVARS
@@ -124,6 +124,7 @@ public class Settings extends JDialog {
     private JPanel pnlBookmarksShortcut;
     private JPanel pnlBookmarksAuto;
     private JPanel pnlRemindersBreak;
+    private JTextField textHalfBreakMsg;
     //endregion
 
     private boolean result = false;
@@ -232,6 +233,7 @@ public class Settings extends JDialog {
         String notifs = "notifs";
         reg(checkBreak, notifs, BREAK_REMINDER::get, BREAK_REMINDER::set, BREAK_REMINDER.def);
         reg(textBreakMsg, notifs, BREAK_MESSAGE::get, BREAK_MESSAGE::set, BREAK_MESSAGE.def);
+        reg(textHalfBreakMsg, notifs, HALF_BREAK_MESSAGE::get, HALF_BREAK_MESSAGE::set, HALF_BREAK_MESSAGE.def);
         reg(sliderBreakInterval, notifs, BREAK_MAX_WORKDUR::get, BREAK_MAX_WORKDUR::set, BREAK_MAX_WORKDUR.def);
         reg(sliderBreakMinimum, notifs, BREAK_MIN_BREAKDUR::get, BREAK_MIN_BREAKDUR::set, BREAK_MIN_BREAKDUR.def);
         reg(radBreakFromWork, notifs, ()->!BREAK_ANY_USAGE.get(), b->BREAK_ANY_USAGE.set(!b), !BREAK_ANY_USAGE.def);

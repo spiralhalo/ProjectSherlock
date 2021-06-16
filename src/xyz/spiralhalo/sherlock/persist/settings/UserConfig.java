@@ -32,6 +32,7 @@ public class UserConfig {
     }
 
     public enum UserStr {
+        HALF_BREAK_MESSAGE(NOTIFICATIONS, "Welcome back!"),
         BREAK_MESSAGE(NOTIFICATIONS, "Remember to stay hydrated!");
         final UserNode node; public final String def;
         UserStr(UserNode node, String def){ this.node = node; this.def = def; }
