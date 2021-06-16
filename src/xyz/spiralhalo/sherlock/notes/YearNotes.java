@@ -84,7 +84,11 @@ public class YearNotes implements Serializable {
             yn = (YearNotes)ois.readObject();
         } catch (ClassCastException | ClassNotFoundException | IOException e) {
             yn = new YearNotes(year);
-            Debug.log(e);
+            if (e instanceof FileNotFoundException) {
+                Debug.log(String.format("No notes yet for the year %d", year.getValue()));
+            } else {
+                Debug.log(e);
+            }
         }
         cache.put(year, yn);
         return yn;
