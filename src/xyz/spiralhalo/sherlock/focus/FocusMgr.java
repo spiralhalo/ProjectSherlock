@@ -43,6 +43,7 @@ public class FocusMgr implements TrackerListener {
     }
 
     private FocusView getFocusView(){
+        assert SwingUtilities.isEventDispatchThread();
         synchronized (this) {
             if (focusView == null) {
                 LookAndFeel current = UIManager.getLookAndFeel();
@@ -55,26 +56,30 @@ public class FocusMgr implements TrackerListener {
                 }
                 focusView = new FocusView(FocusState.getInstance().getProject(projectList));
                 if(changed){
-                    SwingUtilities.invokeLater(()->{
-                        try {
-                            UIManager.setLookAndFeel(current);
-                        } catch (UnsupportedLookAndFeelException e) {
-                            Debug.log(e);
-                        }
-                    });
+                    try {
+                        UIManager.setLookAndFeel(current);
+                    } catch (UnsupportedLookAndFeelException e) {
+                        Debug.log(e);
+                    }
                 }
             }
         }
         return focusView;
     }
 
-    private void attemptDisposeView(){
-        synchronized (this) {
-            if (focusView != null) {
-                getFocusView().dispose();
-                focusView = null;
+    private void setFocusViewVisible(boolean visible) {
+        SwingUtilities.invokeLater(()-> getFocusView().setVisible(visible));
+    }
+
+    private void tryDisposeView(){
+        SwingUtilities.invokeLater(()->{
+            synchronized (this) {
+                if (focusView != null) {
+                    getFocusView().dispose();
+                    focusView = null;
+                }
             }
-        }
+        });
     }
 
     ProjectList getProjectList() {
@@ -84,7 +89,7 @@ public class FocusMgr implements TrackerListener {
     public void turnOn(Project project, long durationMillis){
         FocusState state = FocusState.getInstance();
         if(state.isEnabled()){
-            attemptDisposeView();
+            tryDisposeView();
         }
         if(durationMillis > 0){
             state.setDuration(durationMillis);
@@ -99,7 +104,7 @@ public class FocusMgr implements TrackerListener {
         FocusState state = FocusState.getInstance();
         state.setProject(-1);
         state.setEnabled(false);
-        attemptDisposeView();
+        tryDisposeView();
     }
 
     @Override
@@ -107,9 +112,9 @@ public class FocusMgr implements TrackerListener {
         FocusState state = FocusState.getInstance();
         if(state.isEnabled()){
             if(project != state.getProject(projectList)) {
-                getFocusView().setVisible(true);
+                setFocusViewVisible(true);
             } else {
-                getFocusView().setVisible(false);
+                setFocusViewVisible(false);
                 if(state.getDuration() >= 0){
                     long newDuration = state.getDuration() - trackerGranularityMillis;
                     state.setDuration(newDuration);
@@ -124,7 +129,7 @@ public class FocusMgr implements TrackerListener {
                 }
             }
         } else {
-            attemptDisposeView();
+            tryDisposeView();
         }
     }
 }
