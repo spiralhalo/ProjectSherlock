@@ -155,19 +155,30 @@ public class Application {
     private static final String LOCKFILE = "running.lock";
     private static FileLock lockReference;
 
-    public static boolean isAlreadyRunning(){
+    public static boolean isAlreadyRunning() {
         try {
-            File lock = new File(getSaveDir(), LOCKFILE);
-            if (lock.exists())
+            final File lock = new File(getSaveDir(), LOCKFILE);
+
+            if (lock.exists()) {
                 lock.delete();
-            FileChannel lockChannel = new RandomAccessFile(lock, "rw").getChannel();
-            FileLock fileLock = lockChannel.tryLock();
-            if(fileLock == null) throw new Exception("Unable to obtain lock on file.");
+            }
+
+            final FileChannel lockChannel = new RandomAccessFile(lock, "rw").getChannel();
+            final FileLock fileLock = lockChannel.tryLock();
+
+            if (fileLock == null) {
+                throw new ApplicationException("Unable to obtain lock on file.");
+            }
+
             lockReference = fileLock; //survive gc
+
             return false;
-        } catch (Exception e){
+        } catch (Exception e) {
             Debug.log(e);
         }
+
+        Debug.logWarning("Another instance of Project Sherlock is already running!");
+
         return true;
     }
 
@@ -228,8 +239,10 @@ public class Application {
         try {
             tray.add(trayIcon);
         } catch (AWTException e) {
-            Debug.log(new Exception("TrayIcon could not be added."));
+            Debug.log(e);
+            Debug.logWarning("TrayIcon could not be added.");
         }
+
         return trayIcon;
     }
 
@@ -281,6 +294,12 @@ public class Application {
             System.exit(0);
         } catch (IOException e) {
             Debug.log(e);
+        }
+    }
+
+    private static class ApplicationException extends Exception {
+        public ApplicationException(String message) {
+            super(message);
         }
     }
 }

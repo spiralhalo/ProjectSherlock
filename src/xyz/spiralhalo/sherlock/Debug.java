@@ -126,6 +126,14 @@ public class Debug {
     }
 
     /**
+     * Slower logging for known warnings. Class and method names are always logged.
+     * @param x log message.
+     */
+    public static void logWarning(String x){
+        logDebugInner(Level.WARNING, x, Thread.currentThread().getStackTrace()[2]);
+    }
+
+    /**
      * Special case logging for events that happen rapidly and may spam the log. Only prints when `-verbose` command
      * line argument is enabled.
      * @param x log message supplier.
