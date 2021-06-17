@@ -305,12 +305,17 @@ public class Application {
     private static final ArrayList<Runnable> shutdownHooks = new ArrayList<>(2);
     private static boolean shutdownHookSetup = false;
 
+    public static void setupShutdownHook() {
+        assert !shutdownHookSetup;
+        Runtime.getRuntime().addShutdownHook(new Thread(Application::runShutdownHooks, "AppShutdownHook"));
+        shutdownHookSetup = true;
+    }
+
     public static void addShutdownHook(Runnable r, String description) {
         shutdownHooks.add(r);
 
         if (!shutdownHookSetup) {
-            Runtime.getRuntime().addShutdownHook(new Thread(Application::runShutdownHooks, "AppShutdownHook"));
-            shutdownHookSetup = true;
+            setupShutdownHook();
         }
     }
 

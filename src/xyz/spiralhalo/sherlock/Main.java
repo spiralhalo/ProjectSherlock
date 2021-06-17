@@ -42,6 +42,8 @@ public class Main {
 
     public static void main(String[] args) {
 
+        Application.setupShutdownHook();
+
         if(!Application.isWindows()) {
             JOptionPane.showMessageDialog(null, "This operating system is not supported. Exiting...",
                     APP_NAME, JOptionPane.ERROR_MESSAGE);
