@@ -23,6 +23,8 @@ import xyz.spiralhalo.sherlock.Main.Arg;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.function.Supplier;
 import java.util.logging.*;
 
@@ -42,28 +44,94 @@ public class Debug {
 
     private static Logger getLogger(){
         if (logger == null) {
-            logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-            if (Arg.Verbose.isEnabled()) {
-                logger.setLevel(Level.ALL);
-            } else {
-                logger.setLevel(Level.CONFIG);
-            }
+            final Logger globalLogger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+            final ConsoleHandler consoleHandler = new ConsoleHandler();
+
+            consoleHandler.setFormatter(new SimplerFormatter());
+
+            globalLogger.addHandler(consoleHandler);
+            globalLogger.setUseParentHandlers(false);
+
             try {
-                FileHandler logFile = new FileHandler("%t/sherlock%g_%u.log");
-                logFile.setFormatter(new SimplerFormatter());
-                logger.addHandler(logFile);
+                final DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyyMMdd").withZone(ZoneId.systemDefault());
+                final String pattern = "%t/sherlock%g_%u_" + f.format(Instant.now()) + ".log";
+                final FileHandler logFileHandler = new FileHandler(pattern);
+
+                logFileHandler.setFormatter(new SimplerFormatter());
+                globalLogger.addHandler(logFileHandler);
             } catch (IOException e) {
-                e.printStackTrace();
+                globalLogger.warning(e.toString());
             }
-            ConsoleHandler console = new ConsoleHandler();
-            if(Arg.Console.isEnabled()) {
-                console.setLevel(Level.ALL);
+
+            if (Arg.Verbose.isEnabled()) {
+                globalLogger.setLevel(Level.ALL);
+            } else {
+                globalLogger.setLevel(Level.CONFIG);
             }
-            console.setFormatter(new SimplerFormatter());
-            logger.addHandler(console);
-            logger.setUseParentHandlers(false);
+
+            logger = globalLogger;
         }
         return logger;
+    }
+
+    /**
+     * Generic Throwable logging. Redirects to {@link #log(Error)} or {@link #log(Exception)} automatically or
+     * defaults to printing a WARNING log message.
+     * @param e thrown Throwable.
+     */
+    public static void log(Throwable e) {
+        if (e instanceof Error) log((Error) e);
+        else if (e instanceof Exception) log((Exception) e);
+        else getLogger().warning(e::toString);
+    }
+
+    /**
+     * Error logging. Prints a SEVERE log message that always appear in any configuration.
+     * @param e thrown error.
+     */
+    public static void log(Error e){
+        final String message = Arg.Debug.isEnabled() ? errorVerbose(e) : e.toString();
+
+        logDebugInner(Level.SEVERE, message, Thread.currentThread().getStackTrace()[2]);
+    }
+
+    /**
+     * Exception logging. Prints a WARNING log message that always appear in any configuration.
+     * @param e thrown exception.
+     */
+    public static void log(Exception e){
+        final String message = Arg.Debug.isEnabled() ? errorVerbose(e) : e.toString();
+
+        logDebugInner(Level.WARNING, message, Thread.currentThread().getStackTrace()[2]);
+    }
+
+    /**
+     * Fast logging for known events. Logs class and method name when `-debug` command line argument is enabled.
+     * @param x log message.
+     */
+    public static void log(String x){
+        if (Arg.Debug.isEnabled()) {
+            logDebugInner(Level.CONFIG, x, Thread.currentThread().getStackTrace()[2]);
+        } else {
+            logEventInner(Level.CONFIG, x);
+        }
+    }
+
+    /**
+     * Slower logging for important events. Class and method names are always logged.
+     * @param x log message.
+     */
+    public static void logImportant(String x){
+        logDebugInner(Level.INFO, x, Thread.currentThread().getStackTrace()[2]);
+    }
+
+    /**
+     * Special case logging for events that happen rapidly and may spam the log. Only prints when `-verbose` command
+     * line argument is enabled.
+     * @param x log message supplier.
+     */
+    public static void logVerbose(Supplier<String> x){
+        getLogger().fine(x);
     }
 
     private static String errorVerbose(Throwable e){
@@ -76,37 +144,13 @@ public class Debug {
         return String.format("%s %s", e.toString(), builder.toString());
     }
 
-    public static void log(Throwable e) {
-        if (e instanceof Error) log((Error) e);
-        else if (e instanceof Exception) log((Exception) e);
-        else getLogger().warning(e::toString);
+    private static void logEventInner(Level level, String x){
+        getLogger().log(level, x);
     }
 
-    public static void log(Error e){
-        if (Arg.Debug.isEnabled()) log(Level.SEVERE, errorVerbose(e), Thread.currentThread().getStackTrace()[2]);
-        else log(Level.SEVERE, e.toString(), Thread.currentThread().getStackTrace()[2]);
-    }
-
-    public static void log(Exception e){
-        if (Arg.Debug.isEnabled()) log(Level.WARNING, errorVerbose(e), Thread.currentThread().getStackTrace()[2]);
-        else log(Level.WARNING, e.toString(), Thread.currentThread().getStackTrace()[2]);
-    }
-
-    public static void log(String x){
-        log(Level.CONFIG, x, Thread.currentThread().getStackTrace()[2]);
-    }
-
-    public static void logImportant(String x){
-        log(Level.INFO, x, Thread.currentThread().getStackTrace()[2]);
-    }
-
-    private static void log(Level level, String x, StackTraceElement f){
+    private static void logDebugInner(Level level, String x, StackTraceElement f){
         String n = f.getClassName();
         getLogger().logp(level, n.substring(n.lastIndexOf('.') + 1), f.getMethodName(), x);
-    }
-
-    public static void logVerbose(Supplier<String> x){
-        getLogger().fine(x);
     }
 
     private static class SimplerFormatter extends Formatter{

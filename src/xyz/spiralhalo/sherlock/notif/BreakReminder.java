@@ -124,11 +124,14 @@ public class BreakReminder implements TrackerListener {
         assert isWorking;
         final long workDur = lastLoggedWork - lastBreakOrReminder;
         final long configuredMaxWork = configuredMaxWorkDuration();
+        final long configuredMinBreak = configuredMinBreakDuration();
 
-        if (calculatedBreakDuration >= configuredMinBreakDuration() / 2L) {
+        if (calculatedBreakDuration >= configuredMinBreak / 2L) {
             halfBreakVerboseMsg.log(calculatedBreakDuration, configuredMinBreakDuration());
             lastBreakOrReminder = currentTime;
             trayIcon.displayMessage(HALF_BREAK_MESSAGE.get(), "Project Sherlock Reminder", MessageType.INFO);
+            Debug.log(String.format("Half break message was invoked. Break duration: %d s, Configured min: %d s",
+                    calculatedBreakDuration, configuredMinBreak));
         } else if (workDur >= configuredMaxWork) {
             workVerboseMsg.log(workDur, configuredMaxWork);
             lastBreakOrReminder = currentTime;
