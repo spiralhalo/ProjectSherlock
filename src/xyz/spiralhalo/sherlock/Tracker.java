@@ -51,7 +51,7 @@ class Tracker implements TrackerAccessor{
         if(Arg.Sandbox.isEnabled()) {
             Debug.logImportant("[Sandbox mode] Tracking has been set to mode hiatus.");
         } else {
-            Runtime.getRuntime().addShutdownHook(new Thread(this::exit, "TrackerShutdownHook"));
+            Application.addShutdownHook(this::exit, "TrackerShutdownHook");
         }
     }
 

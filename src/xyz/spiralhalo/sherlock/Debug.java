@@ -36,8 +36,20 @@ public class Debug {
     private static Logger logger;
 
     public static class CustomLogManager extends LogManager {
-        // Prevents reset during shutdown hook sequence. Let the OS handles it.
-        @Override public void reset() { }
+        private static CustomLogManager instance;
+
+        public CustomLogManager() {
+            super();
+            instance = this;
+        }
+
+        // Prevents reset during shutdown hook sequence.
+        @Override public void reset() {
+        }
+
+        public void reset0() {
+            super.reset();
+        }
     }
 
     static {
@@ -67,15 +79,6 @@ public class Debug {
 
                     if (!testFile.exists()) {
                         break;
-                    } else {
-                        // cleanup lock file
-                        final File lockFile = new File(testFile.getPath() + ".lck");
-                        try {
-                            //noinspection ResultOfMethodCallIgnored
-                            lockFile.delete();
-                        } catch (Throwable t) {
-                            globalLogger.warning(t.toString());
-                        }
                     }
 
                     if (fileCounter + 1 == HARD_LIMIT) {
@@ -100,6 +103,12 @@ public class Debug {
             logger = globalLogger;
         }
         return logger;
+    }
+
+    public static void shutdownFinally() {
+        if (CustomLogManager.instance != null) {
+            CustomLogManager.instance.reset0();
+        }
     }
 
     /**

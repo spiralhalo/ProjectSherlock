@@ -33,6 +33,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -299,6 +300,26 @@ public class Application {
         } catch (IOException e) {
             Debug.log(e);
         }
+    }
+
+    private static final ArrayList<Runnable> shutdownHooks = new ArrayList<>(2);
+    private static boolean shutdownHookSetup = false;
+
+    public static void addShutdownHook(Runnable r, String description) {
+        shutdownHooks.add(r);
+
+        if (!shutdownHookSetup) {
+            Runtime.getRuntime().addShutdownHook(new Thread(Application::runShutdownHooks, "AppShutdownHook"));
+            shutdownHookSetup = true;
+        }
+    }
+
+    private static void runShutdownHooks() {
+        for (Runnable r:shutdownHooks) {
+            r.run();
+        }
+
+        Debug.shutdownFinally();
     }
 
     private static class ApplicationException extends Exception {
