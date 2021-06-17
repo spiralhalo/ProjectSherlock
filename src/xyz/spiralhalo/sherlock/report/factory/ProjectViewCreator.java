@@ -54,12 +54,12 @@ public class ProjectViewCreator extends AsyncTask<ProjectViewResult> {
         try {
             seeker = new RecordFileSeek(recordFile, false);
         } catch (FileNotFoundException e) {
-            throw new Exception("No data.");
+            throw new FileNotFoundException("No record file.");
         }
         try {
             seeker.seekFirstOfDay(p.getStartDateTime().toLocalDate(), ZoneId.systemDefault());
         } catch (IOException e) {
-            throw new Exception("No data.");
+            throw e;
         }
         try (RecordScanner sc = new RecordScanner(seeker)) {
             RecordEntry temp;

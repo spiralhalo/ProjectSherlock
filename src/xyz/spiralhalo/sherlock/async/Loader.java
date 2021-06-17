@@ -32,7 +32,7 @@ public class Loader<T> implements BiConsumer<T,Throwable> {
                                    JComponent toShow, JComponent toHide){
         if(runningIds.contains(id)){
             // silently rejects
-            // callback.accept(null, new Exception("Another process is currently running."));
+            // callback.accept(null, new AsyncTaskException("Another process is currently running."));
             return;
         }
         runningIds.add(id);

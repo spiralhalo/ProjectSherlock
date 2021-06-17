@@ -90,12 +90,12 @@ public abstract class AsyncTask<Y> implements Runnable {
     }
 
     /**
-     * Throws an {@link Exception} to be handled by the callback function.
+     * Throws an {@link AsyncTaskException} to be handled by the callback function.
      *
      * @param message the message for this exception
      */
     private void throwException(String message){
-        finish(null, new Exception(message));
+        finish(null, new AsyncTaskException(message));
     }
 
     /**
@@ -107,5 +107,11 @@ public abstract class AsyncTask<Y> implements Runnable {
      */
     private void finish(Y result, Throwable throwable){
         SwingUtilities.invokeLater(() -> callback.accept(result, throwable));
+    }
+
+    public static class AsyncTaskException extends Exception {
+        public AsyncTaskException(String message) {
+            super(message);
+        }
     }
 }
