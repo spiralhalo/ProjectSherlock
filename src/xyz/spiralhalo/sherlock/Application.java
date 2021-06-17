@@ -40,7 +40,7 @@ public class Application {
     private static final String ORGDIR = "spiralhalo";
     private static final String SAVEDIR = "ProjectLogger2";
     private static String cachedSaveDir;
-//    private static String cachedLogDir;
+    private static String cachedLogDir;
     private static String cachedJarPath;
     private static String cachedJavawPath;
     private static Image smallAppIcon;
@@ -182,20 +182,24 @@ public class Application {
         return true;
     }
 
-//    public static String getLogDir()
-//    {
-//        File logDir = new File(getSaveDir(), "logs");
-//        if(logDir.isDirectory() && cachedLogDir != null){
-//            return cachedLogDir;
-//        }
-//        if(logDir.exists() && !logDir.isDirectory()) {
-//            logDir.delete();
-//        }
-//        if(!logDir.exists()){
-//            logDir.mkdir();
-//        }
-//        return cachedLogDir = logDir.getPath();
-//    }
+    public static String getLogDir()
+    {
+        File logDir = new File(getSaveDir(), "logs");
+
+        if(logDir.isDirectory() && cachedLogDir != null){
+            return cachedLogDir;
+        }
+
+        if(logDir.exists() && !logDir.isDirectory()) {
+            logDir.delete();
+        }
+
+        if(!logDir.exists()){
+            logDir.mkdir();
+        }
+
+        return cachedLogDir = logDir.getPath();
+    }
 
     public static boolean isWindows(){
         return (System.getProperty("os.name")).toUpperCase().contains("WIN");

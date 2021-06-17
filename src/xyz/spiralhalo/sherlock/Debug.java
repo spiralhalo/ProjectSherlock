@@ -35,14 +35,15 @@ public class Debug {
     private static Logger logger;
 
     public static class CustomLogManager extends LogManager {
-        @Override public void reset() { } // prevent reset on shutdown
+        // Prevents reset during shutdown hook sequence. Let the OS handles it.
+        @Override public void reset() { }
     }
 
     static {
         System.setProperty("java.util.logging.manager", CustomLogManager.class.getName());
     }
 
-    private static Logger getLogger(){
+    private static Logger getLogger() {
         if (logger == null) {
             final Logger globalLogger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
             final ConsoleHandler consoleHandler = new ConsoleHandler();
@@ -54,7 +55,7 @@ public class Debug {
 
             try {
                 final DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyyMMdd").withZone(ZoneId.systemDefault());
-                final String pattern = "%t/sherlock%g_%u_" + f.format(Instant.now()) + ".log";
+                final String pattern = Application.getLogDir() + "/sherlock%g_%u_" + f.format(Instant.now()) + ".log";
                 final FileHandler logFileHandler = new FileHandler(pattern);
 
                 logFileHandler.setFormatter(new SimplerFormatter());
