@@ -197,7 +197,7 @@ public class Debug {
     private static class SimplerFormatter extends Formatter{
         @Override
         public String format(LogRecord r) {
-            final int baldMessageMaxLevel = Arg.Debug.isEnabled() ? Level.CONFIG.intValue() : Level.FINE.intValue();
+            final int baldMessageMaxLevel = Arg.Debug.isEnabled() ? Level.FINE.intValue() : Level.CONFIG.intValue();
 
             if(r.getLevel().intValue() <= baldMessageMaxLevel){
                 return String.format("%7s %s: %s\n", r.getLevel().getName(),
