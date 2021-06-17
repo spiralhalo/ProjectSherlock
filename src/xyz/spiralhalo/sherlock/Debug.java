@@ -114,7 +114,7 @@ public class Debug {
         if (Arg.Debug.isEnabled()) {
             logDebugInner(Level.CONFIG, x, Thread.currentThread().getStackTrace()[2]);
         } else {
-            logEventInner(Level.CONFIG, x);
+            getLogger().logp(Level.CONFIG, "", "", x);
         }
     }
 
@@ -151,10 +151,6 @@ public class Debug {
             if(y.getClassName().startsWith("xyz.spiralhalo.sherlock.Main")) break;
         }
         return String.format("%s %s", e.toString(), builder.toString());
-    }
-
-    private static void logEventInner(Level level, String x){
-        getLogger().log(level, x);
     }
 
     private static void logDebugInner(Level level, String x, StackTraceElement f){
