@@ -21,6 +21,7 @@ package xyz.spiralhalo.sherlock;
 
 import xyz.spiralhalo.sherlock.Main.Arg;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -55,8 +56,34 @@ public class Debug {
 
             try {
                 final DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyyMMdd").withZone(ZoneId.systemDefault());
-                final String pattern = Application.getLogDir() + "/sherlock%g_%u_" + f.format(Instant.now()) + ".log";
-                final FileHandler logFileHandler = new FileHandler(pattern);
+                final String date = f.format(Instant.now());
+                final String pattern = Application.getLogDir() + "/sherlock_" + date + "_%d.log";
+                final int HARD_LIMIT = 9999;
+
+                int fileCounter = 0;
+
+                for (; fileCounter < HARD_LIMIT; fileCounter++) {
+                    final File testFile = new File(String.format(pattern, fileCounter));
+
+                    if (!testFile.exists()) {
+                        break;
+                    } else {
+                        // cleanup lock file
+                        final File lockFile = new File(testFile.getPath() + ".lck");
+                        try {
+                            //noinspection ResultOfMethodCallIgnored
+                            lockFile.delete();
+                        } catch (Throwable t) {
+                            globalLogger.warning(t.toString());
+                        }
+                    }
+
+                    if (fileCounter + 1 == HARD_LIMIT) {
+                        throw new IOException("Too many log files in one day! Limit: " + HARD_LIMIT);
+                    }
+                }
+
+                final FileHandler logFileHandler = new FileHandler(String.format(pattern, fileCounter));
 
                 logFileHandler.setFormatter(new SimplerFormatter());
                 globalLogger.addHandler(logFileHandler);
