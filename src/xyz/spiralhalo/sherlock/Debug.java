@@ -141,7 +141,7 @@ public class Debug {
         if (Arg.Debug.isEnabled()) {
             logDebugInner(Level.CONFIG, x, Thread.currentThread().getStackTrace()[2]);
         } else {
-            getLogger().logp(Level.CONFIG, "", "", x);
+            getLogger().log(Level.CONFIG, x);
         }
     }
 
@@ -188,7 +188,9 @@ public class Debug {
     private static class SimplerFormatter extends Formatter{
         @Override
         public String format(LogRecord r) {
-            if(r.getLevel().equals(Level.FINE)){
+            final int baldMessageMaxLevel = Arg.Debug.isEnabled() ? Level.CONFIG.intValue() : Level.FINE.intValue();
+
+            if(r.getLevel().intValue() <= baldMessageMaxLevel){
                 return String.format("%7s %s: %s\n", r.getLevel().getName(),
                         DTF_FULL.format(Instant.ofEpochMilli(r.getMillis())), r.getMessage());
             } else {
