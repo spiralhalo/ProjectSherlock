@@ -59,7 +59,7 @@ public class BreakReminder implements TrackerListener {
         lastLoggedWork = lastBreakOrReminder = System.currentTimeMillis();
         trayIcon = appTrayIcon;
         breakVerboseMsg = new BreakVerbose("On break", "minimum");
-        halfBreakVerboseMsg = new BreakVerbose("Reminder shown. On break", "maximum");
+        halfBreakVerboseMsg = new BreakVerbose("Reminder shown. Was on break", "maximum");
         workVerboseMsg = new BreakVerbose("Reminder shown. Was working", "maximum");
         tracker.addListener(this);
     }
@@ -88,7 +88,7 @@ public class BreakReminder implements TrackerListener {
         final long configuredMinDuration = configuredMinBreakDuration();
 
         if (breakDuration >= configuredMinDuration) {
-            breakVerboseMsg.log(breakDuration, configuredMinDuration);
+            breakVerboseMsg.logNormal(breakDuration, configuredMinDuration);
             lastBreakOrReminder = currentTime;
             return BreakCheckResult.set(true, breakDuration);
         } else {
@@ -127,13 +127,11 @@ public class BreakReminder implements TrackerListener {
         final long configuredMinBreak = configuredMinBreakDuration();
 
         if (calculatedBreakDuration >= configuredMinBreak / 2L) {
-            halfBreakVerboseMsg.log(calculatedBreakDuration, configuredMinBreakDuration());
+            halfBreakVerboseMsg.logNormal(calculatedBreakDuration, configuredMinBreakDuration());
             lastBreakOrReminder = currentTime;
             trayIcon.displayMessage(HALF_BREAK_MESSAGE.get(), "Project Sherlock Reminder", MessageType.INFO);
-            Debug.log(String.format("Half break message was invoked. Break duration: %d s, Configured min: %d s",
-                    calculatedBreakDuration, configuredMinBreak));
         } else if (workDur >= configuredMaxWork) {
-            workVerboseMsg.log(workDur, configuredMaxWork);
+            workVerboseMsg.logNormal(workDur, configuredMaxWork);
             lastBreakOrReminder = currentTime;
             trayIcon.displayMessage(BREAK_MESSAGE.get(), "Project Sherlock Reminder", MessageType.INFO);
         }
@@ -156,6 +154,12 @@ public class BreakReminder implements TrackerListener {
         private BreakVerbose(String baseMsg, String configMsg) {
             this.baseMsg = baseMsg;
             this.configMsg = configMsg;
+        }
+
+        public void logNormal(long duration, long configured) {
+            this.duration = duration;
+            this.configured = configured;
+            Debug.log(get());
         }
 
         public void log(long duration, long configured) {
