@@ -133,13 +133,12 @@ class Tracker implements TrackerAccessor{
     }
 
     private static class AFKMonitor {
-
         boolean isNotAFK() {
-            return  getIdleTimeMillisWin32() < AFK_TIMEOUT_SECOND.get() * 1000;
+            return getIdleTimeMillisWin32() < AFK_TIMEOUT_SECOND.get() * 1000;
         }
 
         static int getIdleTimeMillisWin32() {
-            User32.LASTINPUTINFO lastInputInfo = new User32.LASTINPUTINFO();
+            final User32.LASTINPUTINFO lastInputInfo = new User32.LASTINPUTINFO();
             User32.INSTANCE.GetLastInputInfo(lastInputInfo);
             return Kernel32.INSTANCE.GetTickCount() - lastInputInfo.dwTime;
         }
