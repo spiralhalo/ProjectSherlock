@@ -94,7 +94,7 @@ public abstract class AbstractRecordWriter {
         }
         this.buffer = new RecordOutputBuffer(byteCapacity);
         this.nRecordCapacity = nRecordCapacity;
-        Debug.logImportant(String.format("[Buffer] New buffer created with class: %s", this.getClass().getSimpleName()));
+        Debug.logImportant(String.format("[Buffer] New buffer created with class %s", this.getClass().getSimpleName()));
     }
 
     /**

@@ -22,14 +22,18 @@ package xyz.spiralhalo.sherlock;
 import xyz.spiralhalo.sherlock.Main.Arg;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Supplier;
 import java.util.logging.*;
+import java.util.zip.GZIPOutputStream;
 
 import static xyz.spiralhalo.sherlock.util.FormatUtil.DTF_FULL;
+import static xyz.spiralhalo.sherlock.util.FormatUtil.DTF_HMS;
 
 public class Debug {
 
@@ -52,32 +56,64 @@ public class Debug {
         }
     }
 
+    private static class CustomFileHandler extends FileHandler {
+        private String filename;
+
+        public CustomFileHandler(String pattern) throws IOException, SecurityException {
+            super(pattern);
+            filename = pattern;
+        }
+
+        private void compress() {
+            try (FileInputStream fis = new FileInputStream(filename);
+                 FileOutputStream fos = new FileOutputStream(gz(filename));
+                 GZIPOutputStream gzos = new GZIPOutputStream(fos))
+            {
+                byte[] buffer = new byte[1024];
+                int len;
+
+                while ((len=fis.read(buffer)) != -1) {
+                    gzos.write(buffer, 0, len);
+                }
+
+                // if successful, delete original file
+                new File(filename).deleteOnExit();
+                Debug.log("Log compression successful!");
+            } catch (IOException e) {
+                Debug.log(e);
+            }
+        }
+    }
+
     static {
         System.setProperty("java.util.logging.manager", CustomLogManager.class.getName());
     }
 
+    private static String gz(String file) {
+        return file + ".gz";
+    }
+
     private static Logger getLogger() {
         if (logger == null) {
-            final Logger globalLogger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-            final ConsoleHandler consoleHandler = new ConsoleHandler();
-
-            consoleHandler.setFormatter(new SimplerFormatter());
-
-            globalLogger.addHandler(consoleHandler);
-            globalLogger.setUseParentHandlers(false);
+            logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+            logger.setLevel(Arg.Verbose.isEnabled() ? Level.ALL : Level.CONFIG);
+            logger.setUseParentHandlers(false);
+            logger.addHandler(new ConsoleHandler());
 
             try {
                 final DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyyMMdd").withZone(ZoneId.systemDefault());
                 final String date = f.format(Instant.now());
                 final String pattern = Application.getLogDir() + "/sherlock_" + date + "_%d.log";
-                final int HARD_LIMIT = 9999;
+                final int HARD_LIMIT = Arg.Debug.isEnabled() ? 86_400 : 999;
 
                 int fileCounter = 0;
 
                 for (; fileCounter < HARD_LIMIT; fileCounter++) {
-                    final File testFile = new File(String.format(pattern, fileCounter));
+                    final String name = String.format(pattern, fileCounter);
+                    final File testFile = new File(name);
+                    final File testFileGz = new File(gz(name));
 
-                    if (!testFile.exists()) {
+                    if (!testFile.exists() && !testFileGz.exists()) {
                         break;
                     }
 
@@ -86,26 +122,32 @@ public class Debug {
                     }
                 }
 
-                final FileHandler logFileHandler = new FileHandler(String.format(pattern, fileCounter));
-
-                logFileHandler.setFormatter(new SimplerFormatter());
-                globalLogger.addHandler(logFileHandler);
+                logger.addHandler(new CustomFileHandler(String.format(pattern, fileCounter)));
             } catch (IOException e) {
-                globalLogger.warning(e.toString());
+                logger.warning(e.toString());
             }
 
-            if (Arg.Verbose.isEnabled()) {
-                globalLogger.setLevel(Level.ALL);
-            } else {
-                globalLogger.setLevel(Level.CONFIG);
-            }
+            final SimplerFormatter formatter = new SimplerFormatter();
 
-            logger = globalLogger;
+            for (Handler h:logger.getHandlers()) {
+                h.setFormatter(formatter);
+                h.setLevel(logger.getLevel());
+            }
         }
+
         return logger;
     }
 
     public static void shutdownFinally() {
+        for (Handler handler:getLogger().getHandlers()) {
+            if (handler instanceof CustomFileHandler) {
+                final CustomFileHandler fileHandler = (CustomFileHandler) handler;
+                getLogger().removeHandler(fileHandler);
+                fileHandler.close();
+                fileHandler.compress();
+            }
+        }
+
         if (CustomLogManager.instance != null) {
             CustomLogManager.instance.reset0();
         }
@@ -150,7 +192,7 @@ public class Debug {
         if (Arg.Debug.isEnabled()) {
             logDebugInner(Level.CONFIG, x, Thread.currentThread().getStackTrace()[2]);
         } else {
-            getLogger().log(Level.CONFIG, x);
+            getLogger().config(x);
         }
     }
 
@@ -198,14 +240,21 @@ public class Debug {
         @Override
         public String format(LogRecord r) {
             final int baldMessageMaxLevel = Arg.Debug.isEnabled() ? Level.FINE.intValue() : Level.CONFIG.intValue();
+            final String levelName = r.getLevel().getName();
+
+            final String base = String.format("[%s] [%s/%s]",
+                    DTF_HMS.format(Instant.ofEpochMilli(r.getMillis())),
+                    Thread.currentThread().getName(),
+                    levelName.substring(0, Math.min(4, levelName.length())));
 
             if(r.getLevel().intValue() <= baldMessageMaxLevel){
-                return String.format("%7s %s: %s\n", r.getLevel().getName(),
-                        DTF_FULL.format(Instant.ofEpochMilli(r.getMillis())), r.getMessage());
+                return String.format("%s: %s\n", base, r.getMessage());
             } else {
-                return String.format("%7s %s: %s %s: %s\n", r.getLevel().getName(),
-                        DTF_FULL.format(Instant.ofEpochMilli(r.getMillis())),
-                        r.getSourceClassName(), r.getSourceMethodName(), r.getMessage());
+                return String.format("%s (%s.%s): %s\n",
+                        base,
+                        r.getSourceClassName(),
+                        r.getSourceMethodName(),
+                        r.getMessage());
             }
         }
     }

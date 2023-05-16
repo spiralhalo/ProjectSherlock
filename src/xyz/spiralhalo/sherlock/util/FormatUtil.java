@@ -35,6 +35,7 @@ public class FormatUtil {
     public static final DateTimeFormatter DTF_YMD = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
     public static final DateTimeFormatter DTF_YM = DateTimeFormatter.ofPattern("yyyy-MM").withZone(ZoneId.systemDefault());
     public static final DateTimeFormatter DTF_HMA = DateTimeFormatter.ofPattern("hh:mm a").withZone(ZoneId.systemDefault());
+    public static final DateTimeFormatter DTF_HMS = DateTimeFormatter.ofPattern("HH:mm:ss.SSS").withZone(ZoneId.systemDefault());
 
     public static String hms(int seconds) {
         switch (AppConfig.appHMS()){
