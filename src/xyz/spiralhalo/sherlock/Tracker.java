@@ -69,7 +69,7 @@ class Tracker implements TrackerAccessor{
                     threadSleep(); //another LE IMPORTANT
                 }
             };
-            new Thread(toRun, "TrackerThread").start();
+            new Thread(toRun, "tracker").start();
         }
     }
 

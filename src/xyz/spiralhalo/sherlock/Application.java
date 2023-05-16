@@ -307,7 +307,7 @@ public class Application {
 
     public static void setupShutdownHook() {
         assert !shutdownHookSetup;
-        Runtime.getRuntime().addShutdownHook(new Thread(Application::runShutdownHooks, "AppShutdownHook"));
+        Runtime.getRuntime().addShutdownHook(new Thread(Application::runShutdownHooks, "shutdown"));
         shutdownHookSetup = true;
     }
 

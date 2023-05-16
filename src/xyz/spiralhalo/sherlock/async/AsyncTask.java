@@ -33,6 +33,7 @@ import java.util.function.BiConsumer;
 public abstract class AsyncTask<Y> implements Runnable {
     private boolean started = false;
     private BiConsumer<Y,Throwable> callback;
+    private static int threadCounter = 0;
 
     protected AsyncTask(){ }
 
@@ -50,7 +51,7 @@ public abstract class AsyncTask<Y> implements Runnable {
         }
         this.callback = callback;
         this.started = true;
-        new Thread(this, "AsyncTask"+System.currentTimeMillis()).start();
+        new Thread(this, "async-"+(threadCounter++)).start();
     }
 
     /**
