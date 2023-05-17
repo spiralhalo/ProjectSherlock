@@ -19,50 +19,56 @@
 
 package xyz.spiralhalo.sherlock.persist.cache;
 
-import xyz.spiralhalo.sherlock.Debug;
-import xyz.spiralhalo.sherlock.Application;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
-import java.io.*;
+import xyz.spiralhalo.sherlock.Application;
+import xyz.spiralhalo.sherlock.Debug;
 
 class CacheHandler {
-    static CachedObj writeCache(String name, Serializable y){
-        File cacheFile = new File(Application.getCacheDir(), name);
-        try (FileOutputStream fos = new FileOutputStream(cacheFile);
-             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            CachedObj x = new CachedObj(y);
-            oos.writeObject(x);
-            return x;
-        } catch (IOException e) {
-            Debug.log(e);
-        }
-        return null;
-    }
+	static CachedObj writeCache(String name, Serializable y) {
+		File cacheFile = new File(Application.getCacheDir(), name);
+		try (FileOutputStream fos = new FileOutputStream(cacheFile);
+			 ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+			CachedObj x = new CachedObj(y);
+			oos.writeObject(x);
+			return x;
+		} catch (IOException e) {
+			Debug.log(e);
+		}
+		return null;
+	}
 
-    static CachedObj readCache(String name){
-        File cacheFile = new File(Application.getCacheDir(), name);
-        if(cacheFile.exists()) {
-            try (FileInputStream fis = new FileInputStream(cacheFile);
-                 ObjectInputStream ois = new ObjectInputStream(fis)) {
-                return (CachedObj) ois.readObject();
-            } catch (ClassCastException | ClassNotFoundException | IOException e) {
-                Debug.log(e);
-            }
-        }
-        return null;
-    }
+	static CachedObj readCache(String name) {
+		File cacheFile = new File(Application.getCacheDir(), name);
+		if (cacheFile.exists()) {
+			try (FileInputStream fis = new FileInputStream(cacheFile);
+				 ObjectInputStream ois = new ObjectInputStream(fis)) {
+				return (CachedObj) ois.readObject();
+			} catch (ClassCastException | ClassNotFoundException | IOException e) {
+				Debug.log(e);
+			}
+		}
+		return null;
+	}
 
-    static void deleteAllCacheFiles() {
-        File cacheDir = new File(Application.getCacheDir());
-        if(cacheDir.exists()) {
-            File[] cacheFiles = cacheDir.listFiles();
-            if (cacheFiles != null) {
-                for (File file : cacheFiles) {
-                    // this function only deletes files without extensions
-                    if (!file.getName().contains(".") && !file.isDirectory()) {
-                        file.delete();
-                    }
-                }
-            }
-        }
-    }
+	static void deleteAllCacheFiles() {
+		File cacheDir = new File(Application.getCacheDir());
+		if (cacheDir.exists()) {
+			File[] cacheFiles = cacheDir.listFiles();
+			if (cacheFiles != null) {
+				for (File file : cacheFiles) {
+					// this function only deletes files without extensions
+					if (!file.getName().contains(".") && !file.isDirectory()) {
+						file.delete();
+					}
+				}
+			}
+		}
+	}
 }

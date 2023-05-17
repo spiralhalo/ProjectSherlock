@@ -19,42 +19,43 @@
 
 package xyz.spiralhalo.sherlock.async;
 
-import xyz.spiralhalo.sherlock.Debug;
-
-import javax.swing.*;
 import java.awt.*;
 import java.util.function.BiConsumer;
 
+import javax.swing.*;
+
+import xyz.spiralhalo.sherlock.Debug;
+
 public class LoaderDialog extends JDialog {
-//    private static CompletableFuture completableFuture;
-    private static LoaderDialog loaderDialog = new LoaderDialog();
+	//    private static CompletableFuture completableFuture;
+	private static LoaderDialog loaderDialog = new LoaderDialog();
 
 //    private static void onCancel() {
 //        completableFuture.cancel(true);
 //    }
 
-    public static <T> void execute(Component parent, AsyncTask<T> supplier, BiConsumer<T, ? super Throwable> callback){
-        supplier.start((e,t) -> {
-            if(t!=null) Debug.log(t);
+	public static <T> void execute(Component parent, AsyncTask<T> supplier, BiConsumer<T, ? super Throwable> callback) {
+		supplier.start((e, t) -> {
+			if (t != null) Debug.log(t);
 //            completableFuture = null;
-            loaderDialog.dispose();
-            callback.accept(e,t);
-        });
-        loaderDialog.setLocationRelativeTo(parent);
-        loaderDialog.setVisible(true);
-    }
+			loaderDialog.dispose();
+			callback.accept(e, t);
+		});
+		loaderDialog.setLocationRelativeTo(parent);
+		loaderDialog.setVisible(true);
+	}
 
-    private JPanel contentPane;
-    private JButton buttonCancel;
-    private JProgressBar progressBar;
+	private JPanel contentPane;
+	private JButton buttonCancel;
+	private JProgressBar progressBar;
 
-    private LoaderDialog() {
-        setUndecorated(true);
-        setContentPane(contentPane);
-        setModal(true);
+	private LoaderDialog() {
+		setUndecorated(true);
+		setContentPane(contentPane);
+		setModal(true);
 
 //        buttonCancel.addActionListener(e -> onCancel());
 
-        pack();
-    }
+		pack();
+	}
 }

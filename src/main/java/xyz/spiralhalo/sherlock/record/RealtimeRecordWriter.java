@@ -25,23 +25,23 @@ import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
 import xyz.spiralhalo.sherlock.persist.settings.AppConfig.AppInt;
 
 public class RealtimeRecordWriter extends DefaultRecordWriter {
-    private static final int RECORD_CAPACITY = 100;
+	private static final int RECORD_CAPACITY = 100;
 
-    public RealtimeRecordWriter() {
-        super(RECORD_CAPACITY);
-    }
+	public RealtimeRecordWriter() {
+		super(RECORD_CAPACITY);
+	}
 
-    public void log(Project p) {
-        super.log(System.currentTimeMillis(), p);
-    }
+	public void log(Project p) {
+		super.log(System.currentTimeMillis(), p);
+	}
 
-    @Override
-    protected int getGranularityMillis() {
-        return GConst.TRACKER_DELAY_MILLIS;
-    }
+	@Override
+	protected int getGranularityMillis() {
+		return GConst.TRACKER_DELAY_MILLIS;
+	}
 
-    @Override
-    protected int getEnforcedFlushDelayMillis() {
-        return Math.min(super.getEnforcedFlushDelayMillis(), AppConfig.appGInt(AppInt.REFRESH_TIMEOUT) * 1000);
-    }
+	@Override
+	protected int getEnforcedFlushDelayMillis() {
+		return Math.min(super.getEnforcedFlushDelayMillis(), AppConfig.appGInt(AppInt.REFRESH_TIMEOUT) * 1000);
+	}
 }

@@ -24,36 +24,31 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DayAudit implements Serializable {
-    public static final long serialVersionUID = 1L;
+	public static final long serialVersionUID = 1L;
 
-    private HashMap<Long, ArrayList<AuditEntry>> projectAudits;
+	private HashMap<Long, ArrayList<AuditEntry>> projectAudits;
 
-    public DayAudit()
-    {
-        projectAudits = new HashMap<>();
-    }
+	public DayAudit() {
+		projectAudits = new HashMap<>();
+	}
 
-    public void addProjectAudit(long projectId, AuditEntry entry)
-    {
-        if(!projectAudits.containsKey(projectId)) projectAudits.put(projectId, new ArrayList<>());
+	public void addProjectAudit(long projectId, AuditEntry entry) {
+		if (!projectAudits.containsKey(projectId)) projectAudits.put(projectId, new ArrayList<>());
 
-        if(!projectAudits.get(projectId).contains(entry)) projectAudits.get(projectId).add(entry);
-    }
+		if (!projectAudits.get(projectId).contains(entry)) projectAudits.get(projectId).add(entry);
+	}
 
-    public void removeProjectAudit(long projectId, AuditEntry entry)
-    {
-        if(!projectAudits.containsKey(projectId)) return;
+	public void removeProjectAudit(long projectId, AuditEntry entry) {
+		if (!projectAudits.containsKey(projectId)) return;
 
-        if(projectAudits.get(projectId).contains(entry)) projectAudits.get(projectId).remove(entry);
-    }
+		if (projectAudits.get(projectId).contains(entry)) projectAudits.get(projectId).remove(entry);
+	}
 
-    public Long[] getProjects()
-    {
-        return projectAudits.keySet().toArray(new Long[]{});
-    }
+	public Long[] getProjects() {
+		return projectAudits.keySet().toArray(new Long[]{});
+	}
 
-    public AuditEntry[] getProjectAudits(long projectId)
-    {
-        return projectAudits.get(projectId).toArray(new AuditEntry[]{});
-    }
+	public AuditEntry[] getProjectAudits(long projectId) {
+		return projectAudits.get(projectId).toArray(new AuditEntry[]{});
+	}
 }

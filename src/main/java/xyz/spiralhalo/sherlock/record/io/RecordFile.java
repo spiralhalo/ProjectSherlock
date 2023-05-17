@@ -19,58 +19,58 @@
 
 package xyz.spiralhalo.sherlock.record.io;
 
-import xyz.spiralhalo.sherlock.record.RecordEntry;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class RecordFile implements AutoCloseable{
-    protected static final int LENGTH = RecordEntry.BYTES_UNIVERSAL;
-    protected final File file;
-    private final RandomAccessFile raf;
-    private long pointerPos;
+import xyz.spiralhalo.sherlock.record.RecordEntry;
 
-    public RecordFile(File file, String mode) throws FileNotFoundException {
-        this.file = file;
-        this.raf = new RandomAccessFile(file, mode);
-    }
+public class RecordFile implements AutoCloseable {
+	protected static final int LENGTH = RecordEntry.BYTES_UNIVERSAL;
+	protected final File file;
+	private final RandomAccessFile raf;
+	private long pointerPos;
 
-    public boolean eof() throws IOException {
-        return pointerPos == rafLength();
-    }
+	public RecordFile(File file, String mode) throws FileNotFoundException {
+		this.file = file;
+		this.raf = new RandomAccessFile(file, mode);
+	}
 
-    protected void rafSeek(long destination) throws IOException {
-        raf.seek(destination);
-        pointerPos = destination;
-    }
+	public boolean eof() throws IOException {
+		return pointerPos == rafLength();
+	}
 
-    protected void rafWrite(byte[] bytes) throws IOException {
-        raf.write(bytes);
-        pointerPos += bytes.length;
-    }
+	protected void rafSeek(long destination) throws IOException {
+		raf.seek(destination);
+		pointerPos = destination;
+	}
 
-    protected void rafRead(byte[] readTo) throws IOException {
-        raf.readFully(readTo);
-        pointerPos += readTo.length;
-    }
+	protected void rafWrite(byte[] bytes) throws IOException {
+		raf.write(bytes);
+		pointerPos += bytes.length;
+	}
 
-    protected long rafLength() throws IOException {
-        return raf.length();
-    }
+	protected void rafRead(byte[] readTo) throws IOException {
+		raf.readFully(readTo);
+		pointerPos += readTo.length;
+	}
 
-    protected long getPointerPos() {
-        return pointerPos;
-    }
+	protected long rafLength() throws IOException {
+		return raf.length();
+	}
 
-    @Override
-    public String toString() {
-        return file.getName();
-    }
+	protected long getPointerPos() {
+		return pointerPos;
+	}
 
-    @Override
-    public void close() throws IOException {
-        raf.close();
-    }
+	@Override
+	public String toString() {
+		return file.getName();
+	}
+
+	@Override
+	public void close() throws IOException {
+		raf.close();
+	}
 }

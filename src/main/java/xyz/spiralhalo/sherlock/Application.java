@@ -19,11 +19,6 @@
 
 package xyz.spiralhalo.sherlock;
 
-import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
-import xyz.spiralhalo.sherlock.util.img.ImgUtil;
-import xyz.spiralhalo.sherlock.util.WinRegistry;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -37,299 +32,297 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.*;
+
+import xyz.spiralhalo.sherlock.persist.settings.AppConfig;
+import xyz.spiralhalo.sherlock.util.WinRegistry;
+import xyz.spiralhalo.sherlock.util.img.ImgUtil;
+
 public class Application {
-    private static final String ORGDIR = "spiralhalo";
-    private static final String SAVEDIR = "ProjectLogger2";
-    private static String cachedSaveDir;
-    private static String cachedLogDir;
-    private static String cachedJarPath;
-    private static String cachedJavawPath;
-    private static Image smallAppIcon;
-    private static Image medAppIcon;
-    private static java.util.List<Image> appIcons;
+	private static final String ORGDIR = "spiralhalo";
+	private static final String SAVEDIR = "ProjectLogger2";
+	private static String cachedSaveDir;
+	private static String cachedLogDir;
+	private static String cachedJarPath;
+	private static String cachedJavawPath;
+	private static Image smallAppIcon;
+	private static Image medAppIcon;
+	private static java.util.List<Image> appIcons;
 
-    public static Image getSmallAppIcon() {
-        if (smallAppIcon == null) {
-            final int s = 16;
-            smallAppIcon = ImgUtil.createOrDummy("icon.png","App icon small", s, s, 0xffffffff);
-        }
-        return smallAppIcon;
-    }
+	public static Image getSmallAppIcon() {
+		if (smallAppIcon == null) {
+			final int s = 16;
+			smallAppIcon = ImgUtil.createOrDummy("icon.png", "App icon small", s, s, 0xffffffff);
+		}
+		return smallAppIcon;
+	}
 
-    public static Image getMedAppIcon() {
-        if (medAppIcon == null) {
-            final int s = 48;
-            medAppIcon = ImgUtil.createOrDummy("med_icon.png","App icon medium", s, s, 0xffffffff);
-        }
-        return medAppIcon;
-    }
+	public static Image getMedAppIcon() {
+		if (medAppIcon == null) {
+			final int s = 48;
+			medAppIcon = ImgUtil.createOrDummy("med_icon.png", "App icon medium", s, s, 0xffffffff);
+		}
+		return medAppIcon;
+	}
 
-    public static List<Image> getAppIcons() {
-        if (appIcons == null) {
-            appIcons = Arrays.asList(getSmallAppIcon(), getMedAppIcon());
-        }
-        return appIcons;
-    }
+	public static List<Image> getAppIcons() {
+		if (appIcons == null) {
+			appIcons = Arrays.asList(getSmallAppIcon(), getMedAppIcon());
+		}
+		return appIcons;
+	}
 
-    public static String getJavawPath()
-    {
-        if(cachedJavawPath == null){
-            String javaHome = System.getProperty("java.home");
-            File f = new File(javaHome + File.separator + "bin", "javaw.exe");
-            if(f.exists()){
-                cachedJavawPath = f.getPath();
-            }
-        }
-        return cachedJavawPath;
-    }
+	public static String getJavawPath() {
+		if (cachedJavawPath == null) {
+			String javaHome = System.getProperty("java.home");
+			File f = new File(javaHome + File.separator + "bin", "javaw.exe");
+			if (f.exists()) {
+				cachedJavawPath = f.getPath();
+			}
+		}
+		return cachedJavawPath;
+	}
 
-    public static String getJarPath()
-    {
-        if(cachedJarPath == null){
-            try {
-                cachedJarPath = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
-            } catch (URISyntaxException e) {
-                Debug.log(e);
-                return null;
-            }
-        }
-        return cachedJarPath;
-    }
+	public static String getJarPath() {
+		if (cachedJarPath == null) {
+			try {
+				cachedJarPath = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+			} catch (URISyntaxException e) {
+				Debug.log(e);
+				return null;
+			}
+		}
+		return cachedJarPath;
+	}
 
-    public static String getSaveDir()
-    {
+	public static String getSaveDir() {
 //        return "D:\\Temp\\sherlocktest"; //always add a to do comment when using this
-        File test = null;
-        if(cachedSaveDir != null) {
-             test = new File(cachedSaveDir);
-        }
-        if (cachedSaveDir == null || !test.exists())
-        {
-            String workingDirectory;
-            String OS = (System.getProperty("os.name")).toUpperCase();
-            if (OS.contains("WIN")) {
-                workingDirectory = System.getenv("AppData");
-            } else {
-                workingDirectory = System.getProperty("user.home");
-                if (OS.contains("MAC")) {
-                    workingDirectory += "/Library/Application Support";
-                }
-            }
-            File orgDir = new File(workingDirectory + File.separator + ORGDIR);
-            if (!orgDir.exists()) {
-                orgDir.mkdir();
-            }
-            File saveDir = new File(orgDir, SAVEDIR);
-            if (!saveDir.exists()) {
-                saveDir.mkdir();
-            }
-            cachedSaveDir = saveDir.getPath() + File.separator;
-        }
-        return cachedSaveDir;
-    }
+		File test = null;
+		if (cachedSaveDir != null) {
+			test = new File(cachedSaveDir);
+		}
+		if (cachedSaveDir == null || !test.exists()) {
+			String workingDirectory;
+			String OS = (System.getProperty("os.name")).toUpperCase();
+			if (OS.contains("WIN")) {
+				workingDirectory = System.getenv("AppData");
+			} else {
+				workingDirectory = System.getProperty("user.home");
+				if (OS.contains("MAC")) {
+					workingDirectory += "/Library/Application Support";
+				}
+			}
+			File orgDir = new File(workingDirectory + File.separator + ORGDIR);
+			if (!orgDir.exists()) {
+				orgDir.mkdir();
+			}
+			File saveDir = new File(orgDir, SAVEDIR);
+			if (!saveDir.exists()) {
+				saveDir.mkdir();
+			}
+			cachedSaveDir = saveDir.getPath() + File.separator;
+		}
+		return cachedSaveDir;
+	}
 
-    private static String getSubSaveDir(String dirName)
-    {
-        File subSaveDir = new File(getSaveDir(), dirName);
-        if(subSaveDir.isDirectory()){
-            return subSaveDir.getPath();
-        }
-        if(subSaveDir.exists() && !subSaveDir.isDirectory()) {
-            subSaveDir.delete();
-        }
-        if(!subSaveDir.exists()){
-            subSaveDir.mkdir();
-        }
-        return subSaveDir.getPath();
-    }
+	private static String getSubSaveDir(String dirName) {
+		File subSaveDir = new File(getSaveDir(), dirName);
+		if (subSaveDir.isDirectory()) {
+			return subSaveDir.getPath();
+		}
+		if (subSaveDir.exists() && !subSaveDir.isDirectory()) {
+			subSaveDir.delete();
+		}
+		if (!subSaveDir.exists()) {
+			subSaveDir.mkdir();
+		}
+		return subSaveDir.getPath();
+	}
 
-    public static String getCacheDir()
-    {
-        return getSubSaveDir("cache");
-    }
+	public static String getCacheDir() {
+		return getSubSaveDir("cache");
+	}
 
-    public static String getThumbsDir()
-    {
-        return getSubSaveDir("thumbs");
-    }
+	public static String getThumbsDir() {
+		return getSubSaveDir("thumbs");
+	}
 
-    private static final String LOCKFILE = "running.lock";
-    private static FileLock lockReference;
+	private static final String LOCKFILE = "running.lock";
+	private static FileLock lockReference;
 
-    public static boolean isAlreadyRunning() {
-        try {
-            final File lock = new File(getSaveDir(), LOCKFILE);
+	public static boolean isAlreadyRunning() {
+		try {
+			final File lock = new File(getSaveDir(), LOCKFILE);
 
-            if (lock.exists()) {
-                lock.delete();
-            }
+			if (lock.exists()) {
+				lock.delete();
+			}
 
-            final FileChannel lockChannel = new RandomAccessFile(lock, "rw").getChannel();
-            final FileLock fileLock = lockChannel.tryLock();
+			final FileChannel lockChannel = new RandomAccessFile(lock, "rw").getChannel();
+			final FileLock fileLock = lockChannel.tryLock();
 
-            if (fileLock == null) {
-                throw new ApplicationException("Unable to obtain lock on file.");
-            }
+			if (fileLock == null) {
+				throw new ApplicationException("Unable to obtain lock on file.");
+			}
 
-            lockReference = fileLock; //survive gc
+			lockReference = fileLock; // survive gc
 
-            return false;
-        } catch (Exception e) {
-            Debug.log(e);
-        }
+			return false;
+		} catch (Exception e) {
+			Debug.log(e);
+		}
 
-        Debug.logWarning("Another instance of Project Sherlock is already running!");
+		Debug.logWarning("Another instance of Project Sherlock is already running!");
 
-        return true;
-    }
+		return true;
+	}
 
-    public static String getLogDir()
-    {
-        File logDir = new File(getSaveDir(), "logs");
+	public static String getLogDir() {
+		File logDir = new File(getSaveDir(), "logs");
 
-        if(logDir.isDirectory() && cachedLogDir != null){
-            return cachedLogDir;
-        }
+		if (logDir.isDirectory() && cachedLogDir != null) {
+			return cachedLogDir;
+		}
 
-        if(logDir.exists() && !logDir.isDirectory()) {
-            logDir.delete();
-        }
+		if (logDir.exists() && !logDir.isDirectory()) {
+			logDir.delete();
+		}
 
-        if(!logDir.exists()){
-            logDir.mkdir();
-        }
+		if (!logDir.exists()) {
+			logDir.mkdir();
+		}
 
-        return cachedLogDir = logDir.getPath();
-    }
+		return cachedLogDir = logDir.getPath();
+	}
 
-    public static boolean isWindows(){
-        return (System.getProperty("os.name")).toUpperCase().contains("WIN");
-    }
+	public static boolean isWindows() {
+		return (System.getProperty("os.name")).toUpperCase().contains("WIN");
+	}
 
-    public static boolean isJar(){
-        return getJarPath().toUpperCase().endsWith(".JAR");
-    }
+	public static boolean isJar() {
+		return getJarPath().toUpperCase().endsWith(".JAR");
+	}
 
-    public static boolean isExe(){
-        return getJarPath().toUpperCase().endsWith(".EXE");
-    }
+	public static boolean isExe() {
+		return getJarPath().toUpperCase().endsWith(".EXE");
+	}
 
-    public static boolean supportsTrayIcon(){
-        return SystemTray.isSupported();
-    }
+	public static boolean supportsTrayIcon() {
+		return SystemTray.isSupported();
+	}
 
-    public static TrayIcon createTrayIcon(ActionListener toggleAction, ActionListener exitAction) {
-        final PopupMenu popup = new PopupMenu();
-        final Image image = getSmallAppIcon();
-        final TrayIcon trayIcon = new TrayIcon(image);
-        final SystemTray tray = SystemTray.getSystemTray();
+	public static TrayIcon createTrayIcon(ActionListener toggleAction, ActionListener exitAction) {
+		final PopupMenu popup = new PopupMenu();
+		final Image image = getSmallAppIcon();
+		final TrayIcon trayIcon = new TrayIcon(image);
+		final SystemTray tray = SystemTray.getSystemTray();
 
-        // Create a pop-up menu components
-        MenuItem showItem = new MenuItem("Restore");
-        MenuItem exitItem = new MenuItem("Exit");
+		// Create a pop-up menu components
+		MenuItem showItem = new MenuItem("Restore");
+		MenuItem exitItem = new MenuItem("Exit");
 
-        //Add listeners
-        showItem.addActionListener(toggleAction);
-        exitItem.addActionListener(exitAction);
+		// Add listeners
+		showItem.addActionListener(toggleAction);
+		exitItem.addActionListener(exitAction);
 
-        //Add components to pop-up menu
-        popup.add(showItem);
-        popup.addSeparator();
-        popup.add(exitItem);
+		// Add components to pop-up menu
+		popup.add(showItem);
+		popup.addSeparator();
+		popup.add(exitItem);
 
-        trayIcon.setPopupMenu(popup);
-        trayIcon.addActionListener(toggleAction);
-        trayIcon.setToolTip(Main.APP_NAME);
+		trayIcon.setPopupMenu(popup);
+		trayIcon.addActionListener(toggleAction);
+		trayIcon.setToolTip(Main.APP_NAME);
 
-        try {
-            tray.add(trayIcon);
-        } catch (AWTException e) {
-            Debug.log(e);
-            Debug.logWarning("TrayIcon could not be added.");
-        }
+		try {
+			tray.add(trayIcon);
+		} catch (AWTException e) {
+			Debug.log(e);
+			Debug.logWarning("TrayIcon could not be added.");
+		}
 
-        return trayIcon;
-    }
+		return trayIcon;
+	}
 
-    public static void createOrDeleteStartupRegistry() {
-        if (Application.getJavawPath() == null) return;
-        if (!Application.isWindows() || (!Application.isJar() && !Application.isExe())) return;
-        try {
-            String key = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
-            String valueName = Main.REGISTRY_KEY;
-            String value;
-            if(Application.isJar()) {
-                value = String.format("%s -jar \"%s\"%s",
-                        Application.getJavawPath(),
-                        Application.getJarPath(),
-                        AppConfig.appGBool(AppConfig.AppBool.RUN_MINIMIZED) ? " " + Main.Arg.Minimized : "");
-            } else {
-                value = String.format("%s %s",
-                        Application.getJarPath(),
-                        AppConfig.appGBool(AppConfig.AppBool.RUN_MINIMIZED) ? " " + Main.Arg.Minimized : "");
-            }
-            if(AppConfig.appGBool(AppConfig.AppBool.RUN_ON_STARTUP)) {
-                WinRegistry.writeStringValue(WinRegistry.HKEY_CURRENT_USER, key, valueName, value);
-            } else {
-                WinRegistry.deleteValue(WinRegistry.HKEY_CURRENT_USER, key, valueName);
-            }
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            Debug.log(e);
-        }
-    }
+	public static void createOrDeleteStartupRegistry() {
+		if (Application.getJavawPath() == null) return;
+		if (!Application.isWindows() || (!Application.isJar() && !Application.isExe())) return;
+		try {
+			String key = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+			String valueName = Main.REGISTRY_KEY;
+			String value;
+			if (Application.isJar()) {
+				value = String.format("%s -jar \"%s\"%s",
+						Application.getJavawPath(),
+						Application.getJarPath(),
+						AppConfig.appGBool(AppConfig.AppBool.RUN_MINIMIZED) ? " " + Main.Arg.Minimized : "");
+			} else {
+				value = String.format("%s %s",
+						Application.getJarPath(),
+						AppConfig.appGBool(AppConfig.AppBool.RUN_MINIMIZED) ? " " + Main.Arg.Minimized : "");
+			}
+			if (AppConfig.appGBool(AppConfig.AppBool.RUN_ON_STARTUP)) {
+				WinRegistry.writeStringValue(WinRegistry.HKEY_CURRENT_USER, key, valueName, value);
+			} else {
+				WinRegistry.deleteValue(WinRegistry.HKEY_CURRENT_USER, key, valueName);
+			}
+		} catch (IllegalAccessException | InvocationTargetException e) {
+			Debug.log(e);
+		}
+	}
 
-    public static void restartApp(boolean silent){
-        String command;
-        if(Application.isJar()) {
-            command = String.format("%s -jar \"%s\" %s",
-                    Application.getJavawPath(),
-                    Application.getJarPath(),
-                    Main.Arg.Delayed);
-        } else if(Application.isExe()) {
-            command = String.format("%s %s", Application.getJarPath(), Main.Arg.Delayed);
-        } else {
-            if(!silent) {
-                JOptionPane.showMessageDialog(null, "Unable to restart. Manual restart might be required.",
-                        "Failed to restart", JOptionPane.ERROR_MESSAGE);
-            }
-            return;
-        }
-        try {
-            Runtime.getRuntime().exec(command);
-            System.exit(0);
-        } catch (IOException e) {
-            Debug.log(e);
-        }
-    }
+	public static void restartApp(boolean silent) {
+		String command;
+		if (Application.isJar()) {
+			command = String.format("%s -jar \"%s\" %s",
+					Application.getJavawPath(),
+					Application.getJarPath(),
+					Main.Arg.Delayed);
+		} else if (Application.isExe()) {
+			command = String.format("%s %s", Application.getJarPath(), Main.Arg.Delayed);
+		} else {
+			if (!silent) {
+				JOptionPane.showMessageDialog(null, "Unable to restart. Manual restart might be required.",
+						"Failed to restart", JOptionPane.ERROR_MESSAGE);
+			}
+			return;
+		}
+		try {
+			Runtime.getRuntime().exec(command);
+			System.exit(0);
+		} catch (IOException e) {
+			Debug.log(e);
+		}
+	}
 
-    private static final ArrayList<Runnable> shutdownHooks = new ArrayList<>(2);
-    private static boolean shutdownHookSetup = false;
+	private static final ArrayList<Runnable> shutdownHooks = new ArrayList<>(2);
+	private static boolean shutdownHookSetup = false;
 
-    public static void setupShutdownHook() {
-        assert !shutdownHookSetup;
-        Runtime.getRuntime().addShutdownHook(new Thread(Application::runShutdownHooks, "shutdown"));
-        shutdownHookSetup = true;
-    }
+	public static void setupShutdownHook() {
+		assert !shutdownHookSetup;
+		Runtime.getRuntime().addShutdownHook(new Thread(Application::runShutdownHooks, "shutdown"));
+		shutdownHookSetup = true;
+	}
 
-    public static void addShutdownHook(Runnable r, String description) {
-        shutdownHooks.add(r);
+	public static void addShutdownHook(Runnable r, String description) {
+		shutdownHooks.add(r);
 
-        if (!shutdownHookSetup) {
-            setupShutdownHook();
-        }
-    }
+		if (!shutdownHookSetup) {
+			setupShutdownHook();
+		}
+	}
 
-    private static void runShutdownHooks() {
-        for (Runnable r:shutdownHooks) {
-            r.run();
-        }
+	private static void runShutdownHooks() {
+		for (Runnable r : shutdownHooks) {
+			r.run();
+		}
 
-        Debug.shutdownFinally();
-    }
+		Debug.shutdownFinally();
+	}
 
-    private static class ApplicationException extends Exception {
-        public ApplicationException(String message) {
-            super(message);
-        }
-    }
+	private static class ApplicationException extends Exception {
+		public ApplicationException(String message) {
+			super(message);
+		}
+	}
 }

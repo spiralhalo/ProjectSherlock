@@ -24,32 +24,32 @@ import java.time.LocalDateTime;
 
 public class SummaryEntry implements Serializable {
 
-    public static final long serialVersionUID = 1L;
-    private final long hash;
-    private final int seconds;
-    private final boolean productive;
-    private final LocalDateTime earliest;
+	public static final long serialVersionUID = 1L;
+	private final long hash;
+	private final int seconds;
+	private final boolean productive;
+	private final LocalDateTime earliest;
 
-    public SummaryEntry(long hash, int seconds, boolean productive, LocalDateTime earliest) {
-        this.hash = hash;
-        this.seconds = seconds;
-        this.productive = productive;
-        this.earliest = earliest;
-    }
+	public SummaryEntry(long hash, int seconds, boolean productive, LocalDateTime earliest) {
+		this.hash = hash;
+		this.seconds = seconds;
+		this.productive = productive;
+		this.earliest = earliest;
+	}
 
-    public long getHash() {
-        return hash;
-    }
+	public long getHash() {
+		return hash;
+	}
 
-    public int getSeconds() {
-        return seconds;
-    }
+	public int getSeconds() {
+		return seconds;
+	}
 
-    public boolean isProductive() {
-        return productive;
-    }
+	public boolean isProductive() {
+		return productive;
+	}
 
-    public LocalDateTime getEarliest() {
-        return earliest;
-    }
+	public LocalDateTime getEarliest() {
+		return earliest;
+	}
 }

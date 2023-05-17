@@ -19,84 +19,85 @@
 
 package xyz.spiralhalo.sherlock.bookmark;
 
+import static xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkBool.AUTO_INCLUDE_EXISTING;
+import static xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkInt.AUTO_SUBFOLDER;
+
+import java.io.File;
+import java.util.ArrayList;
+
 import xyz.spiralhalo.sherlock.Debug;
 import xyz.spiralhalo.sherlock.bookmark.persist.Bookmark;
 import xyz.spiralhalo.sherlock.bookmark.persist.BookmarkType;
 import xyz.spiralhalo.sherlock.persist.project.Project;
 
-import java.io.File;
-import java.util.ArrayList;
-
-import static xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkBool.AUTO_INCLUDE_EXISTING;
-import static xyz.spiralhalo.sherlock.bookmark.BookmarkConfig.BookmarkInt.AUTO_SUBFOLDER;
-
 public class AutoBookmarker {// implements TrackerListener, Runnable {
 
-    public static boolean scanOnRefresh(ArrayList<Project> toScan, BookmarkMgr bookmarkMgr) {
-        Debug.logVerbose(()->"Scanning on refresh");
-        for (Project p:toScan) {
-            if(configExclude(p, bookmarkMgr)) continue;
-            int depth = Math.max(BookmarkConfig.bkmkGInt(AUTO_SUBFOLDER), 0);
-            ArrayList<File> toPopulate = new ArrayList<>();
-            for(String tag:p.getTags()) {
-                for (String pf : BookmarkConfig.bkmkGPFList()) {
-                    File dir = new File(pf);
-                    if (!dir.isDirectory()) continue;
-                    recursiveSearchPopulate(tag.toLowerCase(), dir, depth, toPopulate);
-                }
-            }
-            final int x = toPopulate.size();
-            Debug.logVerbose(()->String.format("Found %d file(s) for %s", x, p));
-            if(toPopulate.size()>0){
-                for (File f:toPopulate) {
-                    bookmarkMgr.getOrAdd(p).addOrReplaceUnsaved(new Bookmark(BookmarkType.FILE, f.getPath()));
-                }
-                bookmarkMgr.save();
-            }
-        }
-        return true;
-    }
+	public static boolean scanOnRefresh(ArrayList<Project> toScan, BookmarkMgr bookmarkMgr) {
+		Debug.logVerbose(() -> "Scanning on refresh");
+		for (Project p : toScan) {
+			if (configExclude(p, bookmarkMgr)) continue;
+			int depth = Math.max(BookmarkConfig.bkmkGInt(AUTO_SUBFOLDER), 0);
+			ArrayList<File> toPopulate = new ArrayList<>();
+			for (String tag : p.getTags()) {
+				for (String pf : BookmarkConfig.bkmkGPFList()) {
+					File dir = new File(pf);
+					if (!dir.isDirectory()) continue;
+					recursiveSearchPopulate(tag.toLowerCase(), dir, depth, toPopulate);
+				}
+			}
+			final int x = toPopulate.size();
+			Debug.logVerbose(() -> String.format("Found %d file(s) for %s", x, p));
+			if (toPopulate.size() > 0) {
+				for (File f : toPopulate) {
+					bookmarkMgr.getOrAdd(p).addOrReplaceUnsaved(new Bookmark(BookmarkType.FILE, f.getPath()));
+				}
+				bookmarkMgr.save();
+			}
+		}
+		return true;
+	}
 
-    private static boolean configExclude(Project project, BookmarkMgr bookmarkMgr){
-        if (!BookmarkConfig.bkmkGBool(AUTO_INCLUDE_EXISTING) && bookmarkMgr.contains(project)) {
-            return bookmarkMgr.getOrAdd(project).size() > 0;
-        }
-        return false;
-    }
+	private static boolean configExclude(Project project, BookmarkMgr bookmarkMgr) {
+		if (!BookmarkConfig.bkmkGBool(AUTO_INCLUDE_EXISTING) && bookmarkMgr.contains(project)) {
+			return bookmarkMgr.getOrAdd(project).size() > 0;
+		}
+		return false;
+	}
 
-    private static boolean configInclExt(String extLowerCase){
-        return BookmarkConfig.bkmkGPFExclExt().indexOf(extLowerCase) == -1;
-    }
+	private static boolean configInclExt(String extLowerCase) {
+		return BookmarkConfig.bkmkGPFExclExt().indexOf(extLowerCase) == -1;
+	}
 
-    //breadth-first search
-    //search and sort aren't my forte !!
-    private static void recursiveSearchPopulate(String keywordLowerCase, File dir, int depth, ArrayList<File> toPopulate){
-        Debug.logVerbose(()->String.format("Scanning %s for %s... depth: %d", dir.getName(), keywordLowerCase, depth));
-        File[] x = dir.listFiles();
-        if(x == null)return;
-        final ArrayList<File> dirChildren;
-        if(depth > 0) dirChildren = new ArrayList<>(); else dirChildren = null;
-        for (File child:x) {
-            if(child.isDirectory() && dirChildren != null){
-                dirChildren.add(child);
-            } else {
-                String name = child.getName().toLowerCase();
-                int lastIndexOf = name.lastIndexOf('.');
-                String ext = lastIndexOf==-1?"":name.substring(lastIndexOf+1);
-                if(configInclExt(ext) && name.contains(keywordLowerCase)){
-                    toPopulate.add(child);
-                }
-            }
-        }
-        if(depth > 0){
-            for (File dirChild:dirChildren) {
-                recursiveSearchPopulate(keywordLowerCase, dirChild, depth-1, toPopulate);
-            }
-        }
-    }
+	// breadth-first search
+	// search and sort aren't my forte !!
+	private static void recursiveSearchPopulate(String keywordLowerCase, File dir, int depth, ArrayList<File> toPopulate) {
+		Debug.logVerbose(() -> String.format("Scanning %s for %s... depth: %d", dir.getName(), keywordLowerCase, depth));
+		File[] x = dir.listFiles();
+		if (x == null) return;
+		final ArrayList<File> dirChildren;
+		if (depth > 0) dirChildren = new ArrayList<>();
+		else dirChildren = null;
+		for (File child : x) {
+			if (child.isDirectory() && dirChildren != null) {
+				dirChildren.add(child);
+			} else {
+				String name = child.getName().toLowerCase();
+				int lastIndexOf = name.lastIndexOf('.');
+				String ext = lastIndexOf == -1 ? "" : name.substring(lastIndexOf + 1);
+				if (configInclExt(ext) && name.contains(keywordLowerCase)) {
+					toPopulate.add(child);
+				}
+			}
+		}
+		if (depth > 0) {
+			for (File dirChild : dirChildren) {
+				recursiveSearchPopulate(keywordLowerCase, dirChild, depth - 1, toPopulate);
+			}
+		}
+	}
 
-    //breadth-first search
-    //search and sort aren't my forte !!
+	// breadth-first search
+	// search and sort aren't my forte !!
 //    private static File recursiveSearchReturnOne(String keywordLowerCase, File dir, int depth){
 //        Debug.logVerbose(()->String.format("Scanning %s for %s... depth: %d", dir.getName(), keywordLowerCase, depth));
 //        File[] x = dir.listFiles();
