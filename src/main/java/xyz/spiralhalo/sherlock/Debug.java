@@ -198,7 +198,7 @@ public class Debug {
 
 		@Override
 		public String format(LogRecord r) {
-			final int baldMessageMaxLevel = Arg.Debug.isEnabled() ? Level.FINE.intValue() : Level.CONFIG.intValue();
+			final int detailedMinLevel = Arg.Debug.isEnabled() ? Level.CONFIG.intValue() : Level.WARNING.intValue();
 			final String levelName = r.getLevel().getName();
 
 			final String base = String.format("[%s] [%s/%s]",
@@ -206,7 +206,7 @@ public class Debug {
 					Thread.currentThread().getName(),
 					levelName.substring(0, Math.min(4, levelName.length())));
 
-			if (r.getLevel().intValue() <= baldMessageMaxLevel) {
+			if (r.getLevel().intValue() < detailedMinLevel) {
 				return String.format("%s: %s\n", base, r.getMessage());
 			} else {
 				final String className = r.getSourceClassName();
