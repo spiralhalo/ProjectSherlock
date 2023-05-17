@@ -172,7 +172,7 @@ public class Application {
 			Debug.log(e);
 		}
 
-		Debug.logWarning("Another instance of Project Sherlock is already running!");
+		Debug.LOG.warning("Another instance of Project Sherlock is already running!");
 
 		return true;
 	}
@@ -238,7 +238,7 @@ public class Application {
 			tray.add(trayIcon);
 		} catch (AWTException e) {
 			Debug.log(e);
-			Debug.logWarning("TrayIcon could not be added.");
+			Debug.LOG.warning("TrayIcon could not be added.");
 		}
 
 		return trayIcon;

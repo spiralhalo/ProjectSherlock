@@ -96,7 +96,7 @@ public abstract class AbstractRecordWriter {
 		}
 		this.buffer = new RecordOutputBuffer(byteCapacity);
 		this.nRecordCapacity = nRecordCapacity;
-		Debug.logImportant(String.format("[Buffer] New buffer created with class %s", this.getClass().getSimpleName()));
+		Debug.LOG.info(String.format("[Buffer] New buffer created with class %s", this.getClass().getSimpleName()));
 	}
 
 	/**
@@ -176,7 +176,7 @@ public abstract class AbstractRecordWriter {
 		RecordFileAppend currentFile = getRecordFile(timestamp, hash, utilityTag, productive);
 		boolean changed = !lastFile.equals(currentFile);
 		if (changed) {
-			Debug.logImportant(String.format("[Buffer] Record file is changed. Previous RF: %s, Current RF: %s",
+			Debug.LOG.info(String.format("[Buffer] Record file is changed. Previous RF: %s, Current RF: %s",
 					lastFile.toString(), currentFile.toString()));
 		}
 		return changed;
@@ -255,7 +255,7 @@ public abstract class AbstractRecordWriter {
 		final Instant recordTime = working.timestamp;
 		final String debug_name = working.debug_name;
 
-		Debug.logVerbose(() -> String.format("[Buffer] Writing record entry for: %s\n%8s %s, %s", debug_name,
+		Debug.LOG.fine(() -> String.format("[Buffer] Writing record entry for: %s\n%8s %s, %s", debug_name,
 				"", FormatUtil.DTF_FULL.format(recordTime), recordElapsed));
 
 		buffer.put(RecordEntry.serialize(recordTime, recordElapsed, working.hash, working.utilityTag, working.productive));
@@ -273,11 +273,11 @@ public abstract class AbstractRecordWriter {
 	 */
 	public synchronized final void flushBuffer() {
 		if (lastFile == null) {
-			Debug.logImportant("[Buffer] No file to write to");
+			Debug.LOG.info("[Buffer] No file to write to");
 			return;
 		}
 		lastFlushTimestamp = System.currentTimeMillis();
-		Debug.log("[Buffer] Flushing record");
+		Debug.LOG.info("[Buffer] Flushing record");
 		try {
 			buffer.flush(lastFile);
 		} catch (IOException e) {
@@ -291,7 +291,7 @@ public abstract class AbstractRecordWriter {
 	 * @throws IOException if an I/O exception occurs
 	 */
 	public final void close() throws IOException {
-		Debug.logImportant("[Buffer] Closing buffer");
+		Debug.LOG.info("[Buffer] Closing buffer");
 		onClosing();
 		if (working.timestamp != null) {
 			flush(true);

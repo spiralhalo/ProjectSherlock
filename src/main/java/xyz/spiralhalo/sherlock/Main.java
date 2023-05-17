@@ -79,15 +79,15 @@ public class Main {
 		}
 
 		if (Application.isJar()) {
-			Debug.log("Running from a .jar file");
+			Debug.LOG.config("Running from a .jar file");
 		} else if (Application.isExe()) {
-			Debug.log("Running from a .exe wrapper");
+			Debug.LOG.config("Running from a .exe wrapper");
 		} else {
-			Debug.log("Running from compiled class files");
+			Debug.LOG.config("Running from compiled class files");
 		}
 
 		if (Arg.Sandbox.isEnabled()) {
-			Debug.log("Sandbox mode is enabled.");
+			Debug.LOG.config("Sandbox mode is enabled.");
 		}
 
 		SwingUtilities.invokeLater(() -> {

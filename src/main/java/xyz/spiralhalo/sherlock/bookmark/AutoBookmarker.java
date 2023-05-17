@@ -33,7 +33,7 @@ import xyz.spiralhalo.sherlock.persist.project.Project;
 public class AutoBookmarker {// implements TrackerListener, Runnable {
 
 	public static boolean scanOnRefresh(ArrayList<Project> toScan, BookmarkMgr bookmarkMgr) {
-		Debug.logVerbose(() -> "Scanning on refresh");
+		Debug.LOG.fine(() -> "Scanning on refresh");
 		for (Project p : toScan) {
 			if (configExclude(p, bookmarkMgr)) continue;
 			int depth = Math.max(BookmarkConfig.bkmkGInt(AUTO_SUBFOLDER), 0);
@@ -46,7 +46,7 @@ public class AutoBookmarker {// implements TrackerListener, Runnable {
 				}
 			}
 			final int x = toPopulate.size();
-			Debug.logVerbose(() -> String.format("Found %d file(s) for %s", x, p));
+			Debug.LOG.fine(() -> String.format("Found %d file(s) for %s", x, p));
 			if (toPopulate.size() > 0) {
 				for (File f : toPopulate) {
 					bookmarkMgr.getOrAdd(p).addOrReplaceUnsaved(new Bookmark(BookmarkType.FILE, f.getPath()));
@@ -71,7 +71,7 @@ public class AutoBookmarker {// implements TrackerListener, Runnable {
 	// breadth-first search
 	// search and sort aren't my forte !!
 	private static void recursiveSearchPopulate(String keywordLowerCase, File dir, int depth, ArrayList<File> toPopulate) {
-		Debug.logVerbose(() -> String.format("Scanning %s for %s... depth: %d", dir.getName(), keywordLowerCase, depth));
+		Debug.LOG.fine(() -> String.format("Scanning %s for %s... depth: %d", dir.getName(), keywordLowerCase, depth));
 		File[] x = dir.listFiles();
 		if (x == null) return;
 		final ArrayList<File> dirChildren;
@@ -99,7 +99,7 @@ public class AutoBookmarker {// implements TrackerListener, Runnable {
 	// breadth-first search
 	// search and sort aren't my forte !!
 //    private static File recursiveSearchReturnOne(String keywordLowerCase, File dir, int depth){
-//        Debug.logVerbose(()->String.format("Scanning %s for %s... depth: %d", dir.getName(), keywordLowerCase, depth));
+//        Debug.LOG.fine(()->String.format("Scanning %s for %s... depth: %d", dir.getName(), keywordLowerCase, depth));
 //        File[] x = dir.listFiles();
 //        if(x == null)return null;
 //        final ArrayList<File> dirChildren;
@@ -235,12 +235,12 @@ public class AutoBookmarker {// implements TrackerListener, Runnable {
 //    private void onSuccess(String remark, Project p, Bookmark b){
 //        bookmarkMgr.getOrAdd(p).addOrReplaceUnsaved(b);
 //        bookmarkMgr.save();
-//        Debug.logImportant("Scanning project folder SUCCESS. remark: `"+remark+"` time: "+(System.currentTimeMillis()-scanStartMillis)+"ms found: " + b.getValue());
+//        Debug.LOG.info("Scanning project folder SUCCESS. remark: `"+remark+"` time: "+(System.currentTimeMillis()-scanStartMillis)+"ms found: " + b.getValue());
 //        failureDelayMillis = FAILURE_DELAY_MIN_MILLIS;
 //    }
 //
 //    private void onFailure(){
-//        Debug.logImportant("Scanning project folder FAILED. time: "+(System.currentTimeMillis()-scanStartMillis)+"ms");
+//        Debug.LOG.info("Scanning project folder FAILED. time: "+(System.currentTimeMillis()-scanStartMillis)+"ms");
 //        if(pQueue != null){
 //            lastFailedHash = pQueue.getHash();
 //            lastFailureMillis = System.currentTimeMillis();

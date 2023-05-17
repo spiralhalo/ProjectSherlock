@@ -49,7 +49,7 @@ class Tracker implements TrackerAccessor {
 		listeners = new LinkedList<>();
 		this.projectList = projectList;
 		if (Arg.Sandbox.isEnabled()) {
-			Debug.logImportant("[Sandbox mode] Tracking has been set to mode hiatus.");
+			Debug.LOG.info("[Sandbox mode] Tracking has been set to mode hiatus.");
 		} else {
 			Application.addShutdownHook(this::exit, "TrackerShutdownHook");
 		}
@@ -57,12 +57,12 @@ class Tracker implements TrackerAccessor {
 
 	void start() {
 		if (Arg.Sandbox.isEnabled()) {
-			Debug.logImportant("[Sandbox mode] Starting tracker has been cancelled.");
+			Debug.LOG.info("[Sandbox mode] Starting tracker has been cancelled.");
 		} else {
 			recordWriter = new RealtimeRecordWriter();
 			Runnable toRun = () -> {
 				threadSleep();
-				Debug.logImportant("Tracker is started");
+				Debug.LOG.info("[Tracker] Tracker is started");
 				running = true;
 				while (running) {
 					log(); // LE IMPORTANT
@@ -83,8 +83,8 @@ class Tracker implements TrackerAccessor {
 
 	private void exit() {
 		running = false;
-		Debug.logImportant("Terminating tracker");
-		Debug.logImportant("Logging final entry");
+		Debug.LOG.info("[Tracker] Terminating tracker");
+		Debug.LOG.info("[Tracker] Logging final entry");
 		log();
 		try {
 			recordWriter.close();
@@ -98,15 +98,15 @@ class Tracker implements TrackerAccessor {
 			final ZonedDateTime now = ZonedDateTime.now();
 			tempa = EnumerateWindows.getActiveWindowInfo();
 			Project tracked = projectList.getActiveProjectOf(tempa.title, tempa.exeName, now);
-			Debug.logVerbose(() -> String.format("%18s %s", "[ForegroundWindow]", tempa.title));
+			Debug.LOG.fine(() -> String.format("%18s %s", "[ForegroundWindow]", tempa.title));
 			if (tracked == null) {
 				WinDef.HWND activeHwnd = tempa.hwndPointer;
 				tempa = EnumerateWindows.getRootWindowInfo(activeHwnd);
 				tracked = projectList.getActiveProjectOf(tempa.title, tempa.exeName, now);
-				Debug.logVerbose(() -> String.format("%18s %s", "[GW_OWNER]", tempa.title));
+				Debug.LOG.fine(() -> String.format("%18s %s", "[GW_OWNER]", tempa.title));
 			}
 			final String pn = String.valueOf(tracked);
-			Debug.logVerbose(() -> String.format("%18s Detected project: %s", "", pn));
+			Debug.LOG.fine(() -> String.format("%18s Detected project: %s", "", pn));
 			recordWriter.log(tracked);
 			for (TrackerListener listener : listeners) {
 				listener.onTrackerLog(tracked, tempa);
@@ -116,7 +116,7 @@ class Tracker implements TrackerAccessor {
 
 	void flushRecordBuffer() {
 		if (Arg.Sandbox.isEnabled()) {
-			Debug.logImportant("[Sandbox mode] Flushing buffer has been cancelled.");
+			Debug.LOG.info("[Sandbox mode] Flushing buffer has been cancelled.");
 		} else {
 			recordWriter.flushBuffer();
 		}

@@ -163,13 +163,13 @@ public class BreakReminder implements TrackerListener {
 		public void logNormal(long duration, long configured) {
 			this.duration = duration;
 			this.configured = configured;
-			Debug.log(get());
+			Debug.LOG.info(get());
 		}
 
 		public void log(long duration, long configured) {
 			this.duration = duration;
 			this.configured = configured;
-			Debug.logVerbose(this);
+			Debug.LOG.fine(this);
 		}
 
 		@Override

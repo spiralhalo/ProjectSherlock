@@ -19,17 +19,20 @@
 
 package xyz.spiralhalo.sherlock;
 
+import static xyz.spiralhalo.sherlock.util.FormatUtil.DTF_DATE_SELECTOR;
 import static xyz.spiralhalo.sherlock.util.FormatUtil.DTF_HMS;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.function.Supplier;
-import java.util.logging.ConsoleHandler;
+import java.util.logging.ErrorManager;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
@@ -43,7 +46,7 @@ import xyz.spiralhalo.sherlock.Main.Arg;
 
 public class Debug {
 
-	private static Logger logger;
+	public static Logger LOG;
 
 	public static class CustomLogManager extends LogManager {
 		private static CustomLogManager instance;
@@ -66,9 +69,11 @@ public class Debug {
 	private static class CustomFileHandler extends FileHandler {
 		private String filename;
 
-		public CustomFileHandler(String pattern) throws IOException, SecurityException {
+		public CustomFileHandler(String pattern, Level level) throws IOException, SecurityException {
 			super(pattern);
 			filename = pattern;
+			setLevel(level);
+			setFormatter(SIMPLE_FORMATTER);
 		}
 
 		private void compress() {
@@ -84,9 +89,90 @@ public class Debug {
 
 				// if successful, delete original file
 				new File(filename).deleteOnExit();
-				Debug.log("Log compression successful!");
+				Debug.LOG.info("Log compression successful!");
 			} catch (IOException e) {
 				Debug.log(e);
+			}
+		}
+	}
+
+	private static class CustomConsoleHandler extends Handler {
+		private Writer outWriter;
+		private Writer errWriter;
+		private boolean doneHeader = false;
+
+		public CustomConsoleHandler(Level level) {
+			outWriter = new OutputStreamWriter(System.out);
+			errWriter = new OutputStreamWriter(System.err);
+			setLevel(level);
+			setFormatter(SIMPLE_FORMATTER);
+		}
+
+		private void handleHeader() throws IOException {
+			if (!doneHeader) {
+				outWriter.write(getFormatter().getHead(this));
+				outWriter.flush();
+				doneHeader = true;
+			}
+		}
+
+		@Override
+		public void publish(LogRecord record) {
+			if (!isLoggable(record)) {
+				return;
+			}
+
+			String msg;
+
+			try {
+				msg = getFormatter().format(record);
+			} catch (Exception ex) {
+				reportError(null, ex, ErrorManager.FORMAT_FAILURE);
+				return;
+			}
+
+			try {
+				handleHeader();
+
+				if (record.getLevel().intValue() >= Level.WARNING.intValue()) {
+					errWriter.write(msg);
+					errWriter.flush();
+				} else {
+					outWriter.write(msg);
+					outWriter.flush();
+				}
+			} catch (Exception ex) {
+				reportError(null, ex, ErrorManager.WRITE_FAILURE);
+			}
+		}
+
+		@Override
+		public void flush() {
+			try {
+				errWriter.flush();
+			} catch (Exception ex) {
+				reportError(null, ex, ErrorManager.FLUSH_FAILURE);
+			}
+
+			try {
+				outWriter.flush();
+			} catch (Exception ex) {
+				reportError(null, ex, ErrorManager.FLUSH_FAILURE);
+			}
+		}
+
+		@Override
+		public void close() throws SecurityException {
+			try {
+				handleHeader();
+				errWriter.flush();
+				outWriter.write(getFormatter().getTail(this));
+				outWriter.flush();
+				// IMPORTANT: we don't close System.out, System.err
+				errWriter = null;
+				outWriter = null;
+			} catch (Exception ex) {
+				reportError(null, ex, ErrorManager.CLOSE_FAILURE);
 			}
 		}
 	}
@@ -99,56 +185,82 @@ public class Debug {
 		return file + ".gz";
 	}
 
-	private static Logger getLogger() {
-		if (logger == null) {
-			logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-			logger.setLevel(Arg.Verbose.isEnabled() ? Level.ALL : Level.CONFIG);
-			logger.setUseParentHandlers(false);
-			logger.addHandler(new ConsoleHandler());
-
-			try {
-				final DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyyMMdd").withZone(ZoneId.systemDefault());
-				final String date = f.format(Instant.now());
-				final String pattern = Application.getLogDir() + "/sherlock_" + date + "_%d.log";
-				final int HARD_LIMIT = Arg.Debug.isEnabled() ? 86_400 : 999;
-
-				int fileCounter = 0;
-
-				for (; fileCounter < HARD_LIMIT; fileCounter++) {
-					final String name = String.format(pattern, fileCounter);
-					final File testFile = new File(name);
-					final File testFileGz = new File(gz(name));
-
-					if (!testFile.exists() && !testFileGz.exists()) {
-						break;
-					}
-
-					if (fileCounter + 1 == HARD_LIMIT) {
-						throw new IOException("Too many log files in one day! Limit: " + HARD_LIMIT);
-					}
-				}
-
-				logger.addHandler(new CustomFileHandler(String.format(pattern, fileCounter)));
-			} catch (IOException e) {
-				logger.warning(e.toString());
-			}
-
-			final SimplerFormatter formatter = new SimplerFormatter();
-
-			for (Handler h : logger.getHandlers()) {
-				h.setFormatter(formatter);
-				h.setLevel(logger.getLevel());
-			}
+	private static final Formatter SIMPLE_FORMATTER = new Formatter() {
+		@Override
+		public String getHead(Handler h) {
+			return String.format("%s\nToday is %s\n\n", Main.APP_TITLE, DTF_DATE_SELECTOR.format(LocalDate.now()));
 		}
 
-		return logger;
+		@Override
+		public String getTail(Handler h) {
+			return "\n" + "App exited successfully!\n";
+		}
+
+		@Override
+		public String format(LogRecord r) {
+			final int baldMessageMaxLevel = Arg.Debug.isEnabled() ? Level.FINE.intValue() : Level.CONFIG.intValue();
+			final String levelName = r.getLevel().getName();
+
+			final String base = String.format("[%s] [%s/%s]",
+					DTF_HMS.format(Instant.ofEpochMilli(r.getMillis())),
+					Thread.currentThread().getName(),
+					levelName.substring(0, Math.min(4, levelName.length())));
+
+			if (r.getLevel().intValue() <= baldMessageMaxLevel) {
+				return String.format("%s: %s\n", base, r.getMessage());
+			} else {
+				final String className = r.getSourceClassName();
+				return String.format("%s (%s.%s): %s\n",
+						base,
+						className.substring(className.lastIndexOf('.') + 1),
+						r.getSourceMethodName(),
+						r.getMessage());
+			}
+		}
+	};
+
+	static {
+		LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
+		LOG.setLevel(Arg.Verbose.isEnabled() ? Level.ALL : Level.CONFIG);
+		LOG.setUseParentHandlers(false);
+
+		LOG.addHandler(new CustomConsoleHandler(LOG.getLevel()));
+
+		try {
+			final DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyyMMdd").withZone(ZoneId.systemDefault());
+			final String date = f.format(Instant.now());
+			final String pattern = Application.getLogDir() + "/sherlock_" + date + "_%d.log";
+			final int HARD_LIMIT = Arg.Debug.isEnabled() ? 86_400 : 999;
+
+			int fileCounter = 0;
+
+			for (; fileCounter < HARD_LIMIT; fileCounter++) {
+				final String name = String.format(pattern, fileCounter);
+				final File testFile = new File(name);
+				final File testFileGz = new File(gz(name));
+
+				if (!testFile.exists() && !testFileGz.exists()) {
+					break;
+				}
+
+				if (fileCounter + 1 == HARD_LIMIT) {
+					throw new IOException("Too many log files in one day! Limit: " + HARD_LIMIT);
+				}
+			}
+
+			final String logPath = String.format(pattern, fileCounter);
+			LOG.addHandler(new CustomFileHandler(logPath, LOG.getLevel()));
+		} catch (IOException e) {
+			LOG.warning(e.toString());
+		}
 	}
 
 	public static void shutdownFinally() {
-		for (Handler handler : getLogger().getHandlers()) {
+		for (Handler handler : LOG.getHandlers()) {
 			if (handler instanceof CustomFileHandler) {
 				final CustomFileHandler fileHandler = (CustomFileHandler) handler;
-				getLogger().removeHandler(fileHandler);
+				LOG.removeHandler(fileHandler);
 				fileHandler.close();
 				fileHandler.compress();
 			}
@@ -166,9 +278,13 @@ public class Debug {
 	 * @param e thrown Throwable.
 	 */
 	public static void log(Throwable e) {
-		if (e instanceof Error) log((Error) e);
-		else if (e instanceof Exception) log((Exception) e);
-		else getLogger().warning(e::toString);
+		if (e instanceof Error) {
+			log((Error) e);
+		} else if (e instanceof Exception) {
+			log((Exception) e);
+		} else {
+			LOG.warning(e::toString);
+		}
 	}
 
 	/**
@@ -193,82 +309,20 @@ public class Debug {
 		logDebugInner(Level.WARNING, message, Thread.currentThread().getStackTrace()[2]);
 	}
 
-	/**
-	 * Fast logging for known events. Logs class and method name when `-debug` command line argument is enabled.
-	 *
-	 * @param x log message.
-	 */
-	public static void log(String x) {
-		if (Arg.Debug.isEnabled()) {
-			logDebugInner(Level.CONFIG, x, Thread.currentThread().getStackTrace()[2]);
-		} else {
-			getLogger().config(x);
-		}
-	}
-
-	/**
-	 * Slower logging for important events. Class and method names are always logged.
-	 *
-	 * @param x log message.
-	 */
-	public static void logImportant(String x) {
-		logDebugInner(Level.INFO, x, Thread.currentThread().getStackTrace()[2]);
-	}
-
-	/**
-	 * Slower logging for known warnings. Class and method names are always logged.
-	 *
-	 * @param x log message.
-	 */
-	public static void logWarning(String x) {
-		logDebugInner(Level.WARNING, x, Thread.currentThread().getStackTrace()[2]);
-	}
-
-	/**
-	 * Special case logging for events that happen rapidly and may spam the log. Only prints when `-verbose` command
-	 * line argument is enabled.
-	 *
-	 * @param x log message supplier.
-	 */
-	public static void logVerbose(Supplier<String> x) {
-		getLogger().fine(x);
-	}
-
 	private static String errorVerbose(Throwable e) {
 		StringBuilder builder = new StringBuilder();
 		StackTraceElement[] x = e.getStackTrace();
+
 		for (StackTraceElement y : x) {
 			builder.append("\nat ").append(y.toString());
 			if (y.getClassName().startsWith("xyz.spiralhalo.sherlock.Main")) break;
 		}
-		return String.format("%s %s", e.toString(), builder.toString());
+
+		return String.format("%s %s", e, builder);
 	}
 
 	private static void logDebugInner(Level level, String x, StackTraceElement f) {
 		String n = f.getClassName();
-		getLogger().logp(level, n.substring(n.lastIndexOf('.') + 1), f.getMethodName(), x);
-	}
-
-	private static class SimplerFormatter extends Formatter {
-		@Override
-		public String format(LogRecord r) {
-			final int baldMessageMaxLevel = Arg.Debug.isEnabled() ? Level.FINE.intValue() : Level.CONFIG.intValue();
-			final String levelName = r.getLevel().getName();
-
-			final String base = String.format("[%s] [%s/%s]",
-					DTF_HMS.format(Instant.ofEpochMilli(r.getMillis())),
-					Thread.currentThread().getName(),
-					levelName.substring(0, Math.min(4, levelName.length())));
-
-			if (r.getLevel().intValue() <= baldMessageMaxLevel) {
-				return String.format("%s: %s\n", base, r.getMessage());
-			} else {
-				return String.format("%s (%s.%s): %s\n",
-						base,
-						r.getSourceClassName(),
-						r.getSourceMethodName(),
-						r.getMessage());
-			}
-		}
+		LOG.logp(level, n.substring(n.lastIndexOf('.') + 1), f.getMethodName(), x);
 	}
 }
