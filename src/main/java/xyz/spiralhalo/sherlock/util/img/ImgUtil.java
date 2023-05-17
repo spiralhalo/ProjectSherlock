@@ -123,7 +123,7 @@ public class ImgUtil extends BufferedImage {
     }
 
     private static BufferedImage load(String path) throws IOException {
-        final URL imageURL = Res.class.getResource(path);
+        final URL imageURL = ImgUtil.class.getResource("/" + path);
 
         if (imageURL == null) {
             throw new FileNotFoundException("Resource not found: " + path);

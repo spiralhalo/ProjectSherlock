@@ -140,14 +140,14 @@
                       <component id="620ee" class="javax.swing.JButton" binding="btnAddMilestone">
                         <constraints/>
                         <properties>
-                          <icon value="xyz/spiralhalo/sherlock/res/new.png"/>
+                          <icon value="new.png"/>
                           <text value="Add milestone"/>
                         </properties>
                       </component>
                       <component id="dc670" class="javax.swing.JButton" binding="btnAddFinances">
                         <constraints/>
                         <properties>
-                          <icon value="xyz/spiralhalo/sherlock/res/new.png"/>
+                          <icon value="new.png"/>
                           <text value="Add financial info"/>
                         </properties>
                       </component>
@@ -209,13 +209,13 @@
                       <component id="38be5" class="javax.swing.JButton" binding="btnEditMilestone">
                         <constraints/>
                         <properties>
-                          <icon value="xyz/spiralhalo/sherlock/res/sm_edit.png"/>
+                          <icon value="sm_edit.png"/>
                         </properties>
                       </component>
                       <component id="87579" class="javax.swing.JButton" binding="btnDeleteMilestone">
                         <constraints/>
                         <properties>
-                          <icon value="xyz/spiralhalo/sherlock/res/sm_remove.png"/>
+                          <icon value="sm_remove.png"/>
                         </properties>
                       </component>
                     </children>
@@ -270,13 +270,13 @@
                       <component id="18bc9" class="javax.swing.JButton" binding="btnEditFinances">
                         <constraints/>
                         <properties>
-                          <icon value="xyz/spiralhalo/sherlock/res/sm_edit.png"/>
+                          <icon value="sm_edit.png"/>
                         </properties>
                       </component>
                       <component id="85455" class="javax.swing.JButton" binding="btnDeleteFinances">
                         <constraints/>
                         <properties>
-                          <icon value="xyz/spiralhalo/sherlock/res/sm_remove.png"/>
+                          <icon value="sm_remove.png"/>
                         </properties>
                       </component>
                     </children>
@@ -381,20 +381,20 @@
                       <component id="965ec" class="javax.swing.JButton" binding="btnAddNote">
                         <constraints/>
                         <properties>
-                          <icon value="xyz/spiralhalo/sherlock/res/new.png"/>
+                          <icon value="new.png"/>
                           <text value="Add note"/>
                         </properties>
                       </component>
                       <component id="37da7" class="javax.swing.JButton" binding="btnEditNote">
                         <constraints/>
                         <properties>
-                          <icon value="xyz/spiralhalo/sherlock/res/sm_edit.png"/>
+                          <icon value="sm_edit.png"/>
                         </properties>
                       </component>
                       <component id="20b7e" class="javax.swing.JButton" binding="btnDeleteNote">
                         <constraints/>
                         <properties>
-                          <icon value="xyz/spiralhalo/sherlock/res/sm_remove.png"/>
+                          <icon value="sm_remove.png"/>
                         </properties>
                       </component>
                     </children>

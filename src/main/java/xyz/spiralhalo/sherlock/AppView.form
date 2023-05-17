@@ -25,7 +25,7 @@
             <constraints/>
             <properties>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/new.png"/>
+              <icon value="new.png"/>
               <text value="New"/>
               <toolTipText value="New project"/>
               <verticalTextPosition value="3"/>
@@ -35,7 +35,7 @@
             <constraints/>
             <properties>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/new_tag.png"/>
+              <icon value="new_tag.png"/>
               <text value="New act."/>
               <toolTipText value="New tag"/>
               <verticalTextPosition value="3"/>
@@ -45,7 +45,7 @@
             <constraints/>
             <properties>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/edit.png"/>
+              <icon value="edit.png"/>
               <text value="Edit"/>
               <toolTipText value="Edit project"/>
               <verticalTextPosition value="3"/>
@@ -55,7 +55,7 @@
             <constraints/>
             <properties>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/delete.png"/>
+              <icon value="delete.png"/>
               <text value="Delete"/>
               <toolTipText value="Delete project"/>
               <verticalTextPosition value="3"/>
@@ -69,7 +69,7 @@
             <constraints/>
             <properties>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/view.png"/>
+              <icon value="view.png"/>
               <text value="View"/>
               <toolTipText value="View project"/>
               <verticalTextPosition value="3"/>
@@ -79,7 +79,7 @@
             <constraints/>
             <properties>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/marks.png"/>
+              <icon value="marks.png"/>
               <text value="Marks"/>
               <toolTipText value="Bookmarks"/>
               <verticalTextPosition value="3"/>
@@ -89,7 +89,7 @@
             <constraints/>
             <properties>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/finish.png"/>
+              <icon value="finish.png"/>
               <text value="Finish"/>
               <toolTipText value="Mark as finished"/>
               <verticalTextPosition value="3"/>
@@ -99,7 +99,7 @@
             <constraints/>
             <properties>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/resume.png"/>
+              <icon value="resume.png"/>
               <text value="Resume"/>
               <toolTipText value="Mark as active"/>
               <verticalTextPosition value="3"/>
@@ -109,7 +109,7 @@
             <constraints/>
             <properties>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/up.png"/>
+              <icon value="up.png"/>
               <text value="Up"/>
               <toolTipText value="Move up"/>
               <verticalTextPosition value="3"/>
@@ -119,7 +119,7 @@
             <constraints/>
             <properties>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/down.png"/>
+              <icon value="down.png"/>
               <text value="Down"/>
               <toolTipText value="Move down"/>
               <verticalTextPosition value="3"/>
@@ -133,7 +133,7 @@
             <constraints/>
             <properties>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/inbox.png"/>
+              <icon value="inbox.png"/>
               <text value="Inbox"/>
               <toolTipText value="Inbox"/>
               <verticalTextPosition value="3"/>
@@ -145,7 +145,7 @@
             <properties>
               <hideActionText value="true"/>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/focus.png"/>
+              <icon value="focus.png"/>
               <text value="Focus"/>
               <toolTipText value="Settings"/>
               <verticalTextPosition value="3"/>
@@ -155,7 +155,7 @@
             <constraints/>
             <properties>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/export.png"/>
+              <icon value="export.png"/>
               <text value="Export"/>
               <toolTipText value="Settings"/>
               <verticalTextPosition value="3"/>
@@ -165,7 +165,7 @@
             <constraints/>
             <properties>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/settings.png"/>
+              <icon value="settings.png"/>
               <text value="Settings"/>
               <toolTipText value="Settings"/>
               <verticalTextPosition value="3"/>
@@ -178,7 +178,7 @@
             <constraints/>
             <properties>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/refresh.png"/>
+              <icon value="refresh.png"/>
               <text value="Refresh"/>
               <toolTipText value="Refresh"/>
               <verticalTextPosition value="3"/>
@@ -188,7 +188,7 @@
             <constraints/>
             <properties>
               <horizontalTextPosition value="0"/>
-              <icon value="xyz/spiralhalo/sherlock/res/refresh.png"/>
+              <icon value="refresh.png"/>
               <text value="Deep Refresh"/>
               <toolTipText value="Refresh"/>
               <verticalTextPosition value="3"/>
@@ -353,14 +353,14 @@
                           <component id="feea3" class="javax.swing.JButton" binding="btnFirstD">
                             <constraints/>
                             <properties>
-                              <icon value="xyz/spiralhalo/sherlock/res/sm_first.png"/>
+                              <icon value="sm_first.png"/>
                               <text value=""/>
                             </properties>
                           </component>
                           <component id="8e31d" class="javax.swing.JButton" binding="btnPrevD">
                             <constraints/>
                             <properties>
-                              <icon value="xyz/spiralhalo/sherlock/res/sm_left.png"/>
+                              <icon value="sm_left.png"/>
                               <text value=""/>
                             </properties>
                           </component>
@@ -371,14 +371,14 @@
                           <component id="1e7b6" class="javax.swing.JButton" binding="btnNextD">
                             <constraints/>
                             <properties>
-                              <icon value="xyz/spiralhalo/sherlock/res/sm_right.png"/>
+                              <icon value="sm_right.png"/>
                               <text value=""/>
                             </properties>
                           </component>
                           <component id="e990" class="javax.swing.JButton" binding="btnLastD">
                             <constraints/>
                             <properties>
-                              <icon value="xyz/spiralhalo/sherlock/res/sm_last.png"/>
+                              <icon value="sm_last.png"/>
                               <text value=""/>
                             </properties>
                           </component>
@@ -519,14 +519,14 @@
                           <component id="ffae4" class="javax.swing.JButton" binding="btnFirstM">
                             <constraints/>
                             <properties>
-                              <icon value="xyz/spiralhalo/sherlock/res/sm_first.png"/>
+                              <icon value="sm_first.png"/>
                               <text value=""/>
                             </properties>
                           </component>
                           <component id="9229d" class="javax.swing.JButton" binding="btnPrevM">
                             <constraints/>
                             <properties>
-                              <icon value="xyz/spiralhalo/sherlock/res/sm_left.png"/>
+                              <icon value="sm_left.png"/>
                               <text value=""/>
                             </properties>
                           </component>
@@ -537,14 +537,14 @@
                           <component id="fa6d2" class="javax.swing.JButton" binding="btnNextM">
                             <constraints/>
                             <properties>
-                              <icon value="xyz/spiralhalo/sherlock/res/sm_right.png"/>
+                              <icon value="sm_right.png"/>
                               <text value=""/>
                             </properties>
                           </component>
                           <component id="2ee3b" class="javax.swing.JButton" binding="btnLastM">
                             <constraints/>
                             <properties>
-                              <icon value="xyz/spiralhalo/sherlock/res/sm_last.png"/>
+                              <icon value="sm_last.png"/>
                               <text value=""/>
                             </properties>
                           </component>
@@ -590,14 +590,14 @@
                           <component id="6d9c9" class="javax.swing.JButton" binding="btnFirstY">
                             <constraints/>
                             <properties>
-                              <icon value="xyz/spiralhalo/sherlock/res/sm_first.png"/>
+                              <icon value="sm_first.png"/>
                               <text value=""/>
                             </properties>
                           </component>
                           <component id="cf2a2" class="javax.swing.JButton" binding="btnPrevY">
                             <constraints/>
                             <properties>
-                              <icon value="xyz/spiralhalo/sherlock/res/sm_left.png"/>
+                              <icon value="sm_left.png"/>
                               <text value=""/>
                             </properties>
                           </component>
@@ -608,14 +608,14 @@
                           <component id="d5438" class="javax.swing.JButton" binding="btnNextY">
                             <constraints/>
                             <properties>
-                              <icon value="xyz/spiralhalo/sherlock/res/sm_right.png"/>
+                              <icon value="sm_right.png"/>
                               <text value=""/>
                             </properties>
                           </component>
                           <component id="b335d" class="javax.swing.JButton" binding="btnLastY">
                             <constraints/>
                             <properties>
-                              <icon value="xyz/spiralhalo/sherlock/res/sm_last.png"/>
+                              <icon value="sm_last.png"/>
                               <text value=""/>
                             </properties>
                           </component>

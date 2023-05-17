@@ -53,7 +53,7 @@ public class Help extends JDialog {
         getRootPane().setDefaultButton(buttonOK);
 
         try {
-            text.setPage(Res.class.getResource(textUrl));
+            text.setPage(getClass().getResource("/" + textUrl));
             ((HTMLEditorKit)text.getEditorKit()).getStyleSheet()
                             .addRule(String.format("body {color:#%s; font-size:%dpt;}",
                                     Integer.toHexString(Main.currentTheme.foreground), getFont().getSize()));

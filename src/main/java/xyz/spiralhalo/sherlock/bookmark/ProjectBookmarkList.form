@@ -24,37 +24,37 @@
           <component id="323b5" class="javax.swing.JButton" binding="btnLaunch">
             <constraints/>
             <properties>
-              <icon value="xyz/spiralhalo/sherlock/res/sm_launch.png"/>
+              <icon value="sm_launch.png"/>
             </properties>
           </component>
           <component id="9e59d" class="javax.swing.JButton" binding="btnAdd">
             <constraints/>
             <properties>
-              <icon value="xyz/spiralhalo/sherlock/res/sm_add.png"/>
+              <icon value="sm_add.png"/>
             </properties>
           </component>
           <component id="104d9" class="javax.swing.JButton" binding="btnEdit">
             <constraints/>
             <properties>
-              <icon value="xyz/spiralhalo/sherlock/res/sm_edit.png"/>
+              <icon value="sm_edit.png"/>
             </properties>
           </component>
           <component id="ec235" class="javax.swing.JButton" binding="btnRemove">
             <constraints/>
             <properties>
-              <icon value="xyz/spiralhalo/sherlock/res/sm_remove.png"/>
+              <icon value="sm_remove.png"/>
             </properties>
           </component>
           <component id="fbd14" class="javax.swing.JButton" binding="btnMoveUp">
             <constraints/>
             <properties>
-              <icon value="xyz/spiralhalo/sherlock/res/sm_up.png"/>
+              <icon value="sm_up.png"/>
             </properties>
           </component>
           <component id="27f03" class="javax.swing.JButton" binding="btnMoveDown">
             <constraints/>
             <properties>
-              <icon value="xyz/spiralhalo/sherlock/res/sm_down.png"/>
+              <icon value="sm_down.png"/>
             </properties>
           </component>
           <component id="796fa" class="javax.swing.JCheckBox" binding="checkDelNoConfirm">
@@ -84,7 +84,7 @@
         </constraints>
         <properties>
           <enabled value="false"/>
-          <icon value="xyz/spiralhalo/sherlock/res/help_small.png"/>
+          <icon value="help_small.png"/>
           <text value="Configure how to use bookmarks in the settings."/>
         </properties>
       </component>

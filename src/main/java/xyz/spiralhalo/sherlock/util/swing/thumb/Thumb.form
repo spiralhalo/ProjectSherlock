@@ -15,7 +15,7 @@
         <properties>
           <background color="-16777216"/>
           <horizontalAlignment value="0"/>
-          <icon value="xyz/spiralhalo/sherlock/res/thumb_0.png"/>
+          <icon value="thumb_0.png"/>
           <opaque value="true"/>
         </properties>
       </component>
